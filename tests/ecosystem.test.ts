@@ -93,3 +93,28 @@ test("metadata routes opt into static generation for the exported site", async (
     assert.match(route, /export const dynamic = "force-static";/);
   }
 });
+
+test("page components expose approved observatory and resource landmarks", async () => {
+  const [observatory, installGuide, directory] = await Promise.all([
+    readFile(
+      new URL(
+        "../app/components/InterfaceObservatory.tsx",
+        import.meta.url,
+      ),
+      "utf8",
+    ),
+    readFile(
+      new URL("../app/components/InstallGuide.tsx", import.meta.url),
+      "utf8",
+    ),
+    readFile(
+      new URL("../app/components/LibraryDirectory.tsx", import.meta.url),
+      "utf8",
+    ),
+  ]);
+
+  assert.match(observatory, /Interface Observatory/);
+  assert.doesNotMatch(observatory, /signal-bars/);
+  assert.match(installGuide, /Install all three/);
+  assert.match(directory, /Library resources/);
+});
