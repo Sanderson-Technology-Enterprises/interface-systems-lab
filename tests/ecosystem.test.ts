@@ -118,3 +118,15 @@ test("page components expose approved observatory and resource landmarks", async
   assert.match(installGuide, /Install all three/);
   assert.match(directory, /Library resources/);
 });
+
+test("local CSS owns the observatory without retaining the audio meter", async () => {
+  const css = await readFile(
+    new URL("../app/globals.css", import.meta.url),
+    "utf8",
+  );
+
+  assert.match(css, /\.observatory-stage/);
+  assert.match(css, /@keyframes orbit/);
+  assert.doesNotMatch(css, /\.signal-bars/);
+  assert.match(css, /prefers-reduced-motion/);
+});
