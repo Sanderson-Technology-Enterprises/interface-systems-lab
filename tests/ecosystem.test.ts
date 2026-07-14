@@ -8,6 +8,7 @@ import {
   ECOSYSTEM_PACKAGES,
   NPM_INSTALL,
 } from "../app/data/ecosystem";
+import { SITE, withBasePath } from "../app/lib/site";
 
 const expectedNames = [
   "layout-style-css",
@@ -65,5 +66,30 @@ test("documented package versions match installed package manifests", async () =
     ) as { version: string };
 
     assert.equal(manifest.version, pkg.version);
+  }
+});
+
+test("site URLs target the GitHub Pages project site", () => {
+  assert.equal(SITE.url, "https://foscat.github.io/interface-systems-lab/");
+  assert.equal(
+    SITE.repository,
+    "https://github.com/Foscat/interface-systems-lab",
+  );
+  assert.equal(
+    withBasePath("/site.webmanifest"),
+    "/interface-systems-lab/site.webmanifest",
+  );
+  assert.equal(withBasePath("/"), "/interface-systems-lab/");
+});
+
+test("metadata routes opt into static generation for the exported site", async () => {
+  const routes = await Promise.all(
+    ["robots.ts", "sitemap.ts", "manifest.ts"].map((fileName) =>
+      readFile(new URL(`../app/${fileName}`, import.meta.url), "utf8"),
+    ),
+  );
+
+  for (const route of routes) {
+    assert.match(route, /export const dynamic = "force-static";/);
   }
 });
