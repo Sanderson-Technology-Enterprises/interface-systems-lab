@@ -1,4 +1,15 @@
+import type { Metadata } from "next";
+
 import { withBasePath } from "./lib/site";
+
+export const metadata: Metadata = {
+  title: "Page not found",
+  description: "The requested Interface Systems Lab page does not exist.",
+  robots: { index: false, follow: false },
+  alternates: { canonical: null },
+  openGraph: null,
+  twitter: null,
+};
 
 export default function NotFound() {
   return (
