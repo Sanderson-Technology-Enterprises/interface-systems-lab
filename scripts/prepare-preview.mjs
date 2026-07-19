@@ -15,4 +15,6 @@ await cp(
 );
 await mkdir(path.join(root, ".tmp"), { recursive: true });
 
-console.log("Prepared the GitHub Pages preview at .preview/interface-systems-lab/.");
+console.log(
+  "Prepared the GitHub Pages preview at .preview/interface-systems-lab/.",
+);

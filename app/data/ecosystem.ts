@@ -1,10 +1,7 @@
 export type ResourceLink = "repository" | "wiki" | "npm" | "demo";
 
 export type EcosystemPackage = {
-  name:
-    | "layout-style-css"
-    | "ui-style-kit-css"
-    | "interactive-surface-css";
+  name: "layout-style-css" | "ui-style-kit-css" | "interactive-surface-css";
   displayName: string;
   version: string;
   layer: string;

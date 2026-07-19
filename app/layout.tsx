@@ -1,6 +1,11 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 
+import "ui-style-kit-css/with-bridge.css";
+import "interactive-surface-css/interactive-surface.css";
+import "layout-style-css/bridge.css";
+import "layout-style-css";
+
 import { ECOSYSTEM_PACKAGES } from "./data/ecosystem";
 import { SITE, withBasePath } from "./lib/site";
 import "./globals.css";
@@ -23,9 +28,9 @@ export const metadata: Metadata = {
   },
   description: SITE.description,
   applicationName: SITE.name,
-  authors: [{ name: "Foscat", url: "https://github.com/Foscat" }],
-  creator: "Foscat",
-  publisher: "Foscat",
+  authors: [{ name: SITE.owner.name }],
+  creator: SITE.owner.name,
+  publisher: SITE.owner.name,
   category: "technology",
   classification: "Developer tools",
   referrer: "origin-when-cross-origin",
@@ -128,11 +133,18 @@ const structuredData = {
   "@context": "https://schema.org",
   "@graph": [
     {
+      "@type": "Organization",
+      "@id": `${SITE.url}#organization`,
+      name: SITE.owner.name,
+      logo: SITE.brandLogo,
+    },
+    {
       "@type": "WebSite",
       "@id": `${SITE.url}#website`,
       name: SITE.name,
       url: SITE.url,
       description: SITE.description,
+      publisher: { "@id": `${SITE.url}#organization` },
       inLanguage: "en-US",
     },
     {
@@ -142,6 +154,7 @@ const structuredData = {
       url: SITE.url,
       description: SITE.description,
       isPartOf: { "@id": `${SITE.url}#website` },
+      publisher: { "@id": `${SITE.url}#organization` },
       inLanguage: "en-US",
     },
     {
@@ -154,6 +167,8 @@ const structuredData = {
       operatingSystem: "Any",
       isAccessibleForFree: true,
       codeRepository: SITE.repository,
+      publisher: { "@id": `${SITE.url}#organization` },
+      logo: SITE.brandLogo,
     },
     {
       "@type": "ItemList",

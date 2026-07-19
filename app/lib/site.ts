@@ -1,14 +1,22 @@
 const productionBasePath = "/interface-systems-lab";
+const productionUrl = "https://foscat.github.io/interface-systems-lab/";
 
 export const SITE = {
   name: "Interface Systems Lab",
   title: "Interface Systems Lab | Accessible CSS Interface Systems",
   description:
     "Explore and combine layout-style-css, ui-style-kit-css, and interactive-surface-css in a live accessible interface workbench.",
-  url: "https://foscat.github.io/interface-systems-lab/",
+  url: productionUrl,
   repository: "https://github.com/Foscat/interface-systems-lab",
   socialImage:
     "https://foscat.github.io/interface-systems-lab/interface-systems-lab-social-card.png",
+  brandLogoPath: "logo-master.png",
+  brandLogo: `${productionUrl}logo-master.png`,
+  brandLogoAlt: "Interface Systems Lab public logo",
+  owner: {
+    name: "Sanderson Technology Enterprises",
+  },
+  productLine: "A Sanderson Technology Enterprises product",
   locale: "en_US",
 } as const;
 

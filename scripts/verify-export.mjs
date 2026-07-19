@@ -43,18 +43,12 @@ function requireText(haystack, needle, label, issues) {
 /** Validates the files that GitHub Pages will receive, rather than source intent. */
 export async function collectExportIssues() {
   const issues = [];
-  const index = (
-    await readExportFile("index.html", issues)
-  ).toString("utf8");
-  const notFound = (
-    await readExportFile("404.html", issues)
-  ).toString("utf8");
-  const robots = (
-    await readExportFile("robots.txt", issues)
-  ).toString("utf8");
-  const sitemap = (
-    await readExportFile("sitemap.xml", issues)
-  ).toString("utf8");
+  const index = (await readExportFile("index.html", issues)).toString("utf8");
+  const notFound = (await readExportFile("404.html", issues)).toString("utf8");
+  const robots = (await readExportFile("robots.txt", issues)).toString("utf8");
+  const sitemap = (await readExportFile("sitemap.xml", issues)).toString(
+    "utf8",
+  );
   const manifest = (
     await readExportFile("manifest.webmanifest", issues)
   ).toString("utf8");
@@ -67,13 +61,43 @@ export async function collectExportIssues() {
   );
 
   requireText(index, '<html lang="en">', "document language", issues);
-  requireText(index, `<link rel="canonical" href="${siteUrl}"`, "canonical URL", issues);
-  requireText(index, `property="og:url" content="${siteUrl}"`, "Open Graph URL", issues);
-  requireText(index, `property="og:image" content="${siteUrl}interface-systems-lab-social-card.png"`, "Open Graph image", issues);
-  requireText(index, 'name="twitter:card" content="summary_large_image"', "Twitter card", issues);
+  requireText(
+    index,
+    `<link rel="canonical" href="${siteUrl}"`,
+    "canonical URL",
+    issues,
+  );
+  requireText(
+    index,
+    `property="og:url" content="${siteUrl}"`,
+    "Open Graph URL",
+    issues,
+  );
+  requireText(
+    index,
+    `property="og:image" content="${siteUrl}interface-systems-lab-social-card.png"`,
+    "Open Graph image",
+    issues,
+  );
+  requireText(
+    index,
+    'name="twitter:card" content="summary_large_image"',
+    "Twitter card",
+    issues,
+  );
   requireText(index, 'type="application/ld+json"', "structured data", issues);
-  requireText(index, `${basePath}/manifest.webmanifest`, "manifest path", issues);
-  requireText(index, `${basePath}/_next/`, "Pages-prefixed application assets", issues);
+  requireText(
+    index,
+    `${basePath}/manifest.webmanifest`,
+    "manifest path",
+    issues,
+  );
+  requireText(
+    index,
+    `${basePath}/_next/`,
+    "Pages-prefixed application assets",
+    issues,
+  );
   requireText(index, "Design every layer.", "primary page content", issues);
   requireText(
     notFound,
@@ -89,7 +113,8 @@ export async function collectExportIssues() {
   }
   if (
     notFoundRobotDirectives.some(
-      (value) => /(?:^|,\s*)index(?:,|$)/.test(value) && !value.includes("noindex"),
+      (value) =>
+        /(?:^|,\s*)index(?:,|$)/.test(value) && !value.includes("noindex"),
     )
   ) {
     issues.push("Custom 404 contains a conflicting index directive");
@@ -107,7 +132,8 @@ export async function collectExportIssues() {
     requireText(index, `href="${url}"`, "library resource link", issues);
   }
 
-  const unsafeRootAsset = /(?:href|src)="\/(?!interface-systems-lab(?:\/|"|#))[^"#]*"/g;
+  const unsafeRootAsset =
+    /(?:href|src)="\/(?!interface-systems-lab(?:\/|"|#))[^"#]*"/g;
   const rootAssetMatches = index.match(unsafeRootAsset) ?? [];
   if (rootAssetMatches.length > 0) {
     issues.push(`Found unprefixed root assets: ${rootAssetMatches.join(", ")}`);
@@ -115,7 +141,12 @@ export async function collectExportIssues() {
 
   requireText(robots, "User-Agent: *", "robots rule", issues);
   requireText(robots, "Allow: /", "robots allow directive", issues);
-  requireText(robots, `Sitemap: ${siteUrl}sitemap.xml`, "robots sitemap", issues);
+  requireText(
+    robots,
+    `Sitemap: ${siteUrl}sitemap.xml`,
+    "robots sitemap",
+    issues,
+  );
   requireText(sitemap, `<loc>${siteUrl}</loc>`, "sitemap location", issues);
 
   if (manifest) {
@@ -162,6 +193,8 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
     for (const issue of issues) console.error(`- ${issue}`);
     process.exitCode = 1;
   } else {
-    console.log("GitHub Pages export verified: SEO, base paths, and resources are production-ready.");
+    console.log(
+      "GitHub Pages export verified: SEO, base paths, and resources are production-ready.",
+    );
   }
 }
