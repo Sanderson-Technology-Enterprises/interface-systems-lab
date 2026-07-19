@@ -17,9 +17,13 @@ const resourceOrder: readonly ResourceLink[] = [
 
 export function LibraryDirectory() {
   return (
-    <section className="library-section ly-section" id="libraries" aria-labelledby="libraries-title">
+    <section
+      className="section-band ly-section"
+      id="libraries"
+      aria-labelledby="libraries-title"
+    >
       <div className="ly-wrapper ly-wrapper--xl">
-        <div className="section-heading">
+        <div className="section-heading ly-split ly-gap-6">
           <div>
             <p className="section-label">Library resources</p>
             <h2 id="libraries-title">One job per package</h2>
@@ -30,19 +34,25 @@ export function LibraryDirectory() {
           </p>
         </div>
 
-        <ol className="library-list">
+        <ol className="library-list ly-stack ly-gap-0">
           {ECOSYSTEM_PACKAGES.map((pkg, index) => (
-            <li key={pkg.name}>
+            <li
+              className="ly-grid ly-md-cols-4 ly-gap-4 ly-py-5"
+              key={pkg.name}
+            >
               <span className="library-index">
                 {String(index + 1).padStart(2, "0")}
               </span>
-              <div className="library-identity">
-                <small>{pkg.layer}</small>
+              <div className="ly-stack ly-gap-2">
+                <small className="eyebrow">{pkg.layer}</small>
                 <h3>{pkg.name}</h3>
-                <p>{pkg.summary}</p>
+                <p className="muted-copy">{pkg.summary}</p>
               </div>
               <code>v{pkg.version}</code>
-              <nav aria-label={`${pkg.displayName} resources`}>
+              <nav
+                className="ly-cluster ly-gap-2"
+                aria-label={`${pkg.displayName} resources`}
+              >
                 {resourceOrder.map((resource) => (
                   <a
                     key={resource}
@@ -52,7 +62,10 @@ export function LibraryDirectory() {
                   >
                     {resourceLabels[resource]}
                     <ExternalLinkIcon />
-                    <span className="sr-only"> (opens in a new tab)</span>
+                    <span className="ly-visually-hidden">
+                      {" "}
+                      (opens in a new tab)
+                    </span>
                   </a>
                 ))}
               </nav>

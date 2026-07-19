@@ -32,14 +32,11 @@ jobs:
       - name: Install locked dependencies
         run: npm ci --legacy-peer-deps
 
-      - name: Run source and production-export checks
-        run: npm run quality
-
       - name: Install browser for rendered QA
         run: npx playwright install --with-deps chromium
 
-      - name: Run desktop and mobile browser QA
-        run: npm run test:browser
+      - name: Run source, export, and rendered checks
+        run: npm run quality
 
       - name: Upload verified Pages artifact
         if: github.event_name != 'pull_request'

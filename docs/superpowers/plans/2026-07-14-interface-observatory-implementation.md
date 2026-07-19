@@ -49,12 +49,14 @@
 ### Task 1: Establish the typed ecosystem contract
 
 **Files:**
+
 - Create: `app/data/ecosystem.ts`
 - Create: `tests/ecosystem.test.ts`
 - Modify: `package.json`
 - Modify: `package-lock.json`
 
 **Interfaces:**
+
 - Produces: `ECOSYSTEM_PACKAGES`, `NPM_INSTALL`, `BUNDLER_IMPORTS`, `CDN_LINKS`, `EcosystemPackage`, and `ResourceLink`.
 - Consumes: installed package manifests from `node_modules` during contract tests.
 
@@ -102,8 +104,14 @@ test("registry exposes every package and resource in ecosystem order", () => {
     expectedNames,
   );
   for (const pkg of ECOSYSTEM_PACKAGES) {
-    assert.deepEqual(Object.keys(pkg.links), ["repository", "wiki", "npm", "demo"]);
-    for (const url of Object.values(pkg.links)) assert.match(url, /^https:\/\//);
+    assert.deepEqual(Object.keys(pkg.links), [
+      "repository",
+      "wiki",
+      "npm",
+      "demo",
+    ]);
+    for (const url of Object.values(pkg.links))
+      assert.match(url, /^https:\/\//);
   }
 });
 
@@ -118,17 +126,19 @@ test("installation examples pin the approved versions and cascade order", () => 
     '@import "layout-style-css/bridge.css";',
     '@import "layout-style-css";',
   ]);
-  assert.deepEqual(CDN_LINKS.map(({ packageName }) => packageName), [
-    "ui-style-kit-css",
-    "interactive-surface-css",
-    "layout-style-css",
-  ]);
+  assert.deepEqual(
+    CDN_LINKS.map(({ packageName }) => packageName),
+    ["ui-style-kit-css", "interactive-surface-css", "layout-style-css"],
+  );
 });
 
 test("documented package entrypoints exist in installed package manifests", async () => {
   for (const pkg of ECOSYSTEM_PACKAGES) {
     const manifest = JSON.parse(
-      await readFile(new URL(`../node_modules/${pkg.name}/package.json`, import.meta.url), "utf8"),
+      await readFile(
+        new URL(`../node_modules/${pkg.name}/package.json`, import.meta.url),
+        "utf8",
+      ),
     ) as { version: string };
     assert.equal(manifest.version, pkg.version);
   }
@@ -168,7 +178,8 @@ export const ECOSYSTEM_PACKAGES: readonly EcosystemPackage[] = [
     displayName: "Layout Style CSS",
     version: "1.1.2",
     layer: "Structure",
-    summary: "Responsive shells, wrappers, grids, panes, and switchable layout personalities.",
+    summary:
+      "Responsive shells, wrappers, grids, panes, and switchable layout personalities.",
     attribute: 'data-layout="bento"',
     links: {
       repository: "https://github.com/Foscat/Layout-Style-CSS",
@@ -182,7 +193,8 @@ export const ECOSYSTEM_PACKAGES: readonly EcosystemPackage[] = [
     displayName: "UI Style Kit CSS",
     version: "2.0.3",
     layer: "Identity",
-    summary: "Visual systems, palettes, native-element coverage, and display modes.",
+    summary:
+      "Visual systems, palettes, native-element coverage, and display modes.",
     attribute: 'data-ui="minimal-saas"',
     links: {
       repository: "https://github.com/Foscat/ui-style-kit-css",
@@ -196,7 +208,8 @@ export const ECOSYSTEM_PACKAGES: readonly EcosystemPackage[] = [
     displayName: "Interactive Surface CSS",
     version: "1.3.0",
     layer: "Behavior",
-    summary: "Consistent hover, focus-visible, active, pressed, and disabled states.",
+    summary:
+      "Consistent hover, focus-visible, active, pressed, and disabled states.",
     attribute: 'class="interactive-surface"',
     links: {
       repository: "https://github.com/Foscat/Interactive-Surface-CSS",
@@ -258,6 +271,7 @@ git commit -m "test: define ecosystem resource contract"
 ### Task 2: Add one Pages-aware SEO source of truth
 
 **Files:**
+
 - Create: `app/lib/site.ts`
 - Create: `app/robots.ts`
 - Create: `app/sitemap.ts`
@@ -268,6 +282,7 @@ git commit -m "test: define ecosystem resource contract"
 - Test: `tests/ecosystem.test.ts`
 
 **Interfaces:**
+
 - Consumes: `ECOSYSTEM_PACKAGES` from Task 1.
 - Produces: `SITE`, `withBasePath(path)`, Next.js metadata routes, and serialized JSON-LD.
 
@@ -280,8 +295,14 @@ import { SITE, withBasePath } from "../app/lib/site";
 
 test("site URLs target the GitHub Pages project site", () => {
   assert.equal(SITE.url, "https://foscat.github.io/interface-systems-lab/");
-  assert.equal(SITE.repository, "https://github.com/Foscat/interface-systems-lab");
-  assert.equal(withBasePath("/site.webmanifest"), "/interface-systems-lab/site.webmanifest");
+  assert.equal(
+    SITE.repository,
+    "https://github.com/Foscat/interface-systems-lab",
+  );
+  assert.equal(
+    withBasePath("/site.webmanifest"),
+    "/interface-systems-lab/site.webmanifest",
+  );
   assert.equal(withBasePath("/"), "/interface-systems-lab/");
 });
 ```
@@ -302,7 +323,8 @@ export const SITE = {
     "Explore and combine layout-style-css, ui-style-kit-css, and interactive-surface-css in a live accessible interface workbench.",
   url: "https://foscat.github.io/interface-systems-lab/",
   repository: "https://github.com/Foscat/interface-systems-lab",
-  socialImage: "https://foscat.github.io/interface-systems-lab/interface-systems-lab-social-card.png",
+  socialImage:
+    "https://foscat.github.io/interface-systems-lab/interface-systems-lab-social-card.png",
   locale: "en_US",
 } as const;
 
@@ -376,6 +398,7 @@ git commit -m "feat: add Pages-aware SEO metadata"
 ### Task 3: Build the observatory and developer resource sections
 
 **Files:**
+
 - Create: `app/components/InterfaceObservatory.tsx`
 - Create: `app/components/InstallGuide.tsx`
 - Create: `app/components/LibraryDirectory.tsx`
@@ -383,6 +406,7 @@ git commit -m "feat: add Pages-aware SEO metadata"
 - Test: `tests/ecosystem.test.ts`
 
 **Interfaces:**
+
 - Consumes: `ECOSYSTEM_PACKAGES`, `NPM_INSTALL`, `BUNDLER_IMPORTS`, `CDN_MARKUP`, and `SITE`.
 - Produces: accessible hero illustration, copyable install blocks, complete library resource directory, and composed developer-first page.
 
@@ -393,9 +417,18 @@ Append to `tests/ecosystem.test.ts`:
 ```ts
 test("page components expose the approved observatory and resource landmarks", async () => {
   const [observatory, installGuide, directory] = await Promise.all([
-    readFile(new URL("../app/components/InterfaceObservatory.tsx", import.meta.url), "utf8"),
-    readFile(new URL("../app/components/InstallGuide.tsx", import.meta.url), "utf8"),
-    readFile(new URL("../app/components/LibraryDirectory.tsx", import.meta.url), "utf8"),
+    readFile(
+      new URL("../app/components/InterfaceObservatory.tsx", import.meta.url),
+      "utf8",
+    ),
+    readFile(
+      new URL("../app/components/InstallGuide.tsx", import.meta.url),
+      "utf8",
+    ),
+    readFile(
+      new URL("../app/components/LibraryDirectory.tsx", import.meta.url),
+      "utf8",
+    ),
   ]);
   assert.match(observatory, /Interface Observatory/);
   assert.doesNotMatch(observatory, /signal-bars/);
@@ -417,17 +450,30 @@ export function InterfaceObservatory() {
   return (
     <figure className="observatory" aria-labelledby="observatory-caption">
       <figcaption id="observatory-caption" className="sr-only">
-        Interface Observatory: structure, identity, and behavior orbit one semantic interface core.
+        Interface Observatory: structure, identity, and behavior orbit one
+        semantic interface core.
       </figcaption>
       <div className="observatory-stage" aria-hidden="true">
-        <span className="orbit orbit-layout"><i /></span>
-        <span className="orbit orbit-identity"><i /></span>
-        <span className="orbit orbit-behavior"><i /></span>
-        <span className="observatory-core"><b>One</b><small>interface core</small></span>
+        <span className="orbit orbit-layout">
+          <i />
+        </span>
+        <span className="orbit orbit-identity">
+          <i />
+        </span>
+        <span className="orbit orbit-behavior">
+          <i />
+        </span>
+        <span className="observatory-core">
+          <b>One</b>
+          <small>interface core</small>
+        </span>
       </div>
       <ol className="observatory-legend">
         {ECOSYSTEM_PACKAGES.map((pkg) => (
-          <li key={pkg.name}><span>{pkg.layer}</span><strong>{pkg.name}</strong></li>
+          <li key={pkg.name}>
+            <span>{pkg.layer}</span>
+            <strong>{pkg.name}</strong>
+          </li>
         ))}
       </ol>
     </figure>
@@ -449,9 +495,27 @@ Use this data structure:
 
 ```ts
 const snippets = [
-  { id: "npm", label: "npm", title: "Install all three", language: "shell", code: NPM_INSTALL },
-  { id: "bundler", label: "CSS imports", title: "Load the cascade", language: "css", code: BUNDLER_IMPORTS.join("\n") },
-  { id: "cdn", label: "CDN", title: "Use immutable links", language: "html", code: CDN_MARKUP },
+  {
+    id: "npm",
+    label: "npm",
+    title: "Install all three",
+    language: "shell",
+    code: NPM_INSTALL,
+  },
+  {
+    id: "bundler",
+    label: "CSS imports",
+    title: "Load the cascade",
+    language: "css",
+    code: BUNDLER_IMPORTS.join("\n"),
+  },
+  {
+    id: "cdn",
+    label: "CDN",
+    title: "Use immutable links",
+    language: "html",
+    code: CDN_MARKUP,
+  },
 ] as const;
 ```
 
@@ -498,10 +562,12 @@ git commit -m "feat: build interface observatory sections"
 ### Task 4: Implement the approved visual system and responsive behavior
 
 **Files:**
+
 - Modify: `app/globals.css`
 - Test: `tests/ecosystem.test.ts`
 
 **Interfaces:**
+
 - Consumes: class names emitted by Task 3.
 - Produces: observatory motion, developer section hierarchy, focus states, mobile continuity, and print/reduced-motion behavior.
 
@@ -511,7 +577,10 @@ Append to `tests/ecosystem.test.ts`:
 
 ```ts
 test("local CSS owns the observatory without retaining the audio meter", async () => {
-  const css = await readFile(new URL("../app/globals.css", import.meta.url), "utf8");
+  const css = await readFile(
+    new URL("../app/globals.css", import.meta.url),
+    "utf8",
+  );
   assert.match(css, /\.observatory-stage/);
   assert.match(css, /@keyframes orbit/);
   assert.doesNotMatch(css, /\.signal-bars/);
@@ -549,18 +618,27 @@ Remove `.brand-mark i`, `.hero-instrument`, `.signal-bars`, and related declarat
   animation: orbit 24s linear infinite;
 }
 
-.orbit-layout { inset: 2%; }
-.orbit-identity { inset: 17%; animation-direction: reverse; animation-duration: 18s; }
-.orbit-behavior { inset: 32%; animation-duration: 12s; }
+.orbit-layout {
+  inset: 2%;
+}
+.orbit-identity {
+  inset: 17%;
+  animation-direction: reverse;
+  animation-duration: 18s;
+}
+.orbit-behavior {
+  inset: 32%;
+  animation-duration: 12s;
+}
 
 .orbit i {
   position: absolute;
-  inset: -.35rem auto auto 50%;
-  width: .7rem;
+  inset: -0.35rem auto auto 50%;
+  width: 0.7rem;
   aspect-ratio: 1;
   border-radius: 50%;
   background: rgb(var(--usk-primary-rgb));
-  box-shadow: 0 0 1.5rem rgb(var(--usk-primary-rgb) / .7);
+  box-shadow: 0 0 1.5rem rgb(var(--usk-primary-rgb) / 0.7);
 }
 
 .observatory-core {
@@ -574,7 +652,11 @@ Remove `.brand-mark i`, `.hero-instrument`, `.signal-bars`, and related declarat
   text-align: center;
 }
 
-@keyframes orbit { to { rotate: 1turn; } }
+@keyframes orbit {
+  to {
+    rotate: 1turn;
+  }
+}
 ```
 
 Add the approved legend, installation rail, code example, library row, resource-link, architecture band, and orbital brand-mark styles using existing `--usk-*` paint tokens and `ly-*` structure classes.
@@ -605,11 +687,13 @@ git commit -m "style: create interface observatory system"
 ### Task 5: Verify the GitHub Pages export as a deployable artifact
 
 **Files:**
+
 - Create: `scripts/verify-export.mjs`
 - Create: `tests/export.test.mjs`
 - Modify: `package.json`
 
 **Interfaces:**
+
 - Consumes: `out/` built with `PAGES_BASE_PATH=/interface-systems-lab`.
 - Produces: `verify:export`, `test:export`, and `quality` scripts with actionable failure output.
 
@@ -678,11 +762,13 @@ git commit -m "test: verify GitHub Pages export"
 ### Task 6: Harden CI/CD and repository documentation
 
 **Files:**
+
 - Modify: `.github/workflows/deploy-pages.yml`
 - Modify: `README.md`
 - Test: `tests/export.test.mjs`
 
 **Interfaces:**
+
 - Consumes: `npm run quality` and `out/` from Task 5.
 - Produces: pull-request quality checks, main-branch Pages deployment, and accurate user documentation.
 
@@ -736,6 +822,7 @@ git commit -m "ci: gate GitHub Pages deployment"
 ### Task 7: Add rendered browser and accessibility regression coverage
 
 **Files:**
+
 - Create: `playwright.config.ts`
 - Create: `playwright/site.spec.ts`
 - Create: `scripts/prepare-preview.mjs`
@@ -745,6 +832,7 @@ git commit -m "ci: gate GitHub Pages deployment"
 - Modify: `package-lock.json`
 
 **Interfaces:**
+
 - Consumes: built Next.js static export and rendered component labels from Tasks 2-4.
 - Produces: automated core-workflow, mobile-overflow, metadata, link, copy, and reduced-motion evidence.
 
@@ -780,7 +868,10 @@ Create `scripts/prepare-preview.mjs` to remove `.preview/`, create `.preview/int
 import { cp, mkdir, rm } from "node:fs/promises";
 
 const previewRoot = new URL("../.preview/", import.meta.url);
-const projectRoot = new URL("../.preview/interface-systems-lab/", import.meta.url);
+const projectRoot = new URL(
+  "../.preview/interface-systems-lab/",
+  import.meta.url,
+);
 const exportRoot = new URL("../out/", import.meta.url);
 
 await rm(previewRoot, { recursive: true, force: true });
@@ -846,10 +937,12 @@ git commit -m "test: cover observatory browser experience"
 ### Task 8: Complete live-link, visual, and deployment readiness audit
 
 **Files:**
+
 - Modify only files proven defective by the audit.
 - Inspect: `out/`, generated screenshots, workflow, repository status, and external destinations.
 
 **Interfaces:**
+
 - Consumes: every task deliverable.
 - Produces: final proof against every design acceptance criterion and an explicit deployment handoff.
 
