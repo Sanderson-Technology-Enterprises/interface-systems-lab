@@ -78,7 +78,7 @@ test("documented package versions match the pinned CDN URLs", () => {
     const cdn = CDN_LINKS.find(({ packageName }) => packageName === pkg.name);
 
     assert.ok(cdn);
-    assert.match(cdn.href, new RegExp(`${pkg.name}@${pkg.version}`));
+    assert.ok(cdn.href.includes(`${pkg.name}@${pkg.version}`));
   }
 });
 
