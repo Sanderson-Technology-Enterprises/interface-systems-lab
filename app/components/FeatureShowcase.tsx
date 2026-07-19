@@ -45,6 +45,7 @@ export function FeatureShowcase() {
             <form
               className="proof-form ly-stack ly-gap-3"
               aria-label="Identity proof sample"
+              onSubmit={(event) => event.preventDefault()}
             >
               <label>
                 <span>System preset</span>
