@@ -62,9 +62,18 @@ The cascade order follows the packages' current bridge contracts: theme and visu
 CDN snippets will use immutable, exact versions and jsDelivr package URLs in the same cascade order:
 
 ```html
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ui-style-kit-css@2.0.3/dist/ui-style-kit.with-bridge.min.css">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/interactive-surface-css@1.3.0/interactive-surface.css">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/layout-style-css@1.1.2/dist/layout-style-css.min.css">
+<link
+  rel="stylesheet"
+  href="https://cdn.jsdelivr.net/npm/ui-style-kit-css@2.0.3/dist/ui-style-kit.with-bridge.min.css"
+/>
+<link
+  rel="stylesheet"
+  href="https://cdn.jsdelivr.net/npm/interactive-surface-css@1.3.0/interactive-surface.css"
+/>
+<link
+  rel="stylesheet"
+  href="https://cdn.jsdelivr.net/npm/layout-style-css@1.1.2/dist/layout-style-css.min.css"
+/>
 ```
 
 The implementation must verify that every CDN URL returns a successful response and that each exported path exists in the installed package. If the exact package contract differs, the snippet will be corrected to the verified current entrypoint rather than preserving an invalid planned URL.
@@ -73,10 +82,10 @@ The implementation must verify that every CDN URL returns a successful response 
 
 Each library row will expose four visible, descriptive links:
 
-| Library | Repository | Wiki | npm | Live demo |
-| --- | --- | --- | --- | --- |
-| `layout-style-css` | `https://github.com/Foscat/Layout-Style-CSS` | `https://github.com/Foscat/Layout-Style-CSS/wiki` | `https://www.npmjs.com/package/layout-style-css` | `https://foscat.github.io/Layout-Style-CSS/` |
-| `ui-style-kit-css` | `https://github.com/Foscat/ui-style-kit-css` | `https://github.com/Foscat/ui-style-kit-css/wiki` | `https://www.npmjs.com/package/ui-style-kit-css` | `https://foscat.github.io/ui-style-kit-css/` |
+| Library                   | Repository                                          | Wiki                                                     | npm                                                     | Live demo                                           |
+| ------------------------- | --------------------------------------------------- | -------------------------------------------------------- | ------------------------------------------------------- | --------------------------------------------------- |
+| `layout-style-css`        | `https://github.com/Foscat/Layout-Style-CSS`        | `https://github.com/Foscat/Layout-Style-CSS/wiki`        | `https://www.npmjs.com/package/layout-style-css`        | `https://foscat.github.io/Layout-Style-CSS/`        |
+| `ui-style-kit-css`        | `https://github.com/Foscat/ui-style-kit-css`        | `https://github.com/Foscat/ui-style-kit-css/wiki`        | `https://www.npmjs.com/package/ui-style-kit-css`        | `https://foscat.github.io/ui-style-kit-css/`        |
 | `interactive-surface-css` | `https://github.com/Foscat/Interactive-Surface-CSS` | `https://github.com/Foscat/Interactive-Surface-CSS/wiki` | `https://www.npmjs.com/package/interactive-surface-css` | `https://foscat.github.io/Interactive-Surface-CSS/` |
 
 These destinations were verified during design on 2026-07-14. Automated link-contract tests will assert the exact destinations, while live HTTP checks will remain a deliberate verification step because external availability can change independently of this repository.
