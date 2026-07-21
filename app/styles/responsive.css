@@ -11,10 +11,6 @@
   .experience :where(section[id]) {
     scroll-margin-block-start: calc(var(--ly-header-height) + 5rem);
   }
-
-  .configuration-shell {
-    inset-block-start: calc(var(--ly-header-height) + 4rem);
-  }
 }
 
 @media (max-width: 62rem) {
@@ -28,10 +24,8 @@
 }
 
 @media (max-width: 46rem) {
-  /* Tall narrow-screen regions stay in document flow so they cannot mask anchored content. */
-  .site-header,
-  .configuration-shell,
-  .configuration-console {
+  /* The tall narrow-screen header yields to anchored content. */
+  .site-header {
     position: static;
   }
 
@@ -136,13 +130,6 @@
     font-weight: 800;
     letter-spacing: 0.08em;
     text-transform: uppercase;
-  }
-}
-
-@media (max-height: 50rem) {
-  /* Short desktop viewports keep the full control deck from masking the showcase. */
-  .configuration-shell {
-    position: static;
   }
 }
 

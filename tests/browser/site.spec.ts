@@ -383,7 +383,7 @@ test("shell keeps observatory controls clear of the interface core", async ({
   }
 });
 
-test("shell keeps narrow-screen anchors clear of tall sticky regions", async ({
+test("shell keeps anchored content clear of persistent regions", async ({
   page,
 }) => {
   await page.setViewportSize({ width: 1440, height: 1000 });
@@ -401,10 +401,10 @@ test("shell keeps narrow-screen anchors clear of tall sticky regions", async ({
         .locator(".configuration-shell")
         .evaluate((element) => getComputedStyle(element).position),
     )
-    .toBe("sticky");
+    .toBe("static");
 
   await page.locator("#layouts").scrollIntoViewIfNeeded();
-  const desktopStickyGeometry = await page.evaluate(() => {
+  const desktopFlowGeometry = await page.evaluate(() => {
     const header = document.querySelector<HTMLElement>(".site-header");
     const shell = document.querySelector<HTMLElement>(".configuration-shell");
     const console = document.querySelector<HTMLElement>(
@@ -415,27 +415,14 @@ test("shell keeps narrow-screen anchors clear of tall sticky regions", async ({
     }
 
     const headerBounds = header.getBoundingClientRect();
-    const shellBounds = shell.getBoundingClientRect();
     const consoleBounds = console.getBoundingClientRect();
     return {
       consoleBottom: consoleBounds.bottom,
-      consoleTop: consoleBounds.top,
       headerBottom: headerBounds.bottom,
-      shellTop: shellBounds.top,
-      viewportHeight: window.innerHeight,
     };
   });
-  expect(desktopStickyGeometry.shellTop).toBeGreaterThanOrEqual(
-    desktopStickyGeometry.headerBottom - 1,
-  );
-  expect(desktopStickyGeometry.shellTop).toBeLessThanOrEqual(
-    desktopStickyGeometry.headerBottom + 1,
-  );
-  expect(desktopStickyGeometry.consoleTop).toBeGreaterThanOrEqual(
-    desktopStickyGeometry.headerBottom - 1,
-  );
-  expect(desktopStickyGeometry.consoleBottom).toBeLessThanOrEqual(
-    desktopStickyGeometry.viewportHeight,
+  expect(desktopFlowGeometry.consoleBottom).toBeLessThanOrEqual(
+    desktopFlowGeometry.headerBottom,
   );
 
   await page.setViewportSize({ width: 390, height: 844 });
@@ -538,7 +525,7 @@ test("shell keeps narrow-screen anchors clear of tall sticky regions", async ({
   expect(mobileGeometry.navigationCueVisible).toBe(true);
   expect(mobileGeometry.navigationScrollable).toBe(true);
   expect(mobileGeometry.navigationScrollbarWidth).toBe("thin");
-  expect(mobileGeometry.consolePosition).toBe("static");
+  expect(["fixed", "sticky"]).not.toContain(mobileGeometry.consolePosition);
   expect(mobileGeometry.consoleShellPosition).toBe("static");
   expect(mobileGeometry.headerPosition).toBe("static");
   expect(mobileGeometry.headingTop).toBeGreaterThanOrEqual(
@@ -640,18 +627,16 @@ test("primary navigation keeps anchored sections below the sticky header @cross-
         return {
           consoleBottom: console.getBoundingClientRect().bottom,
           headerBottom: header.getBoundingClientRect().bottom,
-          shellTop: shell.getBoundingClientRect().top,
+          shellPosition: getComputedStyle(shell).position,
           targetTop: target.getBoundingClientRect().top,
-          viewportHeight: window.innerHeight,
         };
       });
 
       expect(geometry.targetTop).toBeGreaterThanOrEqual(geometry.headerBottom);
-      expect(geometry.shellTop).toBeGreaterThanOrEqual(geometry.headerBottom);
-      expect(geometry.shellTop).toBeLessThanOrEqual(geometry.headerBottom + 16);
-      expect(geometry.consoleBottom).toBeLessThanOrEqual(
-        geometry.viewportHeight,
+      expect(geometry.targetTop).toBeGreaterThanOrEqual(
+        geometry.consoleBottom + 16,
       );
+      expect(geometry.shellPosition).toBe("static");
     });
   }
 });
