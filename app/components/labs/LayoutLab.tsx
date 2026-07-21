@@ -53,7 +53,7 @@ export function LayoutLab() {
 
   return (
     <section
-      className="layout-lab section-band ly-section"
+      className="section-band ly-section"
       id="layouts"
       aria-labelledby="layouts-title"
     >
@@ -110,7 +110,7 @@ export function LayoutLab() {
                   <h3>Dashboard</h3>
                   <code>header / nav / main / aside / footer</code>
                 </header>
-                <div className="ly-wrapper ly-wrapper--content recipe-container">
+                <div className="ly-wrapper ly-wrapper--content">
                   <section
                     className="recipe-specimen"
                     data-layout-recipe="dashboard"
@@ -159,7 +159,7 @@ export function LayoutLab() {
                   <h3>Documentation</h3>
                   <code>header / nav / main / aside / footer</code>
                 </header>
-                <div className="ly-wrapper ly-wrapper--content recipe-container">
+                <div className="ly-wrapper ly-wrapper--content">
                   <section
                     className="recipe-specimen"
                     data-layout-recipe="docs"
@@ -208,7 +208,7 @@ export function LayoutLab() {
                   <h3>List detail</h3>
                   <code>primary / secondary / actions</code>
                 </header>
-                <div className="ly-wrapper ly-wrapper--content recipe-container">
+                <div className="ly-wrapper ly-wrapper--content">
                   <section
                     className="recipe-specimen"
                     data-layout-recipe="list-detail"
@@ -244,7 +244,7 @@ export function LayoutLab() {
                   <h3>Split hero</h3>
                   <code>content / media / actions</code>
                 </header>
-                <div className="ly-wrapper ly-wrapper--content recipe-container">
+                <div className="ly-wrapper ly-wrapper--content">
                   <section
                     className="recipe-specimen"
                     data-layout-recipe="split-hero"
@@ -279,7 +279,7 @@ export function LayoutLab() {
                   <h3>Gallery</h3>
                   <code>repeated direct children</code>
                 </header>
-                <div className="ly-wrapper ly-wrapper--content recipe-container">
+                <div className="ly-wrapper ly-wrapper--content">
                   <section
                     className="recipe-specimen"
                     data-layout-recipe="gallery"
@@ -305,7 +305,7 @@ export function LayoutLab() {
                   <h3>Card grid</h3>
                   <code>repeated direct children</code>
                 </header>
-                <div className="ly-wrapper ly-wrapper--content recipe-container">
+                <div className="ly-wrapper ly-wrapper--content">
                   <section
                     className="recipe-specimen"
                     data-layout-recipe="card-grid"
@@ -488,7 +488,7 @@ export function LayoutLab() {
           <details>
             <summary>Review wrappers, breakout lanes, and utilities</summary>
             <div className="wrapper-atlas ly-stack ly-gap-4">
-              <div className="wrapper-inventory ly-stack ly-gap-3">
+              <div className="ly-stack ly-gap-3">
                 <div
                   className={`ly-wrapper ${surfaceClass} wrapper-sample ly-pad-3`}
                 >

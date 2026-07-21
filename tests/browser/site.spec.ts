@@ -353,6 +353,117 @@ test("shell keeps narrow-screen anchors clear of tall sticky regions", async ({
   expect(mobileGeometry.headingClearsHeader).toBe(true);
 });
 
+test("mobile header tab order follows its visual rows", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("./");
+
+  const header = page.locator(".site-header");
+  const visualContract = await header.evaluate((element) => {
+    const brand = element.querySelector<HTMLElement>(".brand");
+    const actions = element.querySelector<HTMLElement>(".header-links");
+    const navigation = element.querySelector<HTMLElement>(".primary-nav");
+    const actionLinks = Array.from(
+      actions?.querySelectorAll<HTMLElement>("a") ?? [],
+    );
+    const navigationLinks = Array.from(
+      navigation?.querySelectorAll<HTMLElement>("a") ?? [],
+    );
+    if (brand === null || actions === null || navigation === null) {
+      throw new Error("Expected header regions are missing.");
+    }
+
+    const signature = (focusable: HTMLElement) =>
+      [
+        focusable.tagName,
+        focusable.getAttribute("aria-label") ??
+          focusable.textContent?.trim().replace(/\s+/g, " ") ??
+          "",
+        focusable.getAttribute("href") ?? "",
+      ].join("|");
+    const brandBounds = brand.getBoundingClientRect();
+    const actionBounds = actions.getBoundingClientRect();
+    const navigationBounds = navigation.getBoundingClientRect();
+    const navigationLinkBounds = navigationLinks.map((link) =>
+      link.getBoundingClientRect(),
+    );
+    const focusables = [brand, ...actionLinks, ...navigationLinks];
+    const visualOrder = focusables
+      .map((focusable) => ({
+        bounds: focusable.getBoundingClientRect(),
+        focusable,
+      }))
+      .sort((first, second) => {
+        const firstRow =
+          first.bounds.bottom <= navigationBounds.top + 1 ? 0 : 1;
+        const secondRow =
+          second.bounds.bottom <= navigationBounds.top + 1 ? 0 : 1;
+        return firstRow - secondRow || first.bounds.left - second.bounds.left;
+      })
+      .map(({ focusable }) => signature(focusable));
+
+    return {
+      actionTargetsValid:
+        actionLinks.length === 2 &&
+        actionLinks.every((link) => {
+          const bounds = link.getBoundingClientRect();
+          return bounds.width > 0 && bounds.height >= 44;
+        }),
+      headerHeight: element.getBoundingClientRect().height,
+      navigationIsOneRow: navigationLinkBounds.every(
+        (bounds) => Math.abs(bounds.top - navigationLinkBounds[0]!.top) <= 1,
+      ),
+      navigationScrollable: navigation.scrollWidth > navigation.clientWidth,
+      pageHasNoInlineOverflow:
+        document.documentElement.scrollWidth <=
+        document.documentElement.clientWidth,
+      topRowIsLeftToRight:
+        actionLinks.length === 2 &&
+        brandBounds.left <= actionLinks[0]!.getBoundingClientRect().left &&
+        actionLinks[0]!.getBoundingClientRect().right <=
+          actionLinks[1]!.getBoundingClientRect().left,
+      navigationFollowsTopRow:
+        navigationBounds.top >=
+        Math.max(brandBounds.bottom, actionBounds.bottom),
+      visualOrder,
+    };
+  });
+
+  // Starting on the brand isolates header traversal from the independent skip-link contract.
+  await header
+    .getByRole("link", { name: "Interface Systems Lab home" })
+    .focus();
+  const tabOrder: string[] = [];
+  for (let index = 0; index < visualContract.visualOrder.length; index += 1) {
+    tabOrder.push(
+      await page.evaluate(() => {
+        const active = document.activeElement;
+        if (!(active instanceof HTMLElement)) return "";
+        return [
+          active.tagName,
+          active.getAttribute("aria-label") ??
+            active.textContent?.trim().replace(/\s+/g, " ") ??
+            "",
+          active.getAttribute("href") ?? "",
+        ].join("|");
+      }),
+    );
+    if (index < visualContract.visualOrder.length - 1) {
+      await page.keyboard.press("Tab");
+    }
+  }
+
+  expect(tabOrder).toEqual(visualContract.visualOrder);
+  expect(visualContract).toMatchObject({
+    actionTargetsValid: true,
+    navigationFollowsTopRow: true,
+    navigationIsOneRow: true,
+    navigationScrollable: true,
+    pageHasNoInlineOverflow: true,
+    topRowIsLeftToRight: true,
+  });
+  expect(visualContract.headerHeight).toBeLessThanOrEqual(150);
+});
+
 test("renders the production metadata and complete resource directory", async ({
   page,
 }, testInfo) => {
@@ -844,17 +955,62 @@ test("configuration copy and share expose selected fallback text on clipboard fa
 });
 
 test("fits the viewport and honors reduced motion", async ({ page }) => {
-  await page.emulateMedia({ reducedMotion: "reduce" });
+  await page.emulateMedia({ reducedMotion: "no-preference" });
   await page.reload();
+
+  const defaultRunnerMotion = await page
+    .locator(".orbit-runner")
+    .evaluateAll((elements) =>
+      elements.map((element) => {
+        const style = getComputedStyle(element);
+        const duration = style.animationDuration;
+        const numericDuration = Number.parseFloat(duration) || 0;
+        return {
+          animationCount: element.getAnimations().length,
+          duration,
+          durationMs: duration.endsWith("ms")
+            ? numericDuration
+            : numericDuration * 1_000,
+          name: style.animationName,
+        };
+      }),
+    );
+  expect(defaultRunnerMotion.length).toBeGreaterThan(0);
+  expect(
+    defaultRunnerMotion.every(
+      ({ animationCount, durationMs, name }) =>
+        name !== "none" && durationMs > 0 && animationCount > 0,
+    ),
+  ).toBe(true);
+
+  await page.emulateMedia({ reducedMotion: "reduce" });
 
   await expectNoHorizontalOverflow(page);
 
-  const animationNames = await page
-    .locator(".observatory-orbit")
+  const reducedRunnerMotion = await page
+    .locator(".orbit-runner")
     .evaluateAll((elements) =>
-      elements.map((element) => getComputedStyle(element).animationName),
+      elements.map((element) => {
+        const style = getComputedStyle(element);
+        const duration = style.animationDuration;
+        const numericDuration = Number.parseFloat(duration) || 0;
+        return {
+          animationCount: element.getAnimations().length,
+          duration,
+          durationMs: duration.endsWith("ms")
+            ? numericDuration
+            : numericDuration * 1_000,
+          name: style.animationName,
+        };
+      }),
     );
-  expect(animationNames.every((name) => name === "none")).toBe(true);
+  expect(reducedRunnerMotion.length).toBe(defaultRunnerMotion.length);
+  expect(
+    reducedRunnerMotion.every(
+      ({ animationCount, durationMs, name }) =>
+        name === "none" && durationMs <= 1 && animationCount === 0,
+    ),
+  ).toBe(true);
   await expect(
     page.getByRole("navigation", { name: "Primary navigation" }),
   ).toBeVisible();

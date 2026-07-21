@@ -394,6 +394,53 @@ test("page components expose approved observatory and resource landmarks", async
   assert.doesNotMatch(observatory, />\s*Inspect\s*</);
 });
 
+test("Task 3 sources omit dormant local hooks and keep FeatureShowcase static", async () => {
+  const [page, siteFooter, layoutLab, featureShowcase] = await Promise.all([
+    readFile(new URL("../app/page.tsx", import.meta.url), "utf8"),
+    readFile(
+      new URL("../app/components/SiteFooter.tsx", import.meta.url),
+      "utf8",
+    ),
+    readFile(
+      new URL("../app/components/labs/LayoutLab.tsx", import.meta.url),
+      "utf8",
+    ),
+    readFile(
+      new URL("../app/components/FeatureShowcase.tsx", import.meta.url),
+      "utf8",
+    ),
+  ]);
+
+  const taskSources = [page, siteFooter, layoutLab].join("\n");
+  const staticClassTokens = Array.from(
+    taskSources.matchAll(/className="([^"]*)"/g),
+    (match) => match[1]?.split(/\s+/) ?? [],
+  ).flat();
+  for (const className of [
+    "capability-runway",
+    "capability-preview",
+    "company-conversion",
+    "footer-actions",
+    "layout-lab",
+    "recipe-container",
+    "wrapper-inventory",
+  ]) {
+    assert.equal(
+      staticClassTokens.includes(className),
+      false,
+      `${className} should not survive as an unused local hook`,
+    );
+  }
+
+  assert.doesNotMatch(featureShowcase, /^"use client";/);
+  assert.doesNotMatch(
+    featureShowcase,
+    /getUiPrefix|useLabConfiguration|LabExperience/,
+  );
+  assert.doesNotMatch(featureShowcase, /ly-wrapper--xl|\bicon-only\b/);
+  assert.match(featureShowcase, /interactive-surface site-action/);
+});
+
 test("local CSS owns the observatory without retaining the audio meter", async () => {
   const [observatoryCss, responsiveCss, globalCss] = await Promise.all([
     readFile(new URL("../app/styles/observatory.css", import.meta.url), "utf8"),

@@ -15,7 +15,7 @@ const companyUrl = "https://sandersontechnologyenterprises.com";
 function CapabilityRunway() {
   return (
     <section
-      className="capability-runway section-band ly-section"
+      className="section-band ly-section"
       aria-labelledby="capability-runway-title"
     >
       <div className="ly-wrapper">
@@ -32,7 +32,7 @@ function CapabilityRunway() {
           </p>
         </div>
 
-        <div className="capability-preview ly-grid ly-grid--auto ly-gap-5">
+        <div className="ly-grid ly-grid--auto ly-gap-5">
           <section
             className="capability-preview-panel ly-stack ly-gap-3"
             id="ui-native"
@@ -85,7 +85,7 @@ function CompanySection() {
       aria-labelledby="company-title"
     >
       <div className="ly-wrapper">
-        <div className="company-conversion ly-split ly-gap-6">
+        <div className="ly-split ly-gap-6">
           <article className="conversion-path ly-stack ly-gap-4 ly-items-start">
             <p className="section-label">For developers</p>
             <h2 id="company-title">Adopt the system at your own pace.</h2>

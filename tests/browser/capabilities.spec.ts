@@ -68,6 +68,17 @@ const spacingUtilities = [
   "ly-py-8",
 ];
 
+const alignmentUtilities = [
+  "ly-items-start",
+  "ly-items-center",
+  "ly-items-end",
+  "ly-items-stretch",
+  "ly-justify-start",
+  "ly-justify-center",
+  "ly-justify-end",
+  "ly-justify-between",
+] as const;
+
 const recipeAreas: Partial<Record<(typeof layoutRecipes)[number], string[]>> = {
   "app-shell": ["header", "nav", "main", "aside", "footer"],
   dashboard: ["header", "nav", "main", "aside", "footer"],
@@ -213,6 +224,12 @@ test("layout laboratory renders the complete recipe and primitive contracts", as
       elements.map((element) => element.getAttribute("data-layout-utility")),
     );
   expect(renderedUtilities).toEqual(spacingUtilities);
+  const renderedAlignmentUtilities = await page
+    .locator("[data-alignment-utility]")
+    .evaluateAll((elements) =>
+      elements.map((element) => element.getAttribute("data-alignment-utility")),
+    );
+  expect(renderedAlignmentUtilities).toEqual(alignmentUtilities);
 
   await expect(page.locator('[data-layout-primitive="grid"]')).toBeVisible();
   await expect(page.locator("#layouts details")).toHaveCount(3);
@@ -223,7 +240,7 @@ test("layout laboratory renders the complete recipe and primitive contracts", as
 
 test("layout laboratory applies every personality without changing DOM or tab order", async ({
   page,
-}) => {
+}, testInfo) => {
   await page.setViewportSize({ width: 1440, height: 1000 });
   await page.goto("./");
 
@@ -247,17 +264,52 @@ test("layout laboratory applies every personality without changing DOM or tab or
   const baseGrid = page.locator('[data-layout-primitive="grid"]');
   await expect(shell).toHaveCount(1);
   await expect(baseGrid).toBeVisible();
-  const readGeometry = async () => ({
-    gridColumns: await baseGrid.evaluate(
-      (element) => getComputedStyle(element).gridTemplateColumns,
-    ),
-    shellAreas: await shell.evaluate(
-      (element) => getComputedStyle(element).gridTemplateAreas,
-    ),
-    shellColumns: await shell.evaluate(
-      (element) => getComputedStyle(element).gridTemplateColumns,
-    ),
-  });
+  const readGeometry = () =>
+    page.evaluate(() => {
+      const shellElement = document.querySelector<HTMLElement>(
+        '[data-layout-recipe="app-shell"]',
+      );
+      const gridElement = document.querySelector<HTMLElement>(
+        '[data-layout-primitive="grid"]',
+      );
+      if (shellElement === null || gridElement === null) {
+        throw new Error(
+          "Expected personality-sensitive specimens are missing.",
+        );
+      }
+
+      const shellStyle = getComputedStyle(shellElement);
+      const gridStyle = getComputedStyle(gridElement);
+      const gridItems = Array.from(gridElement.children)
+        .slice(0, 5)
+        .map((element) => {
+          const style = getComputedStyle(element);
+          return {
+            columnEnd: style.gridColumnEnd,
+            columnStart: style.gridColumnStart,
+            rowEnd: style.gridRowEnd,
+            rowStart: style.gridRowStart,
+          };
+        });
+
+      return {
+        grid: {
+          columnGap: gridStyle.columnGap,
+          columns: gridStyle.gridTemplateColumns,
+          display: gridStyle.display,
+          items: gridItems,
+          rowGap: gridStyle.rowGap,
+        },
+        shell: {
+          areas: shellStyle.gridTemplateAreas,
+          columnGap: shellStyle.columnGap,
+          columns: shellStyle.gridTemplateColumns,
+          display: shellStyle.display,
+          rowGap: shellStyle.rowGap,
+          rows: shellStyle.gridTemplateRows,
+        },
+      };
+    });
   const readDomSignature = () =>
     page
       .locator("[data-layout-recipe], [data-ly-area]")
@@ -271,25 +323,48 @@ test("layout laboratory applies every personality without changing DOM or tab or
         ),
       );
 
-  const initialGeometry = await readGeometry();
   const initialDom = await readDomSignature();
   const initialTabOrder = await readWorkbenchTabOrder(page, shell);
 
-  await layoutSelect.selectOption("split-screen");
-  await expect(root).toHaveAttribute("data-ly-layout", "split-screen");
-  await expect(page.locator("[data-ly-layout]")).toHaveCount(1);
+  const configuredLayout = await root.getAttribute("data-ly-layout");
+  expect(configuredLayout).not.toBeNull();
+  await root.evaluate((element) => element.removeAttribute("data-ly-layout"));
+  await expect(root).not.toHaveAttribute("data-ly-layout");
+  const unpersonalizedGeometry = await readGeometry();
+  await root.evaluate((element, layout) => {
+    if (layout !== null) element.setAttribute("data-ly-layout", layout);
+  }, configuredLayout);
 
-  const changedGeometry = await readGeometry();
-  expect(changedGeometry.shellAreas).not.toBe(initialGeometry.shellAreas);
-  expect(changedGeometry.shellColumns).not.toBe(initialGeometry.shellColumns);
-  expect(changedGeometry.gridColumns).not.toBe(initialGeometry.gridColumns);
-  expect(await readDomSignature()).toEqual(initialDom);
-  expect(await readWorkbenchTabOrder(page, shell)).toEqual(initialTabOrder);
+  const geometryByPersonality: Record<
+    string,
+    Awaited<ReturnType<typeof readGeometry>>
+  > = {};
 
   for (const personality of layoutPersonalities) {
     await layoutSelect.selectOption(personality);
     await expect(root).toHaveAttribute("data-ly-layout", personality);
+    await expect(page.locator("[data-ly-layout]")).toHaveCount(1);
+
+    const geometry = await readGeometry();
+    geometryByPersonality[personality] = geometry;
+    expect(
+      geometry,
+      `${personality} matched the unpersonalized geometry: ${JSON.stringify(
+        unpersonalizedGeometry,
+      )}`,
+    ).not.toEqual(unpersonalizedGeometry);
+    expect(await readDomSignature()).toEqual(initialDom);
+    expect(await readWorkbenchTabOrder(page, shell)).toEqual(initialTabOrder);
   }
+
+  await testInfo.attach("layout-personality-geometry.json", {
+    body: JSON.stringify(
+      { personalities: geometryByPersonality, unpersonalizedGeometry },
+      null,
+      2,
+    ),
+    contentType: "application/json",
+  });
 });
 
 test("layout laboratory uses only the active UI prefix for pill actions", async ({

@@ -44,17 +44,6 @@ export function SiteHeader({ companyUrl }: SiteHeaderProps) {
           </span>
         </a>
 
-        <nav
-          className="primary-nav ly-cluster ly-gap-4"
-          aria-label="Primary navigation"
-        >
-          {navigationItems.map(([label, id]) => (
-            <a href={`#${id}`} key={id}>
-              {label}
-            </a>
-          ))}
-        </nav>
-
         <div className="header-links ly-cluster ly-gap-2">
           <a
             className="interactive-surface site-action"
@@ -81,6 +70,17 @@ export function SiteHeader({ companyUrl }: SiteHeaderProps) {
             <span className="ly-visually-hidden"> (opens in a new tab)</span>
           </a>
         </div>
+
+        <nav
+          className="primary-nav ly-cluster ly-gap-4"
+          aria-label="Primary navigation"
+        >
+          {navigationItems.map(([label, id]) => (
+            <a href={`#${id}`} key={id}>
+              {label}
+            </a>
+          ))}
+        </nav>
       </div>
     </header>
   );

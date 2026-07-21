@@ -1,15 +1,6 @@
-"use client";
-
-import { getUiPrefix } from "../data/catalog";
 import { ArrowRightIcon, ExternalLinkIcon } from "./Icons";
-import { useLabConfiguration } from "./LabExperience";
 
 export function FeatureShowcase() {
-  const { configuration } = useLabConfiguration();
-  const prefix = getUiPrefix(configuration.ui);
-  const cardClass = `${prefix}-card ly-surface`;
-  const surfaceClass = `${prefix}-surface ly-surface`;
-
   return (
     <section
       className="section-band ly-section"
@@ -27,29 +18,25 @@ export function FeatureShowcase() {
         </div>
 
         <div className="proof-grid">
-          <article
-            className={`proof-card ${cardClass} ly-pad-5 ly-stack ly-gap-4`}
-          >
+          <article className="proof-card ly-surface ly-pad-5 ly-stack ly-gap-4">
             <header className="ly-stack ly-gap-1">
               <small className="eyebrow">layout-style-css</small>
               <h3>Structure proof</h3>
               <code>ly-stack + ly-cluster + ly-frame</code>
             </header>
             <div className="proof-layout-sample">
-              <div className={`ly-frame ly-frame-4x3 ${surfaceClass} ly-pad-4`}>
+              <div className="ly-frame ly-frame-4x3 ly-surface ly-pad-4">
                 <strong>4:3 frame</strong>
               </div>
               <div className="ly-stack ly-gap-2">
-                <span className={`${surfaceClass} ly-pad-3`}>Wrapper</span>
-                <span className={`${surfaceClass} ly-pad-3`}>Stack</span>
-                <span className={`${surfaceClass} ly-pad-3`}>Cluster</span>
+                <span className="ly-surface ly-pad-3">Wrapper</span>
+                <span className="ly-surface ly-pad-3">Stack</span>
+                <span className="ly-surface ly-pad-3">Cluster</span>
               </div>
             </div>
           </article>
 
-          <article
-            className={`proof-card ${cardClass} ly-pad-5 ly-stack ly-gap-4`}
-          >
+          <article className="proof-card ly-surface ly-pad-5 ly-stack ly-gap-4">
             <header className="ly-stack ly-gap-1">
               <small className="eyebrow">ui-style-kit-css</small>
               <h3>Identity proof</h3>
@@ -84,9 +71,7 @@ export function FeatureShowcase() {
             </form>
           </article>
 
-          <article
-            className={`proof-card ${cardClass} ly-pad-5 ly-stack ly-gap-4`}
-          >
+          <article className="proof-card ly-surface ly-pad-5 ly-stack ly-gap-4">
             <header className="ly-stack ly-gap-1">
               <small className="eyebrow">interactive-surface-css</small>
               <h3>Behavior proof</h3>

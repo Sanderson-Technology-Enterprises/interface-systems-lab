@@ -30,7 +30,7 @@ export function SiteFooter({ companyUrl }: SiteFooterProps) {
           </p>
         </div>
 
-        <div className="footer-actions ly-cluster ly-gap-3 ly-items-start">
+        <div className="ly-cluster ly-gap-3 ly-items-start">
           <a href={companyUrl} target="_blank" rel="noreferrer noopener">
             Sanderson Technology Enterprises
             <ExternalLinkIcon />
