@@ -343,49 +343,67 @@ test("metadata routes opt into static generation for the exported site", async (
 });
 
 test("page components expose approved observatory and resource landmarks", async () => {
-  const [page, observatory, installGuide, directory, featureShowcase] =
-    await Promise.all([
-      readFile(new URL("../app/page.tsx", import.meta.url), "utf8"),
-      readFile(
-        new URL("../app/components/InterfaceObservatory.tsx", import.meta.url),
-        "utf8",
-      ),
-      readFile(
-        new URL("../app/components/InstallGuide.tsx", import.meta.url),
-        "utf8",
-      ),
-      readFile(
-        new URL("../app/components/LibraryDirectory.tsx", import.meta.url),
-        "utf8",
-      ),
-      readFile(
-        new URL("../app/components/FeatureShowcase.tsx", import.meta.url),
-        "utf8",
-      ),
-    ]);
+  const [
+    page,
+    observatory,
+    installGuide,
+    directory,
+    layoutLab,
+    siteHeader,
+    siteFooter,
+  ] = await Promise.all([
+    readFile(new URL("../app/page.tsx", import.meta.url), "utf8"),
+    readFile(
+      new URL("../app/components/InterfaceObservatory.tsx", import.meta.url),
+      "utf8",
+    ),
+    readFile(
+      new URL("../app/components/InstallGuide.tsx", import.meta.url),
+      "utf8",
+    ),
+    readFile(
+      new URL("../app/components/LibraryDirectory.tsx", import.meta.url),
+      "utf8",
+    ),
+    readFile(
+      new URL("../app/components/labs/LayoutLab.tsx", import.meta.url),
+      "utf8",
+    ),
+    readFile(
+      new URL("../app/components/SiteHeader.tsx", import.meta.url),
+      "utf8",
+    ),
+    readFile(
+      new URL("../app/components/SiteFooter.tsx", import.meta.url),
+      "utf8",
+    ),
+  ]);
 
   assert.match(observatory, /Interface Observatory/);
   assert.doesNotMatch(observatory, /signal-bars/);
   assert.match(installGuide, /Install all three/);
   assert.match(directory, /Library resources/);
-  assert.match(featureShowcase, /Library proof cards/);
-  assert.match(featureShowcase, /Structure proof/);
-  assert.match(featureShowcase, /Identity proof/);
-  assert.match(featureShowcase, /Behavior proof/);
-  assert.match(page, /brand-logo/);
-  assert.match(page, /SITE\.productLine/);
-  assert.match(page, /SITE\.brandLogoPath/);
+  assert.match(layoutLab, /Layout laboratory/);
+  assert.match(layoutLab, /data-ly-recipe="dashboard"/);
+  assert.match(page, /<LabExperience>/);
+  assert.doesNotMatch(page, /^"use client";/);
+  assert.match(siteHeader, /brand-logo/);
+  assert.match(siteHeader, /SITE\.productLine/);
+  assert.match(siteHeader, /favicon-48x48\.png/);
+  assert.match(siteFooter, /android-chrome-192x192\.png/);
   assert.doesNotMatch(observatory, />\s*Inspect\s*</);
 });
 
 test("local CSS owns the observatory without retaining the audio meter", async () => {
-  const css = await readFile(
-    new URL("../app/globals.css", import.meta.url),
-    "utf8",
-  );
+  const [observatoryCss, responsiveCss, globalCss] = await Promise.all([
+    readFile(new URL("../app/styles/observatory.css", import.meta.url), "utf8"),
+    readFile(new URL("../app/styles/responsive.css", import.meta.url), "utf8"),
+    readFile(new URL("../app/globals.css", import.meta.url), "utf8"),
+  ]);
 
-  assert.match(css, /\.observatory-stage/);
-  assert.match(css, /@keyframes orbit/);
-  assert.doesNotMatch(css, /\.signal-bars/);
-  assert.match(css, /prefers-reduced-motion/);
+  assert.match(observatoryCss, /\.observatory-stage/);
+  assert.match(observatoryCss, /@keyframes orbit/);
+  assert.doesNotMatch(observatoryCss, /\.signal-bars/);
+  assert.match(responsiveCss, /prefers-reduced-motion/);
+  assert.doesNotMatch(globalCss, /observatory/);
 });

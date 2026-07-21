@@ -1,0 +1,68 @@
+import { ECOSYSTEM_PACKAGES } from "../data/ecosystem";
+import { SITE } from "../lib/site";
+import { ExternalLinkIcon } from "./Icons";
+
+type SiteFooterProps = {
+  companyUrl: string;
+};
+
+export function SiteFooter({ companyUrl }: SiteFooterProps) {
+  return (
+    <footer className="site-footer">
+      <div className="site-footer-inner ly-wrapper ly-stack ly-gap-5">
+        <div className="footer-brand ly-cluster ly-gap-3">
+          {/* A relative public path remains valid under the exported Pages project route. */}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            className="footer-logo"
+            src="android-chrome-192x192.png"
+            width="64"
+            height="64"
+            alt=""
+            aria-hidden="true"
+            loading="lazy"
+            decoding="async"
+          />
+          <p className="ly-stack ly-gap-1">
+            <strong>{SITE.name}</strong>
+            <small>{SITE.productLine}</small>
+            <small>One semantic interface. Three focused CSS layers.</small>
+          </p>
+        </div>
+
+        <div className="footer-actions ly-cluster ly-gap-3 ly-items-start">
+          <a href={companyUrl} target="_blank" rel="noreferrer noopener">
+            Sanderson Technology Enterprises
+            <ExternalLinkIcon />
+            <span className="ly-visually-hidden"> (opens in a new tab)</span>
+          </a>
+          <a href={SITE.repository} target="_blank" rel="noreferrer noopener">
+            GitHub repository
+            <ExternalLinkIcon />
+            <span className="ly-visually-hidden"> (opens in a new tab)</span>
+          </a>
+        </div>
+
+        <nav
+          className="footer-package-links ly-cluster ly-gap-3"
+          aria-label="Package links"
+        >
+          {ECOSYSTEM_PACKAGES.map((pkg) => (
+            <a
+              key={pkg.name}
+              href={pkg.links.npm}
+              target="_blank"
+              rel="noreferrer noopener"
+            >
+              {pkg.name}
+              <span className="ly-visually-hidden">
+                {" "}
+                on npm (opens in a new tab)
+              </span>
+            </a>
+          ))}
+        </nav>
+      </div>
+    </footer>
+  );
+}

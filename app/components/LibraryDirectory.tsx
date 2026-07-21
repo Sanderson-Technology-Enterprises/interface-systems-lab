@@ -22,8 +22,8 @@ export function LibraryDirectory() {
       id="libraries"
       aria-labelledby="libraries-title"
     >
-      <div className="ly-wrapper ly-wrapper--xl">
-        <div className="section-heading ly-split ly-gap-6">
+      <div className="ly-wrapper">
+        <div className="section-heading ly-split ly-gap-6 ly-items-end">
           <div>
             <p className="section-label">Library resources</p>
             <h2 id="libraries-title">One job per package</h2>
@@ -37,7 +37,7 @@ export function LibraryDirectory() {
         <ol className="library-list ly-stack ly-gap-0">
           {ECOSYSTEM_PACKAGES.map((pkg, index) => (
             <li
-              className="ly-grid ly-md-cols-4 ly-gap-4 ly-py-5"
+              className="ly-grid ly-cols-1 ly-md-cols-4 ly-gap-4 ly-py-6"
               key={pkg.name}
             >
               <span className="library-index">
@@ -55,6 +55,9 @@ export function LibraryDirectory() {
               >
                 {resourceOrder.map((resource) => (
                   <a
+                    className="interactive-surface site-action"
+                    data-surface-variant="subtle"
+                    data-surface-level="1"
                     key={resource}
                     href={pkg.links[resource]}
                     target="_blank"

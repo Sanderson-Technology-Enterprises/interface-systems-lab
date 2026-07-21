@@ -9,6 +9,10 @@ import "layout-style-css";
 import { ECOSYSTEM_PACKAGES } from "./data/ecosystem";
 import { SITE, withBasePath } from "./lib/site";
 import "./globals.css";
+import "./styles/shell.css";
+import "./styles/observatory.css";
+import "./styles/labs.css";
+import "./styles/responsive.css";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",

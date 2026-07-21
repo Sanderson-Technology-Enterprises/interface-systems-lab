@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 
 import {
+  getUiPrefix,
   LAYOUT_PERSONALITIES,
   UI_MODES,
   UI_PRESETS,
@@ -40,6 +41,7 @@ export function LabControls() {
     setTheme,
     setUi,
   } = useLabConfiguration();
+  const prefix = getUiPrefix(configuration.ui);
   const [copyLabel, setCopyLabel] = useState("Copy configuration");
   const [shareLabel, setShareLabel] = useState("Share configuration");
   const [fallbackText, setFallbackText] = useState<string | null>(null);
@@ -132,12 +134,12 @@ export function LabControls() {
 
   return (
     <aside
-      className="configuration-console ly-header--sticky ly-surface ly-pad-4"
+      className={`configuration-console ${prefix}-panel ly-surface ly-header--sticky ly-pad-4`}
       aria-label="Configuration console"
       style={{ insetBlockStart: "var(--ly-header-height)" }}
     >
       <form
-        className="control-deck"
+        className="control-deck ly-grid ly-cols-1 ly-md-cols-2 ly-lg-cols-4 ly-gap-4"
         aria-label="Interface configuration"
         onSubmit={(event) => event.preventDefault()}
       >
@@ -221,9 +223,9 @@ export function LabControls() {
           </div>
         </fieldset>
 
-        <div className="control-actions ly-cluster ly-gap-2">
+        <div className="control-actions ly-cluster ly-gap-2 ly-span-full ly-items-stretch">
           <button
-            className="interactive-surface"
+            className="interactive-surface site-action"
             data-surface-variant="primary"
             data-surface-level="2"
             type="button"
@@ -234,7 +236,7 @@ export function LabControls() {
             Randomize
           </button>
           <button
-            className="interactive-surface"
+            className="interactive-surface site-action"
             data-surface-variant="subtle"
             data-surface-level="1"
             type="button"
@@ -244,7 +246,7 @@ export function LabControls() {
             Reset
           </button>
           <button
-            className="interactive-surface"
+            className="interactive-surface site-action"
             data-surface-variant="subtle"
             data-surface-level="1"
             type="button"
@@ -255,7 +257,7 @@ export function LabControls() {
             <span>{copyLabel}</span>
           </button>
           <button
-            className="interactive-surface"
+            className="interactive-surface site-action"
             data-surface-variant="subtle"
             data-surface-level="1"
             type="button"
@@ -288,7 +290,7 @@ export function LabControls() {
         <span className="live-status">Applied live</span>
       </div>
 
-      <div className="code-strip ly-surface ly-pad-4">
+      <div className={`code-strip ${prefix}-surface ly-surface ly-pad-4`}>
         <div>
           <small>Four attributes. One shared contract.</small>
           <code tabIndex={0}>{markup}</code>

@@ -16,6 +16,18 @@ const resourceUrls = [
 ];
 
 const configurationStorageKey = "interface-systems-lab:configuration:v1";
+const companyUrl = "https://sandersontechnologyenterprises.com";
+const requiredSectionIds = [
+  "top",
+  "workbench",
+  "layouts",
+  "ui-native",
+  "interactions",
+  "integrate",
+  "install",
+  "libraries",
+  "company",
+] as const;
 
 type ExpectedConfiguration = {
   layout: string;
@@ -113,6 +125,234 @@ async function expectNoHorizontalOverflow(page: Page) {
   expect(dimensions.scrollWidth).toBeLessThanOrEqual(dimensions.clientWidth);
 }
 
+test("shell scopes the complete experience and balances developer and company paths", async ({
+  page,
+}) => {
+  const runtimeErrors: string[] = [];
+  page.on("console", (message) => {
+    if (message.type() === "error") runtimeErrors.push(message.text());
+  });
+  page.on("pageerror", (error) => runtimeErrors.push(error.message));
+  await page.reload();
+
+  const experience = page.locator(".experience.ly-root");
+  await expect(experience).toHaveCount(1);
+  await expectRootConfiguration(page, defaultConfiguration);
+  await expect(experience.locator(":scope > .site-header")).toHaveCount(1);
+  await expect(experience.locator(":scope > main")).toHaveCount(1);
+  await expect(experience.locator(":scope > .site-footer")).toHaveCount(1);
+  await expect(page.locator("main")).toHaveCount(1);
+  await expect(page.locator("h1")).toHaveCount(1);
+
+  const skipLink = page.getByRole("link", { name: "Skip to main content" });
+  await expect(skipLink).toHaveAttribute("href", "#main-content");
+  await skipLink.focus();
+  await expect(skipLink).toBeFocused();
+
+  const navigation = page.getByRole("navigation", {
+    name: "Primary navigation",
+  });
+  for (const id of requiredSectionIds) {
+    await expect(page.locator(`#${id}`)).toHaveCount(1);
+    await expect(navigation.locator(`a[href="#${id}"]`)).toHaveCount(1);
+  }
+
+  const developerAction = page.locator('[data-hero-action="developer"]');
+  const companyAction = page.locator('[data-hero-action="company"]');
+  await expect(developerAction).toHaveAttribute("href", "#workbench");
+  await expect(companyAction).toHaveAttribute("href", companyUrl);
+  const actionGeometry = await Promise.all(
+    [developerAction, companyAction].map((action) =>
+      action.evaluate((element) => {
+        const bounds = element.getBoundingClientRect();
+        const style = getComputedStyle(element);
+        return {
+          alignItems: style.alignItems,
+          background: style.backgroundColor,
+          blockSize: bounds.height,
+          color: style.color,
+          justifyContent: style.justifyContent,
+          paddingInlineEnd: Number.parseFloat(style.paddingInlineEnd),
+          paddingInlineStart: Number.parseFloat(style.paddingInlineStart),
+          textAlign: style.textAlign,
+        };
+      }),
+    ),
+  );
+
+  for (const action of actionGeometry) {
+    expect(action.blockSize).toBeGreaterThanOrEqual(44);
+    expect(action.justifyContent).toBe("center");
+    expect(action.paddingInlineStart).toBeGreaterThan(0);
+    expect(action.paddingInlineEnd).toBeGreaterThan(0);
+    expect(action.textAlign).toBe("center");
+  }
+  expect(
+    Math.abs(actionGeometry[0]!.blockSize - actionGeometry[1]!.blockSize),
+  ).toBeLessThanOrEqual(1);
+  expect(actionGeometry[0]!.background).toBe(actionGeometry[1]!.background);
+  expect(actionGeometry[0]!.color).toBe(actionGeometry[1]!.color);
+
+  await expect(page.locator(`a[href="${companyUrl}"]`)).toHaveCount(4);
+
+  for (const [selector, asset] of [
+    [".brand-logo", "favicon-48x48.png"],
+    [".footer-logo", "android-chrome-192x192.png"],
+  ] as const) {
+    const image = page.locator(selector);
+    await expect(image).toHaveAttribute("src", new RegExp(`${asset}$`));
+    await image.scrollIntoViewIfNeeded();
+    await expect
+      .poll(() =>
+        image.evaluate(
+          (element: HTMLImageElement) =>
+            element.complete &&
+            element.naturalWidth > 0 &&
+            element.naturalHeight > 0,
+        ),
+      )
+      .toBe(true);
+  }
+
+  expect(runtimeErrors).toEqual([]);
+});
+
+test("shell keeps observatory controls clear of the interface core", async ({
+  page,
+}) => {
+  for (const viewport of [
+    { width: 320, height: 568 },
+    { width: 390, height: 844 },
+    { width: 768, height: 1024 },
+    { width: 1440, height: 1000 },
+  ]) {
+    await page.setViewportSize(viewport);
+    await page.goto("./");
+
+    const geometry = await page
+      .locator(".observatory-stage")
+      .evaluate((stage) => {
+        const core = stage.querySelector<HTMLElement>(".observatory-core");
+        const controls = Array.from(
+          stage.querySelectorAll<HTMLElement>(".observatory-orbit"),
+        );
+        if (core === null) throw new Error("Observatory core is missing.");
+
+        const stageBounds = stage.getBoundingClientRect();
+        const coreBounds = core.getBoundingClientRect();
+        return controls.map((control) => {
+          const bounds = control.getBoundingClientRect();
+          const overlapsCore =
+            bounds.left < coreBounds.right &&
+            bounds.right > coreBounds.left &&
+            bounds.top < coreBounds.bottom &&
+            bounds.bottom > coreBounds.top;
+
+          return {
+            label: control.textContent?.trim() ?? "",
+            overlapsCore,
+            withinStage:
+              bounds.left >= stageBounds.left &&
+              bounds.right <= stageBounds.right &&
+              bounds.top >= stageBounds.top &&
+              bounds.bottom <= stageBounds.bottom,
+          };
+        });
+      });
+
+    expect({ geometry, width: viewport.width }).toEqual({
+      geometry: [
+        { label: "Structure", overlapsCore: false, withinStage: true },
+        { label: "Identity", overlapsCore: false, withinStage: true },
+        { label: "Behavior", overlapsCore: false, withinStage: true },
+      ],
+      width: viewport.width,
+    });
+  }
+});
+
+test("shell keeps narrow-screen anchors clear of tall sticky regions", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1440, height: 1000 });
+  await page.goto("./");
+  await expect
+    .poll(() =>
+      page
+        .locator(".site-header")
+        .evaluate((element) => getComputedStyle(element).position),
+    )
+    .toBe("sticky");
+  await expect
+    .poll(() =>
+      page
+        .locator(".configuration-console")
+        .evaluate((element) => getComputedStyle(element).position),
+    )
+    .toBe("sticky");
+
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("./#workbench");
+  const mobileGeometry = await page.evaluate(() => {
+    const header = document.querySelector<HTMLElement>(".site-header");
+    const console = document.querySelector<HTMLElement>(
+      ".configuration-console",
+    );
+    const heading = document.querySelector<HTMLElement>("#workbench-title");
+    if (header === null || console === null || heading === null) {
+      throw new Error("Expected shell landmarks are missing.");
+    }
+
+    const headerBounds = header.getBoundingClientRect();
+    const headingBounds = heading.getBoundingClientRect();
+    const navigation = document.querySelector<HTMLElement>(".primary-nav");
+    const navigationBounds = navigation?.getBoundingClientRect();
+    const navigationLinkBounds = Array.from(
+      navigation?.querySelectorAll("a") ?? [],
+      (link) => link.getBoundingClientRect(),
+    );
+    const navigationLinkTextFits = Array.from(
+      navigation?.querySelectorAll<HTMLElement>("a") ?? [],
+    ).every((link) => link.clientWidth >= link.scrollWidth);
+    const headerActions = Array.from(
+      document.querySelectorAll<HTMLElement>(".header-links a"),
+    );
+    return {
+      consolePosition: getComputedStyle(console).position,
+      headerActionsVisible:
+        headerActions.length === 2 &&
+        headerActions.every((action) => {
+          const bounds = action.getBoundingClientRect();
+          return bounds.width > 0 && bounds.height >= 44;
+        }),
+      headerHeight: headerBounds.height,
+      headerPosition: getComputedStyle(header).position,
+      headingClearsHeader:
+        headingBounds.top >= Math.max(0, headerBounds.bottom),
+      navigationHeight: navigationBounds?.height ?? 0,
+      navigationLinksSeparated: navigationLinkBounds.every(
+        (bounds, index) =>
+          index === 0 ||
+          (navigationLinkBounds[index - 1]?.right ?? bounds.left) <=
+            bounds.left,
+      ),
+      navigationLinkTextFits,
+      navigationScrollable:
+        navigation !== null && navigation.scrollWidth > navigation.clientWidth,
+    };
+  });
+
+  expect(mobileGeometry.headerActionsVisible).toBe(true);
+  expect(mobileGeometry.headerHeight).toBeLessThanOrEqual(150);
+  expect(mobileGeometry.navigationHeight).toBeLessThanOrEqual(48);
+  expect(mobileGeometry.navigationLinkTextFits).toBe(true);
+  expect(mobileGeometry.navigationLinksSeparated).toBe(true);
+  expect(mobileGeometry.navigationScrollable).toBe(true);
+  expect(mobileGeometry.consolePosition).toBe("static");
+  expect(mobileGeometry.headerPosition).toBe("static");
+  expect(mobileGeometry.headingClearsHeader).toBe(true);
+});
+
 test("renders the production metadata and complete resource directory", async ({
   page,
 }, testInfo) => {
@@ -127,7 +367,7 @@ test("renders the production metadata and complete resource directory", async ({
   await expect(page.locator(".brand-logo")).toBeVisible();
   await expect(page.locator(".brand-logo")).toHaveAttribute(
     "src",
-    /logo-master\.png$/,
+    /favicon-48x48\.png$/,
   );
   await expect
     .poll(() =>
@@ -146,16 +386,7 @@ test("renders the production metadata and complete resource directory", async ({
     page.getByRole("heading", { name: /Design every layer/i }),
   ).toBeVisible();
   await expect(
-    page.getByRole("heading", { name: /Library proof cards/i }),
-  ).toBeVisible();
-  await expect(
-    page.getByRole("heading", { name: "Structure proof" }),
-  ).toBeVisible();
-  await expect(
-    page.getByRole("heading", { name: "Identity proof" }),
-  ).toBeVisible();
-  await expect(
-    page.getByRole("heading", { name: "Behavior proof" }),
+    page.getByRole("heading", { name: /Layout laboratory/i }),
   ).toBeVisible();
   await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
     "href",
@@ -633,6 +864,8 @@ test("stays responsive across mobile portrait, mobile landscape, tablet, and des
   page,
 }) => {
   const viewports = [
+    // A classic 15px scrollbar leaves a 305px content box in a 320px window.
+    { width: 305, height: 568 },
     { width: 320, height: 568 },
     { width: 390, height: 844 },
     { width: 844, height: 390 },
@@ -651,7 +884,7 @@ test("stays responsive across mobile portrait, mobile landscape, tablet, and des
       page.getByRole("navigation", { name: "Primary navigation" }),
     ).toBeVisible();
     await expect(
-      page.getByRole("heading", { name: "Structure proof" }),
+      page.getByRole("heading", { name: /Layout laboratory/i }),
     ).toBeVisible();
 
     const sectionHealth = await page.evaluate(() =>

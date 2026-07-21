@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 
+import { getUiPrefix } from "../data/catalog";
 import { BUNDLER_IMPORTS, CDN_MARKUP, NPM_INSTALL } from "../data/ecosystem";
 import { CopyIcon } from "./Icons";
 import { useLabConfiguration } from "./LabExperience";
@@ -30,7 +31,8 @@ const snippets = [
 type SnippetId = (typeof snippets)[number]["id"];
 
 export function InstallGuide() {
-  const { announce } = useLabConfiguration();
+  const { announce, configuration } = useLabConfiguration();
+  const prefix = getUiPrefix(configuration.ui);
   const [copyLabels, setCopyLabels] = useState<
     Partial<Record<SnippetId, string>>
   >({});
@@ -89,8 +91,8 @@ export function InstallGuide() {
       id="install"
       aria-labelledby="install-title"
     >
-      <div className="ly-wrapper ly-wrapper--xl">
-        <div className="section-heading ly-split ly-gap-6">
+      <div className="ly-wrapper">
+        <div className="section-heading ly-split ly-gap-6 ly-items-end">
           <div>
             <p className="section-label">Install</p>
             <h2 id="install-title">Install the complete system</h2>
@@ -108,7 +110,7 @@ export function InstallGuide() {
             return (
               <li
                 key={snippet.id}
-                className="install-step ly-grid ly-md-cols-2 ly-gap-5 ly-py-5"
+                className="install-step ly-grid ly-cols-1 ly-md-cols-2 ly-gap-5 ly-py-6"
               >
                 <header className="ly-cluster ly-gap-3 ly-items-start">
                   <span>{String(index + 1).padStart(2, "0")}</span>
@@ -117,12 +119,14 @@ export function InstallGuide() {
                     <h3>{snippet.title}</h3>
                   </div>
                 </header>
-                <div className="snippet-shell ly-surface ly-pad-4 ly-stack ly-gap-3">
+                <div
+                  className={`snippet-shell ${prefix}-surface ly-surface ly-pad-4 ly-stack ly-gap-3`}
+                >
                   <pre tabIndex={0}>
                     <code>{snippet.code}</code>
                   </pre>
                   <button
-                    className="copy-button interactive-surface"
+                    className="copy-button interactive-surface site-action"
                     data-surface-variant="subtle"
                     data-surface-level="1"
                     type="button"

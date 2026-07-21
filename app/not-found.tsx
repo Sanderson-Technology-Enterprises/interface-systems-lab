@@ -14,7 +14,7 @@ export const metadata: Metadata = {
 export default function NotFound() {
   return (
     <main className="not-found ly-root ly-page">
-      <div className="ly-wrapper ly-wrapper--readable ly-section ly-stack">
+      <div className="ly-wrapper ly-wrapper--prose ly-section ly-stack">
         <p className="not-found-code">404</p>
         <h1>This interface is outside the system.</h1>
         <p>
@@ -22,7 +22,7 @@ export default function NotFound() {
           live CSS ecosystem.
         </p>
         <a
-          className="interactive-surface"
+          className="interactive-surface site-action"
           data-surface-variant="primary"
           data-surface-level="2"
           href={withBasePath("/")}

@@ -1,0 +1,171 @@
+.observatory,
+.observatory-stage,
+.observatory-detail {
+  min-inline-size: 0;
+}
+
+.observatory-stage {
+  position: relative;
+  display: grid;
+  place-items: center;
+  isolation: isolate;
+  inline-size: min(100%, 30rem);
+  aspect-ratio: 1;
+  margin-inline: auto;
+}
+
+.observatory-stage::before,
+.observatory-stage::after {
+  content: "";
+  position: absolute;
+  z-index: -2;
+  background: var(--lab-rule-soft);
+}
+
+.observatory-stage::before {
+  inline-size: 100%;
+  block-size: 1px;
+}
+
+.observatory-stage::after {
+  inline-size: 1px;
+  block-size: 100%;
+}
+
+.orbit-ring {
+  position: absolute;
+  display: block;
+  border: 1px solid currentColor;
+  border-radius: 50%;
+  color: rgb(var(--usk-primary-rgb));
+  pointer-events: none;
+}
+
+.orbit-ring-structure {
+  inset: 2%;
+}
+
+.orbit-ring-identity {
+  inset: 18%;
+  color: rgb(var(--usk-link-rgb));
+}
+
+.orbit-ring-behavior {
+  inset: 34%;
+  color: rgb(var(--usk-success-rgb));
+}
+
+.observatory-orbit {
+  position: absolute;
+  z-index: 1;
+  min-inline-size: 6rem;
+}
+
+.observatory-orbit-structure {
+  inset-block-start: 16%;
+  inset-inline-start: 8%;
+}
+
+.observatory-orbit-identity {
+  inset-inline-end: 8%;
+  inset-block-end: 18%;
+}
+
+.observatory-orbit-behavior {
+  inset-block-start: 42%;
+  inset-inline-start: 0;
+}
+
+.orbit-runner {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  animation: orbit 24s linear infinite;
+}
+
+.orbit-ring-identity .orbit-runner {
+  animation-direction: reverse;
+  animation-duration: 18s;
+}
+
+.orbit-ring-behavior .orbit-runner {
+  animation-duration: 12s;
+}
+
+.orbit-runner i {
+  position: absolute;
+  inset: -0.38rem auto auto 50%;
+  inline-size: 0.75rem;
+  aspect-ratio: 1;
+  border: 2px solid rgb(var(--usk-bg-rgb));
+  border-radius: 50%;
+  background: currentColor;
+  box-shadow:
+    0 0 0 1px currentColor,
+    0 0 1.5rem currentColor;
+}
+
+.orbit-label {
+  font-family: var(--font-code);
+  font-size: 0.68rem;
+  font-weight: 850;
+  text-transform: uppercase;
+}
+
+.observatory-core {
+  display: grid;
+  place-content: center;
+  gap: 0.25rem;
+  inline-size: 30%;
+  aspect-ratio: 1;
+  border: 1px solid rgb(var(--usk-primary-rgb));
+  border-radius: 50%;
+  background: rgb(var(--usk-surface-rgb));
+  text-align: center;
+  box-shadow: 0 0 3rem rgb(var(--usk-primary-rgb) / 0.12);
+}
+
+.observatory-core small {
+  max-inline-size: 7ch;
+  color: rgb(var(--usk-text-muted-rgb));
+  font-size: 0.68rem;
+  line-height: 1.35;
+}
+
+.observatory-legend {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.observatory-legend li {
+  min-inline-size: 0;
+}
+
+.observatory-legend strong,
+.observatory-legend small {
+  display: block;
+  overflow-wrap: anywhere;
+}
+
+.layer-number {
+  color: rgb(var(--usk-primary-rgb));
+  font-family: var(--font-code);
+  font-size: 0.7rem;
+  font-weight: 850;
+}
+
+.observatory-detail code {
+  color: rgb(var(--usk-link-rgb));
+  overflow-wrap: anywhere;
+}
+
+@keyframes orbit {
+  to {
+    rotate: 1turn;
+  }
+}

@@ -1,85 +1,152 @@
-"use client";
-
-import { useState } from "react";
-
-import { ArrowRightIcon, ExternalLinkIcon } from "./components/Icons";
-import { FeatureShowcase } from "./components/FeatureShowcase";
+import { CombinedWorkbench, HeroActions } from "./components/CombinedWorkbench";
+import { ExternalLinkIcon } from "./components/Icons";
 import { InstallGuide } from "./components/InstallGuide";
 import { InterfaceObservatory } from "./components/InterfaceObservatory";
 import { LabControls } from "./components/LabControls";
-import { LabExperience, useLabConfiguration } from "./components/LabExperience";
+import { LabExperience } from "./components/LabExperience";
+import { LayoutLab } from "./components/labs/LayoutLab";
 import { LibraryDirectory } from "./components/LibraryDirectory";
-import { ECOSYSTEM_PACKAGES } from "./data/ecosystem";
-import { configurationMarkup } from "./lib/configuration";
+import { SiteFooter } from "./components/SiteFooter";
+import { SiteHeader } from "./components/SiteHeader";
 import { SITE } from "./lib/site";
+
+const companyUrl = "https://sandersontechnologyenterprises.com";
+
+function CapabilityRunway() {
+  return (
+    <section
+      className="capability-runway section-band ly-section"
+      aria-labelledby="capability-runway-title"
+    >
+      <div className="ly-wrapper">
+        <div className="section-heading ly-split ly-gap-6 ly-items-end">
+          <div className="ly-stack ly-gap-2">
+            <p className="section-label">Complete ecosystem path</p>
+            <h2 id="capability-runway-title">
+              Every layer has a focused proof.
+            </h2>
+          </div>
+          <p>
+            Layout is live now. The remaining anchored chapters establish the
+            narrative path without pre-empting their dedicated capability labs.
+          </p>
+        </div>
+
+        <div className="capability-preview ly-grid ly-grid--auto ly-gap-5">
+          <section
+            className="capability-preview-panel ly-stack ly-gap-3"
+            id="ui-native"
+            aria-labelledby="ui-native-title"
+          >
+            <p className="section-label">Identity</p>
+            <h2 id="ui-native-title">UI and native elements</h2>
+            <p>
+              Preset paint, themes, modes, and native browser controls share the
+              same root configuration without borrowing Layout geometry.
+            </p>
+          </section>
+
+          <section
+            className="capability-preview-panel ly-stack ly-gap-3"
+            id="interactions"
+            aria-labelledby="interactions-title"
+          >
+            <p className="section-label">Behavior</p>
+            <h2 id="interactions-title">Interaction states</h2>
+            <p>
+              Hover, focus-visible, active, pressed, busy, and disabled remain
+              one predictable mechanics layer across every visual preset.
+            </p>
+          </section>
+
+          <section
+            className="capability-preview-panel ly-stack ly-gap-3"
+            id="integrate"
+            aria-labelledby="integrate-title"
+          >
+            <p className="section-label">Adoption</p>
+            <h2 id="integrate-title">Integration proofs</h2>
+            <p>
+              Package-by-package and combined examples lead into the pinned
+              installation guide and resource directory below.
+            </p>
+          </section>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function CompanySection() {
+  return (
+    <section
+      className="company-section section-band ly-section"
+      id="company"
+      aria-labelledby="company-title"
+    >
+      <div className="ly-wrapper">
+        <div className="company-conversion ly-split ly-gap-6">
+          <article className="conversion-path ly-stack ly-gap-4 ly-items-start">
+            <p className="section-label">For developers</p>
+            <h2 id="company-title">Adopt the system at your own pace.</h2>
+            <p>
+              Start with one package or use the complete cascade. Every layer
+              stays independently versioned, documented, and testable.
+            </p>
+            <a
+              className="interactive-surface site-action"
+              data-surface-variant="primary"
+              data-surface-level="2"
+              href={SITE.repository}
+              target="_blank"
+              rel="noreferrer noopener"
+            >
+              Review the source on GitHub
+              <ExternalLinkIcon />
+              <span className="ly-visually-hidden"> (opens in a new tab)</span>
+            </a>
+          </article>
+
+          <article className="conversion-path ly-stack ly-gap-4 ly-items-start">
+            <p className="section-label">For organizations</p>
+            <h2>Turn interface ambition into a delivery system.</h2>
+            <p>
+              Sanderson Technology Enterprises helps teams connect product
+              strategy, accessible interface design, and durable implementation.
+            </p>
+            <a
+              className="interactive-surface site-action"
+              data-surface-variant="accent"
+              data-surface-level="2"
+              href={companyUrl}
+              target="_blank"
+              rel="noreferrer noopener"
+            >
+              Work with Sanderson Technology Enterprises
+              <ExternalLinkIcon />
+              <span className="ly-visually-hidden"> (opens in a new tab)</span>
+            </a>
+          </article>
+        </div>
+      </div>
+    </section>
+  );
+}
 
 export default function Home() {
   return (
     <LabExperience>
-      <HomeContent />
-    </LabExperience>
-  );
-}
-
-function HomeContent() {
-  const { configuration: lab, announce } = useLabConfiguration();
-  const [saved, setSaved] = useState(false);
-  const configMarkup = configurationMarkup(lab);
-  const modeLabel =
-    lab.mode === "contrast"
-      ? "High contrast"
-      : `${lab.mode.charAt(0).toUpperCase()}${lab.mode.slice(1)}`;
-
-  return (
-    <>
       <a className="skip-link" href="#main-content">
         Skip to main content
       </a>
 
-      <header className="site-header ly-header ly-header--sticky">
-        <div className="site-header-inner ly-wrapper ly-wrapper--xl">
-          <a
-            className="brand ly-cluster ly-gap-2"
-            href="#top"
-            aria-label="Interface Systems Lab home"
-          >
-            {/* Static export requires a relative public asset path under the GitHub Pages project route. */}
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              className="brand-logo"
-              src={SITE.brandLogoPath}
-              width="48"
-              height="48"
-              alt=""
-              aria-hidden="true"
-              decoding="async"
-              fetchPriority="high"
-            />
-            <span className="brand-copy">
-              <span className="brand-title">{SITE.name}</span>
-              <span className="brand-owner">{SITE.productLine}</span>
-            </span>
-          </a>
-
-          <nav
-            className="primary-nav ly-cluster ly-gap-4"
-            aria-label="Primary navigation"
-          >
-            <a href="#workbench">Workbench</a>
-            <a href="#install">Install</a>
-            <a href="#libraries">Libraries</a>
-            <a href="#architecture">Architecture</a>
-            <a href={SITE.repository} target="_blank" rel="noreferrer noopener">
-              GitHub
-              <ExternalLinkIcon />
-              <span className="ly-visually-hidden"> (opens in a new tab)</span>
-            </a>
-          </nav>
-        </div>
-      </header>
+      <SiteHeader companyUrl={companyUrl} />
 
       <main id="main-content">
-        <section className="hero ly-wrapper ly-wrapper--xl ly-section" id="top">
+        <section
+          className="hero ly-wrapper ly-section ly-split ly-gap-8 ly-items-center"
+          id="top"
+        >
           <div className="hero-copy ly-stack ly-gap-5">
             <h1>
               Design every layer.
@@ -87,311 +154,28 @@ function HomeContent() {
               <em>Keep one interface.</em>
             </h1>
             <p className="lede">
-              Combine structure, visual identity, and interaction without
-              rebuilding your markup.
+              Build responsive layout, accessible visual identity, and
+              dependable interaction mechanics on one semantic interface.
             </p>
-            <div className="ly-button-group">
-              <a
-                className="interactive-surface size-lg"
-                data-surface-variant="primary"
-                data-surface-level="2"
-                href="#workbench"
-              >
-                Open the workbench
-                <ArrowRightIcon />
-              </a>
-              <a
-                className="interactive-surface size-lg"
-                data-surface-variant="subtle"
-                data-surface-level="1"
-                href={SITE.repository}
-                target="_blank"
-                rel="noreferrer noopener"
-              >
-                View on GitHub
-                <ExternalLinkIcon />
-                <span className="ly-visually-hidden">
-                  {" "}
-                  (opens in a new tab)
-                </span>
-              </a>
-            </div>
+            <HeroActions companyUrl={companyUrl} />
           </div>
 
           <InterfaceObservatory />
         </section>
 
-        <section
-          className="section-band ly-section"
-          id="workbench"
-          aria-labelledby="workbench-title"
-        >
-          <div className="ly-wrapper ly-wrapper--xl">
-            <div className="section-heading">
-              <p className="section-label">Live workbench</p>
-              <h2 id="workbench-title">The client-ready workbench</h2>
-              <p>
-                Change any control. The product shell, native elements, and
-                interactive states update together.
-              </p>
-            </div>
+        <div className="configuration-shell ly-wrapper">
+          <LabControls />
+        </div>
 
-            <LabControls />
-
-            <div
-              className="product-preview ly-surface"
-              aria-label="Interactive client portal example"
-            >
-              <aside className="preview-sidebar ly-surface">
-                <div className="preview-logo" aria-hidden="true">
-                  A
-                </div>
-                <div>
-                  <strong>Atelier One</strong>
-                  <small className="muted-copy">Client workspace</small>
-                </div>
-                <nav aria-label="Example portal navigation">
-                  <a
-                    className="interactive-surface"
-                    data-surface-variant="subtle"
-                    data-surface-level="1"
-                    aria-current="page"
-                    href="#preview-dashboard"
-                  >
-                    Overview
-                  </a>
-                  <a
-                    className="interactive-surface"
-                    data-surface-variant="subtle"
-                    data-surface-level="1"
-                    href="#preview-projects"
-                  >
-                    Projects
-                  </a>
-                  <a
-                    className="interactive-surface"
-                    data-surface-variant="subtle"
-                    data-surface-level="1"
-                    href="#preview-insights"
-                  >
-                    Insights
-                  </a>
-                </nav>
-              </aside>
-
-              <section className="preview-main" id="preview-dashboard">
-                <header className="preview-header">
-                  <div>
-                    <small className="muted-copy">Interface preview</small>
-                    <h3>Atelier One workspace</h3>
-                  </div>
-                  <span className="preview-mode">{modeLabel} mode</span>
-                </header>
-
-                <dl className="metric-rail" id="preview-insights">
-                  <div>
-                    <dt className="muted-copy">Active projects</dt>
-                    <dd>08</dd>
-                  </div>
-                  <div>
-                    <dt className="muted-copy">On-time delivery</dt>
-                    <dd>96%</dd>
-                  </div>
-                  <div>
-                    <dt className="muted-copy">Client rating</dt>
-                    <dd>4.9</dd>
-                  </div>
-                </dl>
-
-                <div className="preview-cards" id="preview-projects">
-                  <article className="ly-surface ly-pad-5 ly-stack ly-gap-3">
-                    <div className="meta-line">
-                      <span>Featured project</span>
-                      <span>72%</span>
-                    </div>
-                    <h4>Northstar brand system</h4>
-                    <p className="muted-copy">
-                      Identity refresh, digital guidelines, and component
-                      foundations.
-                    </p>
-                    <progress value="72" max="100">
-                      72%
-                    </progress>
-                    <div className="card-actions ly-cluster ly-gap-2">
-                      <button
-                        className="interactive-surface"
-                        data-surface-variant="primary"
-                        data-surface-level="2"
-                        type="button"
-                        onClick={() =>
-                          announce(
-                            "Project details opened in the demonstration.",
-                          )
-                        }
-                      >
-                        View project
-                      </button>
-                      <button
-                        className="interactive-surface"
-                        data-surface-variant="subtle"
-                        data-surface-level="1"
-                        type="button"
-                        aria-label={
-                          saved
-                            ? "Remove project from shortlist"
-                            : "Save project to shortlist"
-                        }
-                        aria-pressed={saved}
-                        onClick={() => {
-                          setSaved((value) => !value);
-                          announce(
-                            saved
-                              ? "Project removed from shortlist."
-                              : "Project saved to shortlist.",
-                          );
-                        }}
-                      >
-                        {saved ? "Saved" : "Save"}
-                      </button>
-                    </div>
-                  </article>
-
-                  <aside className="ly-surface ly-pad-5 ly-stack ly-gap-3">
-                    <small className="eyebrow">Interaction states</small>
-                    <h4>Hover. Focus. Press.</h4>
-                    <p className="muted-copy">
-                      Primary, secondary, warning, and disabled states inherit
-                      the active style system.
-                    </p>
-                    <div className="state-actions ly-cluster ly-gap-2">
-                      <button
-                        className="interactive-surface size-sm"
-                        data-surface-variant="secondary"
-                        data-surface-level="2"
-                        type="button"
-                      >
-                        Secondary
-                      </button>
-                      <button
-                        className="interactive-surface size-sm"
-                        data-surface-variant="warning"
-                        data-surface-level="2"
-                        type="button"
-                      >
-                        Warning
-                      </button>
-                      <button
-                        className="interactive-surface size-sm"
-                        type="button"
-                        disabled
-                      >
-                        Disabled
-                      </button>
-                    </div>
-                  </aside>
-                </div>
-              </section>
-            </div>
-          </div>
-        </section>
-
-        <FeatureShowcase />
+        <CombinedWorkbench />
+        <LayoutLab />
+        <CapabilityRunway />
         <InstallGuide />
         <LibraryDirectory />
-
-        <section
-          className="section-band ly-section"
-          id="architecture"
-          aria-labelledby="architecture-title"
-        >
-          <div className="ly-wrapper ly-wrapper--xl">
-            <div className="section-heading">
-              <p className="section-label">Architecture</p>
-              <h2 id="architecture-title">
-                Three layers. One shared contract.
-              </h2>
-              <p>
-                Each package owns one concern, so geometry, identity, and
-                behavior can evolve independently.
-              </p>
-            </div>
-            <ol className="architecture-list">
-              {ECOSYSTEM_PACKAGES.map((pkg, index) => (
-                <li
-                  className="ly-surface ly-pad-5 ly-stack ly-gap-3"
-                  key={pkg.name}
-                >
-                  <span className="package-index">
-                    {String(index + 1).padStart(2, "0")}
-                  </span>
-                  <div className="ly-stack ly-gap-1">
-                    <small className="eyebrow">{pkg.layer}</small>
-                    <h3>{pkg.name}</h3>
-                  </div>
-                  <p className="muted-copy">{pkg.summary}</p>
-                  <code>{pkg.attribute}</code>
-                </li>
-              ))}
-            </ol>
-            <div className="root-contract ly-surface ly-stack ly-gap-2 ly-pad-4">
-              <small className="eyebrow">Root markup</small>
-              <code>{configMarkup}</code>
-            </div>
-          </div>
-        </section>
+        <CompanySection />
       </main>
 
-      <footer className="site-footer">
-        <div className="site-footer-inner ly-wrapper ly-wrapper--xl">
-          <div className="footer-brand ly-cluster ly-gap-3">
-            {/* Static export requires a relative public asset path under the GitHub Pages project route. */}
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              className="footer-logo"
-              src={SITE.brandLogoPath}
-              width="56"
-              height="56"
-              alt=""
-              aria-hidden="true"
-              loading="lazy"
-              decoding="async"
-            />
-            <p>
-              <strong>{SITE.name}</strong>
-              <small className="muted-copy">{SITE.productLine}</small>
-              <small className="muted-copy">
-                One semantic interface. Three focused CSS layers.
-              </small>
-            </p>
-          </div>
-          <a
-            className="ly-cluster ly-gap-1"
-            href={SITE.repository}
-            target="_blank"
-            rel="noreferrer noopener"
-          >
-            GitHub repository
-            <ExternalLinkIcon />
-            <span className="ly-visually-hidden"> (opens in a new tab)</span>
-          </a>
-          <nav className="footer-package-links" aria-label="Package links">
-            {ECOSYSTEM_PACKAGES.map((pkg) => (
-              <a
-                key={pkg.name}
-                href={pkg.links.npm}
-                target="_blank"
-                rel="noreferrer noopener"
-              >
-                {pkg.name}
-                <span className="ly-visually-hidden">
-                  {" "}
-                  on npm (opens in a new tab)
-                </span>
-              </a>
-            ))}
-          </nav>
-        </div>
-      </footer>
-    </>
+      <SiteFooter companyUrl={companyUrl} />
+    </LabExperience>
   );
 }
