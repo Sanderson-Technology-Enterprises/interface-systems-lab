@@ -1,6 +1,11 @@
 "use client";
 
-import { useState, type CSSProperties } from "react";
+import {
+  useEffect,
+  useState,
+  type CSSProperties,
+  type MouseEvent as ReactMouseEvent,
+} from "react";
 
 import {
   INTERACTION_LEVELS,
@@ -45,34 +50,63 @@ function effectiveCollisionState(
   busy: boolean,
   pointerState: PointerCollisionState,
   persistentState: PersistentCollisionState,
+  supportsFineHover: boolean,
 ) {
   if (disabled) return "disabled";
   if (busy) return "busy";
   if (pointerState === "active") return "active";
   if (persistentState !== "base") return persistentState;
-  if (pointerState === "hover") return "hover";
+  if (pointerState === "hover" && supportsFineHover) return "hover";
   return "base";
 }
 
 export function InteractionLab() {
-  const [disabledActivationCount, setDisabledActivationCount] = useState(0);
+  const [guardedActivationCount, setGuardedActivationCount] = useState(0);
   const [collisionDisabled, setCollisionDisabled] = useState(false);
   const [collisionBusy, setCollisionBusy] = useState(false);
+  const [supportsFineHover, setSupportsFineHover] = useState(false);
   const [persistentState, setPersistentState] =
     useState<PersistentCollisionState>("base");
   const [pointerState, setPointerState] =
     useState<PointerCollisionState>("base");
+
+  useEffect(() => {
+    const hoverQuery = window.matchMedia("(hover: hover) and (pointer: fine)");
+    const synchronizeHoverCapability = () => {
+      // Keep the textual winner aligned with state-core's fine-pointer media gate.
+      setSupportsFineHover(hoverQuery.matches);
+    };
+
+    synchronizeHoverCapability();
+    hoverQuery.addEventListener("change", synchronizeHoverCapability);
+    return () => {
+      hoverQuery.removeEventListener("change", synchronizeHoverCapability);
+    };
+  }, []);
 
   const collisionWinner = effectiveCollisionState(
     collisionDisabled,
     collisionBusy,
     pointerState,
     persistentState,
+    supportsFineHover,
   );
 
-  function suppressDisabledActivation() {
-    // CSS communicates disabled appearance; application code still owns activation.
-    return;
+  function handleGuardedActivation(event: ReactMouseEvent<HTMLButtonElement>) {
+    const control = event.currentTarget;
+    const disabled =
+      control.disabled ||
+      control.getAttribute("aria-disabled") === "true" ||
+      control.classList.contains("is-disabled");
+
+    if (disabled) {
+      // CSS owns affordance paint; this shared guard owns behavioral suppression.
+      event.preventDefault();
+      event.stopPropagation();
+      return;
+    }
+
+    setGuardedActivationCount((count) => count + 1);
   }
 
   return (
@@ -212,7 +246,8 @@ export function InteractionLab() {
                 data-surface-level="1"
                 type="button"
                 aria-disabled="true"
-                onClick={suppressDisabledActivation}
+                data-guarded-action="aria-disabled"
+                onClick={handleGuardedActivation}
               >
                 ARIA disabled
               </button>
@@ -224,6 +259,8 @@ export function InteractionLab() {
                 data-surface-level="1"
                 type="button"
                 disabled
+                data-guarded-action="native-disabled"
+                onClick={handleGuardedActivation}
               >
                 Native disabled
               </button>
@@ -255,23 +292,25 @@ export function InteractionLab() {
                 data-surface-level="2"
                 type="button"
                 aria-disabled="true"
-                onClick={suppressDisabledActivation}
+                data-guarded-action="class-disabled"
+                onClick={handleGuardedActivation}
               >
                 .is-disabled
               </button>
             </div>
             <p className="disabled-activation-status">
-              Custom disabled activations:{" "}
-              <output data-disabled-activation-count>
-                {disabledActivationCount}
+              Successful guarded activations:{" "}
+              <output data-guarded-activation-count>
+                {guardedActivationCount}
               </output>
             </p>
             <button
               className="interactive-surface site-action"
+              data-guarded-action="enabled"
               data-surface-variant="subtle"
               data-surface-level="1"
               type="button"
-              onClick={() => setDisabledActivationCount((count) => count + 1)}
+              onClick={handleGuardedActivation}
             >
               Enabled activation control
             </button>

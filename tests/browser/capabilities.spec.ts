@@ -247,6 +247,156 @@ async function readInteractionSignature(locator: Locator) {
   });
 }
 
+async function openTask4Details(page: Page) {
+  await page
+    .locator("#ui-native details, #interactions details")
+    .evaluateAll((details) => {
+      for (const detail of details) (detail as HTMLDetailsElement).open = true;
+    });
+}
+
+async function clickDialogBackdrop(page: Page, dialog: Locator) {
+  const bounds = await dialog.boundingBox();
+  expect(bounds).not.toBeNull();
+  if (bounds === null) return;
+
+  const clickPoint = {
+    x: Math.max(1, bounds.x / 2),
+    y: bounds.y + bounds.height / 2,
+  };
+  expect(clickPoint.x).toBeLessThan(bounds.x);
+  await page.mouse.click(clickPoint.x, clickPoint.y);
+}
+
+async function readPseudoSignature(locator: Locator, pseudo: string) {
+  return locator.evaluate((element, pseudoElement) => {
+    const style = getComputedStyle(element, pseudoElement);
+    return {
+      appearance: style.appearance,
+      backgroundColor: style.backgroundColor,
+      blockSize: style.blockSize,
+      borderColor: style.borderColor,
+      borderRadius: style.borderRadius,
+      boxShadow: style.boxShadow,
+      color: style.color,
+      cursor: style.cursor,
+      filter: style.filter,
+      inlineSize: style.inlineSize,
+    };
+  }, pseudo);
+}
+
+async function readAuthorRule(
+  page: Page,
+  selectorFragment: string,
+  properties: string[],
+) {
+  return page.evaluate(
+    ({ properties: requestedProperties, selectorFragment: fragment }) => {
+      const visitRules = (
+        rules: CSSRuleList,
+      ): Record<string, string> | null => {
+        for (const rule of rules) {
+          if (
+            rule instanceof CSSStyleRule &&
+            rule.selectorText.includes(fragment)
+          ) {
+            return Object.fromEntries(
+              requestedProperties.map((property) => [
+                property,
+                rule.style.getPropertyValue(property).trim(),
+              ]),
+            );
+          }
+
+          if ("cssRules" in rule) {
+            const nested = visitRules((rule as CSSGroupingRule).cssRules);
+            if (nested !== null) return nested;
+          }
+        }
+
+        return null;
+      };
+
+      for (const styleSheet of document.styleSheets) {
+        const match = visitRules(styleSheet.cssRules);
+        if (match !== null) return match;
+      }
+
+      throw new Error(`Missing author rule containing ${fragment}.`);
+    },
+    { properties, selectorFragment },
+  );
+}
+
+async function finishElementAnimations(locator: Locator) {
+  await locator.evaluate(async (element) => {
+    await Promise.all(
+      element.getAnimations({ subtree: true }).map(async (animation) => {
+        try {
+          await animation.finished;
+        } catch {
+          // A superseded transition is expected to reject its finished promise.
+        }
+      }),
+    );
+  });
+}
+
+async function resolveComputedValue(
+  locator: Locator,
+  value: string,
+  cssProperty: string,
+) {
+  return locator.evaluate(
+    (element, options) => {
+      const probe = document.createElement("span");
+      probe.style.position = "fixed";
+      probe.style.visibility = "hidden";
+      probe.style.setProperty(options.cssProperty, options.value);
+      (element.parentElement ?? document.body).append(probe);
+      const resolved = getComputedStyle(probe)
+        .getPropertyValue(options.cssProperty)
+        .trim();
+      probe.remove();
+      return resolved;
+    },
+    { cssProperty, value },
+  );
+}
+
+async function readUnthemedPseudoProperty(
+  locator: Locator,
+  pseudo: string,
+  cssProperty: string,
+) {
+  return locator.evaluate(
+    (element, options) => {
+      const root = element.closest<HTMLElement>(
+        "[data-ui][data-theme][data-mode]",
+      );
+      if (root === null) throw new Error("Missing configured UI root.");
+
+      const attributes = ["data-ui", "data-theme", "data-mode"] as const;
+      const values = attributes.map((attribute) =>
+        root.getAttribute(attribute),
+      );
+      for (const attribute of attributes) root.removeAttribute(attribute);
+
+      const baseline = getComputedStyle(element, options.pseudo)
+        .getPropertyValue(options.cssProperty)
+        .trim();
+
+      attributes.forEach((attribute, index) => {
+        const value = values[index];
+        if (value !== null) root.setAttribute(attribute, value);
+      });
+      return baseline;
+    },
+    { cssProperty, pseudo },
+  );
+}
+
 test.beforeEach(async ({ page }) => {
   await page.goto("./");
 });
@@ -900,7 +1050,7 @@ test("native laboratory exercises native controls, exposed parts, and validation
       ),
     );
 
-  const fileInput = page.locator('[data-native-part~="file-selector-button"]');
+  const fileInput = page.locator('[data-native-type="file"]');
   const fileButtonPaint = await fileInput.evaluate((element) => {
     const style = getComputedStyle(element, "::file-selector-button");
     return {
@@ -992,9 +1142,7 @@ test("native laboratory uses a real modal dialog and restores opener focus", asy
   await expect(dialog).toHaveJSProperty("returnValue", "confirmed");
 
   await opener.click();
-  await dialog.evaluate((element) => {
-    element.dispatchEvent(new MouseEvent("click", { bubbles: true }));
-  });
+  await clickDialogBackdrop(page, dialog);
   await expect(dialog).not.toBeVisible();
   await expect(opener).toBeFocused();
   await expect(dialog).toHaveJSProperty("returnValue", "backdrop");
@@ -1080,13 +1228,8 @@ test("interaction laboratory exposes every variant, level, and public state hook
     page.locator('[data-interaction-state="is-disabled"]'),
   ).toHaveClass(/\bis-disabled\b/);
 
-  const ariaDisabled = page.locator('[data-interaction-state="aria-disabled"]');
-  const classDisabled = page.locator('[data-interaction-state="is-disabled"]');
-  await ariaDisabled.evaluate((element: HTMLElement) => element.click());
-  await classDisabled.evaluate((element: HTMLElement) => element.click());
-  await expect(page.locator("[data-disabled-activation-count]")).toHaveText(
-    "0",
-  );
+  await expect(page.locator("[data-guarded-activation-count]")).toHaveText("0");
+  await expect(page.locator("[data-guarded-action]")).toHaveCount(4);
 });
 
 test("interaction laboratory makes real state-collision precedence observable", async ({
@@ -1108,7 +1251,7 @@ test("interaction laboratory makes real state-collision precedence observable", 
   expect(base.rotate).not.toBe("none");
 
   await target.hover();
-  await expect(winner).toHaveText("hover");
+  await expect(winner).toHaveText(supportsFineHover ? "hover" : "base");
   const hovered = await readInteractionSignature(target);
   if (supportsFineHover) {
     expect(hovered.layerOpacity).toBeGreaterThan(base.layerOpacity);
@@ -1201,10 +1344,16 @@ test("interaction laboratory uses system affordances in forced colors", async ({
 }) => {
   await page.emulateMedia({ forcedColors: "active" });
   await page.reload();
+  await openTask4Details(page);
 
   const pressed = page.locator('[data-interaction-state="aria-pressed"]');
   const disabled = page.locator('[data-interaction-state="aria-disabled"]');
   await pressed.focus();
+  await expect(pressed).toBeVisible();
+  await expect(pressed).toBeFocused();
+  expect(
+    await pressed.evaluate((element) => element.matches(":focus-visible")),
+  ).toBe(true);
   const pressedStyles = await readInteractionSignature(pressed);
   const disabledStyles = await readInteractionSignature(disabled);
   expect(pressedStyles.layerDisplay).toBe("none");
@@ -1212,4 +1361,473 @@ test("interaction laboratory uses system affordances in forced colors", async ({
   expect(pressedStyles.outlineStyle).not.toBe("none");
   expect(disabledStyles.opacity).toBe(1);
   expect(disabledStyles.outlineStyle).not.toBe("none");
+});
+
+test("review contract composes copy typography on body text with meaningful paint", async ({
+  page,
+}) => {
+  await openTask4Details(page);
+  const copy = page.locator('[data-ui-suffix="copy"]');
+  const baseline = page.locator("[data-typography-baseline]");
+  await expect(copy).toHaveCount(1);
+  await expect(copy).toHaveJSProperty("tagName", "P");
+  await expect(baseline).toHaveCount(1);
+  await expect(
+    page.getByRole("button", { name: "Copy token" }),
+  ).not.toHaveClass(/\bsaas-copy\b/);
+
+  const copyTypography = await copy.evaluate((element) => {
+    const style = getComputedStyle(element);
+    return { color: style.color, lineHeight: style.lineHeight };
+  });
+  const baselineTypography = await baseline.evaluate((element) => {
+    const style = getComputedStyle(element);
+    return { color: style.color, lineHeight: style.lineHeight };
+  });
+  expect(copyTypography.lineHeight).not.toBe(baselineTypography.lineHeight);
+});
+
+test("review contract proves native pseudo parts against package tokens and real file states", async ({
+  page,
+}) => {
+  await openTask4Details(page);
+
+  const range = page.locator('[data-native-part~="range-track"]');
+  const trackRule = await readAuthorRule(
+    page,
+    "::-webkit-slider-runnable-track",
+    ["background", "block-size", "border-radius"],
+  );
+  const thumbRule = await readAuthorRule(page, "::-webkit-slider-thumb", [
+    "appearance",
+    "background",
+    "block-size",
+    "border",
+    "border-radius",
+    "inline-size",
+  ]);
+  const trackToken = await resolveComputedValue(
+    range,
+    "var(--usk-native-track)",
+    "background-color",
+  );
+  const thumbToken = await resolveComputedValue(
+    range,
+    "var(--usk-native-thumb)",
+    "background-color",
+  );
+  const thumbBorderToken = await resolveComputedValue(
+    range,
+    "var(--usk-native-thumb-border)",
+    "border-color",
+  );
+  expect(trackRule).toEqual({
+    background: "var(--usk-native-track)",
+    "block-size": "0.45rem",
+    "border-radius": "999px",
+  });
+  expect(thumbRule).toEqual({
+    appearance: "none",
+    background: "var(--usk-native-thumb)",
+    "block-size": "1.2rem",
+    border:
+      "var(--usk-native-border-width) solid var(--usk-native-thumb-border)",
+    "border-radius": "999px",
+    "inline-size": "1.2rem",
+  });
+  expect(trackToken).not.toBe(thumbToken);
+  expect(thumbToken).not.toBe(thumbBorderToken);
+  expect(
+    await range.evaluate((element) => getComputedStyle(element).appearance),
+  ).toBe("none");
+
+  const indicatorToken = await resolveComputedValue(
+    range,
+    "var(--usk-native-indicator)",
+    "color",
+  );
+  for (const locator of [
+    page.locator('[data-native-part~="summary-marker"]'),
+    page.locator('[data-native-part~="list-marker"]'),
+  ]) {
+    const markerColor = (await readPseudoSignature(locator, "::marker")).color;
+    expect.soft(markerColor).toBe(indicatorToken);
+    expect
+      .soft(markerColor)
+      .not.toBe(await readUnthemedPseudoProperty(locator, "::marker", "color"));
+  }
+
+  const fileStates = page.locator("[data-native-file-state]");
+  await expect(fileStates).toHaveCount(5);
+  expect(
+    await fileStates.evaluateAll((elements) =>
+      elements.map((element) => element.getAttribute("data-native-file-state")),
+    ),
+  ).toEqual(["enabled", "focus", "hover", "active", "disabled"]);
+
+  const enabled = page.locator('[data-native-file-state="enabled"]');
+  const focus = page.locator('[data-native-file-state="focus"]');
+  const hover = page.locator('[data-native-file-state="hover"]');
+  const active = page.locator('[data-native-file-state="active"]');
+  const disabled = page.locator('[data-native-file-state="disabled"]');
+  const primary = await resolveComputedValue(
+    enabled,
+    "var(--usk-native-primary)",
+    "background-color",
+  );
+  const primaryHover = await resolveComputedValue(
+    enabled,
+    "var(--usk-native-primary-hover)",
+    "background-color",
+  );
+  const focusRing = await resolveComputedValue(
+    enabled,
+    "var(--usk-native-focus-ring)",
+    "box-shadow",
+  );
+
+  const enabledPaint = await readPseudoSignature(
+    enabled,
+    "::file-selector-button",
+  );
+  expect(enabledPaint.backgroundColor).toBe(primary);
+  expect(enabledPaint.borderColor).toBe(primary);
+  expect(enabledPaint.cursor).toBe("pointer");
+
+  await focus.focus();
+  expect(
+    await focus.evaluate((element) => element.matches(":focus-visible")),
+  ).toBe(true);
+  expect(
+    (await readPseudoSignature(focus, "::file-selector-button")).boxShadow,
+  ).toBe(focusRing);
+
+  await hover.hover();
+  const hoverPaint = await readPseudoSignature(hover, "::file-selector-button");
+  expect(hoverPaint.backgroundColor).toBe(primaryHover);
+  expect(hoverPaint.borderColor).toBe(primaryHover);
+
+  const activeBounds = await active.boundingBox();
+  expect(activeBounds).not.toBeNull();
+  if (activeBounds !== null) {
+    const activePoint = {
+      // The native chooser button occupies the inline-start portion of the control.
+      x: activeBounds.x + Math.min(24, activeBounds.width / 2),
+      y: activeBounds.y + activeBounds.height / 2,
+    };
+    const usesCoarsePointer = await page.evaluate(
+      () => matchMedia("(pointer: coarse)").matches,
+    );
+
+    if (usesCoarsePointer) {
+      const cdp = await page.context().newCDPSession(page);
+      await cdp.send("DOM.enable");
+      await cdp.send("CSS.enable");
+      const { root } = await cdp.send("DOM.getDocument");
+      const { nodeId } = await cdp.send("DOM.querySelector", {
+        nodeId: root.nodeId,
+        selector: '[data-native-file-state="active"]',
+      });
+      expect(nodeId).not.toBe(0);
+
+      // Mobile Chromium does not expose a held native file control through
+      // emulated touch, so force the browser pseudo-state and inspect its paint.
+      await cdp.send("CSS.forcePseudoState", {
+        nodeId,
+        forcedPseudoClasses: ["active"],
+      });
+      try {
+        await expect
+          .poll(
+            async () =>
+              (await readPseudoSignature(active, "::file-selector-button"))
+                .filter,
+          )
+          .toBe("brightness(0.96)");
+      } finally {
+        await cdp.send("CSS.forcePseudoState", {
+          nodeId,
+          forcedPseudoClasses: [],
+        });
+        await cdp.detach();
+      }
+    } else {
+      await page.mouse.move(activePoint.x, activePoint.y);
+      await page.mouse.down();
+      try {
+        await expect
+          .poll(
+            async () =>
+              (await readPseudoSignature(active, "::file-selector-button"))
+                .filter,
+          )
+          .toBe("brightness(0.96)");
+      } finally {
+        await page.mouse.move(0, 0);
+        await page.mouse.up();
+      }
+    }
+  }
+
+  const disabledPaint = await readPseudoSignature(
+    disabled,
+    "::file-selector-button",
+  );
+  expect(disabledPaint.backgroundColor).toBe(
+    await resolveComputedValue(
+      disabled,
+      "var(--usk-native-surface-soft)",
+      "background-color",
+    ),
+  );
+  expect(disabledPaint.borderColor).toBe(
+    await resolveComputedValue(
+      disabled,
+      "var(--usk-native-border)",
+      "border-color",
+    ),
+  );
+  expect(disabledPaint.color).toBe(
+    await resolveComputedValue(
+      disabled,
+      "var(--usk-native-text-muted)",
+      "color",
+    ),
+  );
+  expect(disabledPaint.cursor).toBe("not-allowed");
+});
+
+test("review contract gates the collision readout with actual hover capability", async ({
+  page,
+}) => {
+  const target = page.locator('[data-interaction-state="collision"]');
+  const winner = page.locator("[data-collision-winner]");
+  const supportsFineHover = await page.evaluate(
+    () => matchMedia("(hover: hover) and (pointer: fine)").matches,
+  );
+
+  await target.hover();
+  await expect(winner).toHaveText(supportsFineHover ? "hover" : "base");
+
+  const bounds = await target.boundingBox();
+  expect(bounds).not.toBeNull();
+  if (bounds !== null) {
+    await page.mouse.move(
+      bounds.x + bounds.width / 2,
+      bounds.y + bounds.height / 2,
+    );
+    await page.mouse.down();
+    await expect(winner).toHaveText("active");
+    await page.mouse.up();
+    await expect(winner).toHaveText(supportsFineHover ? "hover" : "base");
+  }
+});
+
+test("review contract uses one guarded activation path for enabled and disabled controls", async ({
+  page,
+}) => {
+  await openTask4Details(page);
+  const count = page.locator("[data-guarded-activation-count]");
+  const enabled = page.locator('[data-guarded-action="enabled"]');
+  await expect(count).toHaveText("0");
+  await enabled.click();
+  await expect(count).toHaveText("1");
+
+  for (const state of [
+    "native-disabled",
+    "aria-disabled",
+    "class-disabled",
+  ] as const) {
+    const control = page.locator(`[data-guarded-action="${state}"]`);
+    await control.scrollIntoViewIfNeeded();
+    const bounds = await control.boundingBox();
+    expect(bounds).not.toBeNull();
+    if (bounds !== null) {
+      await page.mouse.click(
+        bounds.x + bounds.width / 2,
+        bounds.y + bounds.height / 2,
+      );
+    }
+    await expect(count).toHaveText("1");
+
+    await control.focus();
+    const focused = await control.evaluate(
+      (element) => document.activeElement === element,
+    );
+    if (state === "native-disabled") {
+      expect(focused).toBe(false);
+    } else {
+      expect(focused).toBe(true);
+      await page.keyboard.press("Enter");
+      await expect(count).toHaveText("1");
+    }
+
+    await control.evaluate((element: HTMLElement) => element.click());
+    await expect(count).toHaveText("1");
+    await control.evaluate((element) =>
+      element.dispatchEvent(
+        new MouseEvent("click", {
+          bubbles: true,
+          cancelable: true,
+          view: window,
+        }),
+      ),
+    );
+    await expect(count).toHaveText("1");
+  }
+});
+
+test("review contract proves active over persistent and busy over active paint", async ({
+  page,
+}) => {
+  const target = page.locator('[data-interaction-state="collision"]');
+  const winner = page.locator("[data-collision-winner]");
+  const persistent = page.getByRole("radiogroup", {
+    name: "Persistent collision state",
+  });
+  const busy = page.getByRole("checkbox", { name: "Busy" });
+  const base = await readInteractionSignature(target);
+
+  await persistent.getByRole("radio", { name: "Pressed" }).check();
+  await expect(winner).toHaveText("pressed");
+  await finishElementAnimations(target);
+  await expect
+    .poll(async () => (await readInteractionSignature(target)).layerOpacity)
+    .toBeGreaterThan(base.layerOpacity);
+  const pressed = await readInteractionSignature(target);
+
+  const bounds = await target.boundingBox();
+  expect(bounds).not.toBeNull();
+  if (bounds !== null) {
+    await page.mouse.move(
+      bounds.x + bounds.width / 2,
+      bounds.y + bounds.height / 2,
+    );
+    await page.mouse.down();
+    await expect(winner).toHaveText("active");
+    await expect
+      .poll(async () => (await readInteractionSignature(target)).translate)
+      .toBe(base.translate);
+    await expect
+      .poll(async () => (await readInteractionSignature(target)).layerOpacity)
+      .toBe(base.layerOpacity);
+    await expect
+      .poll(async () => (await readInteractionSignature(target)).boxShadow)
+      .toBe(base.boxShadow);
+
+    await busy.evaluate((element: HTMLInputElement) => element.click());
+    await expect(winner).toHaveText("busy");
+    await expect
+      .poll(async () => (await readInteractionSignature(target)).translate)
+      .toBe(pressed.translate);
+    await expect
+      .poll(async () => (await readInteractionSignature(target)).layerOpacity)
+      .toBe(pressed.layerOpacity);
+    await expect
+      .poll(async () => (await readInteractionSignature(target)).boxShadow)
+      .toBe(pressed.boxShadow);
+    await page.mouse.up();
+  }
+});
+
+test("review contract closes the modal through a real backdrop coordinate", async ({
+  page,
+}) => {
+  await openTask4Details(page);
+  const opener = page.getByRole("button", { name: "Open native dialog" });
+  const dialog = page.locator('dialog[data-native-part~="dialog-backdrop"]');
+  await opener.click();
+  await expect(dialog).toBeVisible();
+  await clickDialogBackdrop(page, dialog);
+  await expect(dialog).not.toBeVisible();
+  await expect(dialog).toHaveJSProperty("returnValue", "backdrop");
+  await expect(opener).toBeFocused();
+});
+
+test("review contract formats camelCase and hyphenated manifest headings", async ({
+  page,
+}) => {
+  await openTask4Details(page);
+  for (const heading of [
+    "Fully Themed",
+    "Progressively Enhanced",
+    "Platform Owned",
+    "Non Rendered",
+    "Standard parts",
+    "Vendor Specific parts",
+  ]) {
+    await expect(
+      page.getByRole("heading", { name: heading, exact: true }),
+    ).toBeVisible();
+  }
+});
+
+test("review contract establishes forced-color focus and resolved system outlines", async ({
+  page,
+}) => {
+  await page.emulateMedia({ forcedColors: "active" });
+  await page.reload();
+  await openTask4Details(page);
+
+  const pressed = page.locator('[data-interaction-state="aria-pressed"]');
+  const disabled = page.locator('[data-interaction-state="aria-disabled"]');
+  await expect(pressed).toBeVisible();
+  await pressed.focus();
+  await expect(pressed).toBeFocused();
+  expect(
+    await pressed.evaluate((element) => element.matches(":focus-visible")),
+  ).toBe(true);
+
+  const pressedStyles = await readInteractionSignature(pressed);
+  const disabledStyles = await readInteractionSignature(disabled);
+  expect(pressedStyles.layerDisplay).toBe("none");
+  expect(pressedStyles.boxShadow).toBe("none");
+  expect(pressedStyles.outlineColor).toBe(
+    await resolveComputedValue(pressed, "Highlight", "color"),
+  );
+  expect(disabledStyles.opacity).toBe(1);
+  expect(disabledStyles.outlineColor).toBe(
+    await resolveComputedValue(disabled, "GrayText", "color"),
+  );
+});
+
+test("review contract renders distinct variant and level treatments", async ({
+  page,
+}) => {
+  const variants = page.locator("[data-interaction-variant]");
+  const variantSignatures = await variants.evaluateAll((elements) =>
+    elements.map((element) => {
+      const style = getComputedStyle(element);
+      return [
+        style.backgroundColor,
+        style.borderColor,
+        style.color,
+        style.boxShadow,
+      ].join("|");
+    }),
+  );
+  expect(new Set(variantSignatures).size).toBe(interactionVariants.length);
+
+  const levels = page.locator("[data-interaction-level]");
+  expect(
+    await levels.evaluateAll((elements) =>
+      elements.map((element) => ({
+        level: element.getAttribute("data-surface-level"),
+        variant: element.getAttribute("data-surface-variant"),
+      })),
+    ),
+  ).toEqual([
+    { level: "1", variant: "subtle" },
+    { level: "2", variant: "primary" },
+    { level: "3", variant: "primary" },
+  ]);
+  const levelSignatures = await levels.evaluateAll((elements) =>
+    elements.map((element) => {
+      const style = getComputedStyle(element);
+      return [style.backgroundColor, style.borderColor, style.boxShadow].join(
+        "|",
+      );
+    }),
+  );
+  expect(new Set(levelSignatures).size).toBe(interactionLevels.length);
 });

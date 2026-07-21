@@ -75,8 +75,11 @@ function uiClass(prefix: string, suffix: string) {
 }
 
 function titleCase(value: string) {
+  // Manifest keys mix camelCase and kebab-case, so normalize both before presentation.
   return value
-    .split("-")
+    .replace(/([a-z0-9])([A-Z])/g, "$1 $2")
+    .split(/[-\s]+/)
+    .filter(Boolean)
     .map((part) => `${part.charAt(0).toUpperCase()}${part.slice(1)}`)
     .join(" ");
 }
@@ -266,6 +269,12 @@ function VisualInventory({ prefix, preset }: VisualInventoryProps) {
         <p className={c("subtitle")} data-ui-suffix="subtitle">
           The selected preset supplies font character, hierarchy, and color.
         </p>
+        <p data-typography-baseline>
+          A plain paragraph establishes the surrounding document baseline.
+        </p>
+        <p className={c("copy")} data-ui-suffix="copy">
+          Body copy uses the preset&apos;s published reading treatment.
+        </p>
         <div className="semantic-text-roles">
           {[
             ["text-primary", "Primary"],
@@ -383,11 +392,7 @@ function VisualInventory({ prefix, preset }: VisualInventoryProps) {
           >
             +
           </button>
-          <button
-            className={`${c("button")} ${c("copy")}`}
-            data-ui-suffix="copy"
-            type="button"
-          >
+          <button className={c("button")} type="button">
             Copy token
           </button>
           <button
@@ -1010,6 +1015,37 @@ function NativeInventory() {
         <p>
           Range value: <output htmlFor="native-range">{rangeValue}</output>
         </p>
+
+        <section
+          className="ly-stack ly-gap-3"
+          aria-labelledby="native-file-states-title"
+        >
+          <h5 id="native-file-states-title">File selector states</h5>
+          <div className="native-input-grid">
+            {/* Real controls let the browser expose focus, hover, and active pseudo-classes. */}
+            {(["enabled", "focus", "hover", "active", "disabled"] as const).map(
+              (state) => {
+                const inputId = `native-file-${state}`;
+                return (
+                  <label
+                    className="native-control"
+                    htmlFor={inputId}
+                    key={state}
+                  >
+                    <span>{titleCase(state)}</span>
+                    <input
+                      id={inputId}
+                      type="file"
+                      data-native-file-state={state}
+                      data-native-part="file-selector-button"
+                      disabled={state === "disabled"}
+                    />
+                  </label>
+                );
+              },
+            )}
+          </div>
+        </section>
       </section>
 
       <details>
