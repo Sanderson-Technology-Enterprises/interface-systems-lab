@@ -297,6 +297,13 @@ test("install clipboard failure uses the shared feedback region", async ({
   await page
     .getByRole("button", { name: "Copy Install all three code" })
     .click();
+  const retryCopy = page.getByRole("button", {
+    name: "Retry copy Install all three code",
+  });
+  await expect(retryCopy).toHaveText("Retry copy");
+  await expect(retryCopy).toHaveAccessibleName(
+    "Retry copy Install all three code",
+  );
   await expect(page.locator(".configuration-status")).toHaveText(
     "Clipboard access failed. Copy the visible Install all three code manually.",
   );

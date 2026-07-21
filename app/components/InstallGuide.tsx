@@ -75,7 +75,7 @@ export function InstallGuide() {
       clearCopyTimeout(id);
       setCopyLabels((current) => ({
         ...current,
-        [id]: "Select code to copy",
+        [id]: "Retry copy",
       }));
       announce(
         `Clipboard access failed. Copy the visible ${title} code manually.`,
