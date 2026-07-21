@@ -1,157 +1,37 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useState } from "react";
 
-import {
-  ArrowRightIcon,
-  ExternalLinkIcon,
-  SparkIcon,
-} from "./components/Icons";
+import { ArrowRightIcon, ExternalLinkIcon } from "./components/Icons";
 import { FeatureShowcase } from "./components/FeatureShowcase";
 import { InstallGuide } from "./components/InstallGuide";
 import { InterfaceObservatory } from "./components/InterfaceObservatory";
+import { LabControls } from "./components/LabControls";
+import { LabExperience, useLabConfiguration } from "./components/LabExperience";
 import { LibraryDirectory } from "./components/LibraryDirectory";
 import { ECOSYSTEM_PACKAGES } from "./data/ecosystem";
+import { configurationMarkup } from "./lib/configuration";
 import { SITE } from "./lib/site";
 
-const layouts = [
-  ["minimal-saas", "Minimal SaaS"],
-  ["bento", "Bento"],
-  ["maximalist", "Maximalist"],
-  ["bauhaus", "Bauhaus"],
-  ["tactile", "Tactile"],
-  ["neumorphism", "Neumorphism"],
-  ["retrofuturism", "Retrofuturism"],
-  ["brutalism", "Brutalism"],
-  ["cyberpunk", "Cyberpunk"],
-  ["y2k", "Y2K"],
-  ["retro-glass", "Retro Glass"],
-  ["f-pattern", "F-Pattern"],
-  ["z-pattern", "Z-Pattern"],
-  ["split-screen", "Split Screen"],
-  ["mondrian", "Mondrian"],
-  ["synthwave", "Synthwave"],
-] as const;
-
-const uiStyles = [
-  ["minimal-saas", "Minimal SaaS"],
-  ["bento", "Bento UI"],
-  ["maximalist", "Maximalist"],
-  ["bauhaus", "Bauhaus"],
-  ["tactile", "Tactile"],
-  ["neumorphism", "Neumorphism"],
-  ["retrofuturism", "Retrofuturism"],
-  ["brutalism", "Brutalism"],
-  ["cyberpunk", "Cyberpunk"],
-  ["y2k", "Y2K"],
-  ["retro-glass", "Retro Glass"],
-] as const;
-
-const themes = [
-  ["midnight-gold", "Midnight Gold"],
-  ["ocean-steel", "Ocean Steel"],
-  ["forest-moss", "Forest Moss"],
-  ["sunset-ember", "Sunset Ember"],
-  ["royal-plum", "Royal Plum"],
-  ["graphite-cyan", "Graphite Cyan"],
-  ["desert-sage", "Desert Sage"],
-  ["rose-quartz", "Rose Quartz"],
-  ["cyber-lime", "Cyber Lime"],
-  ["arctic-indigo", "Arctic Indigo"],
-] as const;
-
-const modes = [
-  ["light", "Light"],
-  ["dark", "Dark"],
-  ["contrast", "High contrast"],
-] as const;
-
-type LabState = {
-  layout: string;
-  ui: string;
-  theme: string;
-  mode: string;
-};
-
-const defaults: LabState = {
-  layout: "bento",
-  ui: "minimal-saas",
-  theme: "midnight-gold",
-  mode: "dark",
-};
-
-const labelFor = (
-  items: readonly (readonly [string, string])[],
-  value: string,
-) => items.find(([key]) => key === value)?.[1] ?? value;
-
 export default function Home() {
-  const [lab, setLab] = useState<LabState>(defaults);
-  const [saved, setSaved] = useState(false);
-  const [copyState, setCopyState] = useState("Copy configuration");
-  const [notice, setNotice] = useState("");
-
-  const configMarkup = useMemo(
-    () =>
-      `<main class="ly-root" data-ly-layout="${lab.layout}" data-ui="${lab.ui}" data-theme="${lab.theme}" data-mode="${lab.mode}">`,
-    [lab],
+  return (
+    <LabExperience>
+      <HomeContent />
+    </LabExperience>
   );
+}
 
-  const update = (key: keyof LabState, value: string) => {
-    const label =
-      key === "layout"
-        ? labelFor(layouts, value)
-        : key === "ui"
-          ? labelFor(uiStyles, value)
-          : key === "theme"
-            ? labelFor(themes, value)
-            : labelFor(modes, value);
-
-    const labelName =
-      key === "ui" ? "Visual style" : `${key[0].toUpperCase()}${key.slice(1)}`;
-
-    setLab((current) => ({ ...current, [key]: value }));
-    setNotice(`${labelName} changed to ${label}.`);
-  };
-
-  const randomize = () => {
-    const pick = (items: readonly (readonly [string, string])[]) =>
-      items[Math.floor(Math.random() * items.length)][0];
-
-    setLab({
-      layout: pick(layouts),
-      ui: pick(uiStyles),
-      theme: pick(themes),
-      mode: pick(modes),
-    });
-    setNotice("A new interface direction is ready.");
-  };
-
-  const reset = () => {
-    setLab(defaults);
-    setNotice("The workbench has been reset to Midnight Gold.");
-  };
-
-  const copyConfig = async () => {
-    try {
-      await navigator.clipboard.writeText(configMarkup);
-      setCopyState("Copied");
-      setNotice("Configuration copied to the clipboard.");
-      window.setTimeout(() => setCopyState("Copy configuration"), 1800);
-    } catch {
-      setCopyState("Select code to copy");
-      setNotice("Clipboard access failed. Select the configuration manually.");
-    }
-  };
+function HomeContent() {
+  const { configuration: lab, announce } = useLabConfiguration();
+  const [saved, setSaved] = useState(false);
+  const configMarkup = configurationMarkup(lab);
+  const modeLabel =
+    lab.mode === "contrast"
+      ? "High contrast"
+      : `${lab.mode.charAt(0).toUpperCase()}${lab.mode.slice(1)}`;
 
   return (
-    <div
-      className="experience ly-root ly-page"
-      data-ly-layout={lab.layout}
-      data-ui={lab.ui}
-      data-theme={lab.theme}
-      data-mode={lab.mode}
-    >
+    <>
       <a className="skip-link" href="#main-content">
         Skip to main content
       </a>
@@ -256,107 +136,7 @@ export default function Home() {
               </p>
             </div>
 
-            <form
-              className="control-deck"
-              aria-label="Interface configuration"
-              onSubmit={(event) => event.preventDefault()}
-            >
-              <label>
-                <span>01 / Layout</span>
-                <select
-                  value={lab.layout}
-                  onChange={(event) => update("layout", event.target.value)}
-                >
-                  {layouts.map(([value, label]) => (
-                    <option value={value} key={value}>
-                      {label}
-                    </option>
-                  ))}
-                </select>
-              </label>
-              <label>
-                <span>02 / Visual style</span>
-                <select
-                  value={lab.ui}
-                  onChange={(event) => update("ui", event.target.value)}
-                >
-                  {uiStyles.map(([value, label]) => (
-                    <option value={value} key={value}>
-                      {label}
-                    </option>
-                  ))}
-                </select>
-              </label>
-              <label>
-                <span>03 / Palette</span>
-                <select
-                  value={lab.theme}
-                  onChange={(event) => update("theme", event.target.value)}
-                >
-                  {themes.map(([value, label]) => (
-                    <option value={value} key={value}>
-                      {label}
-                    </option>
-                  ))}
-                </select>
-              </label>
-              <fieldset>
-                <legend>04 / Mode</legend>
-                <div className="mode-options">
-                  {modes.map(([value, label]) => (
-                    <label key={value}>
-                      <input
-                        type="radio"
-                        name="mode"
-                        value={value}
-                        checked={lab.mode === value}
-                        onChange={(event) => update("mode", event.target.value)}
-                      />
-                      <span>{label}</span>
-                    </label>
-                  ))}
-                </div>
-              </fieldset>
-              <div className="control-actions ly-cluster ly-gap-2">
-                <button
-                  className="interactive-surface"
-                  data-surface-variant="primary"
-                  type="button"
-                  onClick={randomize}
-                >
-                  <SparkIcon />
-                  Surprise me
-                </button>
-                <button
-                  className="interactive-surface"
-                  data-surface-variant="subtle"
-                  type="button"
-                  onClick={reset}
-                >
-                  Reset
-                </button>
-              </div>
-            </form>
-
-            <div className="active-config" aria-label="Active configuration">
-              <span>
-                <b>Layout</b>
-                {labelFor(layouts, lab.layout)}
-              </span>
-              <span>
-                <b>Style</b>
-                {labelFor(uiStyles, lab.ui)}
-              </span>
-              <span>
-                <b>Palette</b>
-                {labelFor(themes, lab.theme)}
-              </span>
-              <span>
-                <b>Mode</b>
-                {labelFor(modes, lab.mode)}
-              </span>
-              <span className="live-status">Applied live</span>
-            </div>
+            <LabControls />
 
             <div
               className="product-preview ly-surface"
@@ -402,9 +182,7 @@ export default function Home() {
                     <small className="muted-copy">Interface preview</small>
                     <h3>Atelier One workspace</h3>
                   </div>
-                  <span className="preview-mode">
-                    {labelFor(modes, lab.mode)} mode
-                  </span>
+                  <span className="preview-mode">{modeLabel} mode</span>
                 </header>
 
                 <dl className="metric-rail" id="preview-insights">
@@ -442,7 +220,7 @@ export default function Home() {
                         data-surface-variant="primary"
                         type="button"
                         onClick={() =>
-                          setNotice(
+                          announce(
                             "Project details opened in the demonstration.",
                           )
                         }
@@ -461,7 +239,7 @@ export default function Home() {
                         aria-pressed={saved}
                         onClick={() => {
                           setSaved((value) => !value);
-                          setNotice(
+                          announce(
                             saved
                               ? "Project removed from shortlist."
                               : "Project saved to shortlist.",
@@ -506,21 +284,6 @@ export default function Home() {
                   </aside>
                 </div>
               </section>
-            </div>
-
-            <div className="code-strip ly-surface ly-pad-4">
-              <div>
-                <small>Four attributes. One shared contract.</small>
-                <code tabIndex={0}>{configMarkup}</code>
-              </div>
-              <button
-                className="interactive-surface"
-                data-surface-variant="subtle"
-                type="button"
-                onClick={copyConfig}
-              >
-                {copyState}
-              </button>
             </div>
           </div>
         </section>
@@ -622,10 +385,6 @@ export default function Home() {
           </nav>
         </div>
       </footer>
-
-      <p className="ly-visually-hidden" aria-live="polite" aria-atomic="true">
-        {notice}
-      </p>
-    </div>
+    </>
   );
 }

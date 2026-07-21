@@ -15,6 +15,42 @@ const resourceUrls = [
   "https://foscat.github.io/Interactive-Surface-CSS/",
 ];
 
+const configurationStorageKey = "interface-systems-lab:configuration:v1";
+
+type ExpectedConfiguration = {
+  layout: string;
+  ui: string;
+  theme: string;
+  mode: string;
+};
+
+const defaultConfiguration: ExpectedConfiguration = {
+  layout: "bento",
+  ui: "minimal-saas",
+  theme: "midnight-gold",
+  mode: "dark",
+};
+
+async function expectRootConfiguration(
+  page: Page,
+  configuration: ExpectedConfiguration,
+) {
+  const root = page.locator(".experience.ly-root");
+
+  await expect(root).toHaveAttribute("data-ly-layout", configuration.layout);
+  await expect(root).toHaveAttribute("data-ui", configuration.ui);
+  await expect(root).toHaveAttribute("data-theme", configuration.theme);
+  await expect(root).toHaveAttribute("data-mode", configuration.mode);
+  await expect(root).not.toHaveAttribute("data-layout", /.+/);
+}
+
+async function readStoredConfiguration(page: Page) {
+  return page.evaluate((storageKey) => {
+    const value = window.localStorage.getItem(storageKey);
+    return value === null ? null : (JSON.parse(value) as unknown);
+  }, configurationStorageKey);
+}
+
 test.beforeEach(async ({ page }) => {
   await page.goto("./");
 });
@@ -132,13 +168,234 @@ test("keeps workbench controls, state, and copy affordances functional", async (
   await expect(saved).toHaveAttribute("aria-pressed", "true");
   await expect(saved).toHaveText("Saved");
 
-  const copy = page.locator(".code-strip button");
+  const copy = page.getByRole("button", { name: "Copy configuration" });
   await expect(copy).toHaveAccessibleName("Copy configuration");
   await copy.click();
   await expect(copy).toHaveText("Copied");
   await expect
     .poll(() => page.evaluate(() => navigator.clipboard.readText()))
     .toContain('data-ly-layout="bauhaus"');
+});
+
+test("configuration query overrides storage and persists across reloads", async ({
+  page,
+}) => {
+  await page.evaluate(
+    ({ storageKey, configuration }) => {
+      window.localStorage.setItem(storageKey, JSON.stringify(configuration));
+    },
+    {
+      storageKey: configurationStorageKey,
+      configuration: {
+        layout: "cyberpunk",
+        ui: "bauhaus",
+        theme: "ocean-steel",
+        mode: "light",
+      },
+    },
+  );
+
+  const configured: ExpectedConfiguration = {
+    layout: "mondrian",
+    ui: "retro-glass",
+    theme: "rose-quartz",
+    mode: "contrast",
+  };
+  await page.goto(
+    "./?layout=mondrian&ui=retro-glass&theme=rose-quartz&mode=contrast",
+  );
+
+  await expectRootConfiguration(page, configured);
+  await expect.poll(() => readStoredConfiguration(page)).toEqual(configured);
+  expect(new URL(page.url()).search).toBe(
+    "?layout=mondrian&ui=retro-glass&theme=rose-quartz&mode=contrast",
+  );
+
+  await page.reload();
+  await expectRootConfiguration(page, configured);
+});
+
+test("configuration hydration recovers from invalid query and storage data", async ({
+  page,
+}) => {
+  await page.evaluate((storageKey) => {
+    window.localStorage.setItem(storageKey, "{malformed json");
+  }, configurationStorageKey);
+  await page.goto("./?layout=invalid&ui=invalid&theme=invalid&mode=invalid");
+
+  await expectRootConfiguration(page, defaultConfiguration);
+  await expect(page.locator(".configuration-console")).toBeVisible();
+  await expect(page.getByLabel(/01.*Layout/)).toHaveValue("bento");
+  await expect(page.getByLabel(/02.*Visual style/)).toHaveValue("minimal-saas");
+  await expect(page.getByLabel(/03.*Palette/)).toHaveValue("midnight-gold");
+  await expect(page.getByRole("radio", { name: "Dark" })).toBeChecked();
+});
+
+test("configuration controls update URL and storage, while reset removes both", async ({
+  page,
+}) => {
+  await page.getByLabel(/01.*Layout/).selectOption("split-screen");
+  await page.getByLabel(/02.*Visual style/).selectOption("y2k");
+  await page.getByLabel(/03.*Palette/).selectOption("arctic-indigo");
+  await page.getByRole("radio", { name: "High contrast" }).check();
+
+  const configured: ExpectedConfiguration = {
+    layout: "split-screen",
+    ui: "y2k",
+    theme: "arctic-indigo",
+    mode: "contrast",
+  };
+  await expectRootConfiguration(page, configured);
+  await expect.poll(() => readStoredConfiguration(page)).toEqual(configured);
+  expect(new URL(page.url()).search).toBe(
+    "?layout=split-screen&ui=y2k&theme=arctic-indigo&mode=contrast",
+  );
+
+  await page.getByRole("button", { name: "Reset configuration" }).click();
+  await expectRootConfiguration(page, defaultConfiguration);
+  await expect.poll(() => readStoredConfiguration(page)).toBeNull();
+  expect(new URL(page.url()).search).toBe("");
+  await expect(page.locator(".configuration-status")).toHaveText(
+    "Configuration reset to the defaults.",
+  );
+});
+
+test("configuration randomize persists a catalog-valid combination", async ({
+  page,
+}) => {
+  await page.addInitScript(() => {
+    Math.random = () => 0.999_999;
+  });
+  await page.reload();
+
+  const randomize = page.getByRole("button", {
+    name: "Randomize configuration",
+  });
+  await randomize.click();
+
+  const configured: ExpectedConfiguration = {
+    layout: "split-screen",
+    ui: "retro-glass",
+    theme: "arctic-indigo",
+    mode: "contrast",
+  };
+  await expectRootConfiguration(page, configured);
+  await expect.poll(() => readStoredConfiguration(page)).toEqual(configured);
+  expect(new URL(page.url()).search).toBe(
+    "?layout=split-screen&ui=retro-glass&theme=arctic-indigo&mode=contrast",
+  );
+  const randomizeColors = await randomize.evaluate((button) => {
+    const style = getComputedStyle(button);
+    return { background: style.backgroundColor, foreground: style.color };
+  });
+  expect(randomizeColors.foreground).not.toBe(randomizeColors.background);
+});
+
+test("configuration copy and share announce success and clear transient labels", async ({
+  page,
+  context,
+}) => {
+  await context.grantPermissions(["clipboard-read", "clipboard-write"]);
+  await page.goto(
+    "./?layout=mondrian&ui=retro-glass&theme=rose-quartz&mode=contrast",
+  );
+  await page.clock.install();
+
+  const copy = page.getByRole("button", { name: "Copy configuration" });
+  await copy.click();
+  await expect.poll(async () =>
+    (await page.evaluate(() => navigator.clipboard.readText())).replace(
+      /\r\n/g,
+      "\n",
+    ),
+  ).toBe(`<main
+  class="ly-root"
+  data-ly-layout="mondrian"
+  data-ui="retro-glass"
+  data-theme="rose-quartz"
+  data-mode="contrast"
+></main>`);
+  await expect(page.locator(".configuration-status")).toHaveText(
+    "Configuration markup copied to the clipboard.",
+  );
+  await expect(copy).toHaveText("Copied");
+
+  await page.clock.fastForward(1_800);
+  await expect(copy).toHaveText("Copy configuration");
+
+  const share = page.getByRole("button", { name: "Share configuration" });
+  const expectedShareUrl =
+    `${new URL(page.url()).origin}${new URL(page.url()).pathname}` +
+    "?layout=mondrian&ui=retro-glass&theme=rose-quartz&mode=contrast";
+  await share.click();
+  await expect
+    .poll(() => page.evaluate(() => navigator.clipboard.readText()))
+    .toBe(expectedShareUrl);
+  await expect(page.locator(".configuration-status")).toHaveText(
+    "Share link copied to the clipboard.",
+  );
+  await expect(share).toHaveText("Link copied");
+
+  await page.clock.fastForward(1_800);
+  await expect(share).toHaveText("Share configuration");
+});
+
+test("configuration copy and share expose selected fallback text on clipboard failure", async ({
+  page,
+}) => {
+  await page.addInitScript(() => {
+    Object.defineProperty(window.navigator, "clipboard", {
+      configurable: true,
+      value: {
+        writeText: async () => {
+          throw new DOMException("Clipboard unavailable", "NotAllowedError");
+        },
+      },
+    });
+  });
+  await page.goto(
+    "./?layout=mondrian&ui=retro-glass&theme=rose-quartz&mode=contrast",
+  );
+
+  await page.getByRole("button", { name: "Copy configuration" }).click();
+  const fallback = page.getByLabel("Configuration text for manual copy");
+  const markup = `<main
+  class="ly-root"
+  data-ly-layout="mondrian"
+  data-ui="retro-glass"
+  data-theme="rose-quartz"
+  data-mode="contrast"
+></main>`;
+  await expect(fallback).toBeVisible();
+  await expect(fallback).toHaveValue(markup);
+  await expect(page.locator(".configuration-status")).toHaveText(
+    "Clipboard access failed. Select the configuration markup to copy it manually.",
+  );
+  await expect
+    .poll(() =>
+      fallback.evaluate((element: HTMLTextAreaElement) => ({
+        end: element.selectionEnd,
+        start: element.selectionStart,
+      })),
+    )
+    .toEqual({ start: 0, end: markup.length });
+
+  await page.getByRole("button", { name: "Share configuration" }).click();
+  const expectedShareUrl =
+    `${new URL(page.url()).origin}${new URL(page.url()).pathname}` +
+    "?layout=mondrian&ui=retro-glass&theme=rose-quartz&mode=contrast";
+  await expect(fallback).toHaveValue(expectedShareUrl);
+  await expect(page.locator(".configuration-status")).toHaveText(
+    "Clipboard access failed. Select the share link to copy it manually.",
+  );
+  await expect
+    .poll(() =>
+      fallback.evaluate((element: HTMLTextAreaElement) => ({
+        end: element.selectionEnd,
+        start: element.selectionStart,
+      })),
+    )
+    .toEqual({ start: 0, end: expectedShareUrl.length });
 });
 
 test("fits the viewport and honors reduced motion", async ({ page }) => {
