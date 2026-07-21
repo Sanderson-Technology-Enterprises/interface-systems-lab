@@ -4,6 +4,7 @@ import { useState } from "react";
 
 import { ECOSYSTEM_PACKAGES, type ResourceLink } from "../data/ecosystem";
 import { ExternalLinkIcon } from "./Icons";
+import { useLabConfiguration } from "./LabExperience";
 
 const resourceLabels: Record<ResourceLink, string> = {
   repository: "Repository",
@@ -20,6 +21,7 @@ const resourceOrder: readonly ResourceLink[] = [
 ];
 
 export function InterfaceObservatory() {
+  const { announce } = useLabConfiguration();
   const [selectedIndex, setSelectedIndex] = useState(0);
   const selectedPackage = ECOSYSTEM_PACKAGES[selectedIndex];
 
@@ -56,7 +58,10 @@ export function InterfaceObservatory() {
             key={pkg.name}
             aria-pressed={selectedIndex === index}
             aria-controls="observatory-active-package"
-            onClick={() => setSelectedIndex(index)}
+            onClick={() => {
+              setSelectedIndex(index);
+              announce(`${pkg.layer} layer selected: ${pkg.displayName}.`);
+            }}
           >
             <span className="orbit-label">{pkg.layer}</span>
           </button>
@@ -87,8 +92,6 @@ export function InterfaceObservatory() {
       <article
         className="observatory-detail ly-surface ly-pad-4 ly-stack ly-gap-3"
         id="observatory-active-package"
-        aria-live="polite"
-        aria-atomic="true"
       >
         <p className="section-label">Selected layer</p>
         <h2>{selectedPackage.layer}</h2>

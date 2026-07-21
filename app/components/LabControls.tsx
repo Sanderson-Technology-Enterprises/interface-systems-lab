@@ -224,7 +224,8 @@ export function LabControls() {
         <div className="control-actions ly-cluster ly-gap-2">
           <button
             className="interactive-surface"
-            data-surface-variant="subtle"
+            data-surface-variant="primary"
+            data-surface-level="2"
             type="button"
             aria-label="Randomize configuration"
             onClick={randomizeConfiguration}
@@ -235,6 +236,7 @@ export function LabControls() {
           <button
             className="interactive-surface"
             data-surface-variant="subtle"
+            data-surface-level="1"
             type="button"
             aria-label="Reset configuration"
             onClick={resetConfiguration}
@@ -244,6 +246,7 @@ export function LabControls() {
           <button
             className="interactive-surface"
             data-surface-variant="subtle"
+            data-surface-level="1"
             type="button"
             aria-label="Copy configuration"
             onClick={copyConfiguration}
@@ -254,6 +257,7 @@ export function LabControls() {
           <button
             className="interactive-surface"
             data-surface-variant="subtle"
+            data-surface-level="1"
             type="button"
             aria-label="Share configuration"
             onClick={shareConfiguration}

@@ -84,6 +84,7 @@ export function FeatureShowcase() {
               <button
                 className="interactive-surface"
                 data-surface-variant="primary"
+                data-surface-level="2"
                 type="button"
               >
                 Primary
@@ -92,6 +93,7 @@ export function FeatureShowcase() {
               <button
                 className="interactive-surface"
                 data-surface-variant="accent"
+                data-surface-level="2"
                 aria-pressed="true"
                 type="button"
               >
@@ -100,6 +102,7 @@ export function FeatureShowcase() {
               <button
                 className="interactive-surface icon-only"
                 data-surface-variant="subtle"
+                data-surface-level="1"
                 type="button"
                 aria-label="Open proof action"
               >

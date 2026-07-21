@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { BUNDLER_IMPORTS, CDN_MARKUP, NPM_INSTALL } from "../data/ecosystem";
 import { CopyIcon } from "./Icons";
+import { useLabConfiguration } from "./LabExperience";
 
 const snippets = [
   {
@@ -29,22 +30,56 @@ const snippets = [
 type SnippetId = (typeof snippets)[number]["id"];
 
 export function InstallGuide() {
+  const { announce } = useLabConfiguration();
   const [copyLabels, setCopyLabels] = useState<
     Partial<Record<SnippetId, string>>
   >({});
+  const copyTimeoutsRef = useRef<Map<SnippetId, number>>(new Map());
 
-  const copySnippet = async (id: SnippetId, code: string) => {
+  useEffect(() => {
+    const copyTimeouts = copyTimeoutsRef.current;
+    return () => {
+      for (const timeoutId of copyTimeouts.values()) {
+        window.clearTimeout(timeoutId);
+      }
+      copyTimeouts.clear();
+    };
+  }, []);
+
+  const clearCopyTimeout = (id: SnippetId) => {
+    const existingTimeout = copyTimeoutsRef.current.get(id);
+    if (existingTimeout === undefined) return;
+
+    window.clearTimeout(existingTimeout);
+    copyTimeoutsRef.current.delete(id);
+  };
+
+  const scheduleCopyLabelReset = (id: SnippetId) => {
+    // Each snippet owns its transient label timer so an older copy action
+    // cannot overwrite newer feedback for the same snippet.
+    clearCopyTimeout(id);
+    const timeoutId = window.setTimeout(() => {
+      setCopyLabels((current) => ({ ...current, [id]: "Copy" }));
+      copyTimeoutsRef.current.delete(id);
+    }, 1_800);
+    copyTimeoutsRef.current.set(id, timeoutId);
+  };
+
+  const copySnippet = async (id: SnippetId, title: string, code: string) => {
     try {
       await navigator.clipboard.writeText(code);
       setCopyLabels((current) => ({ ...current, [id]: "Copied" }));
-      window.setTimeout(() => {
-        setCopyLabels((current) => ({ ...current, [id]: "Copy" }));
-      }, 1800);
+      announce(`${title} code copied to the clipboard.`);
+      scheduleCopyLabelReset(id);
     } catch {
+      clearCopyTimeout(id);
       setCopyLabels((current) => ({
         ...current,
         [id]: "Select code to copy",
       }));
+      announce(
+        `Clipboard access failed. Copy the visible ${title} code manually.`,
+      );
     }
   };
 
@@ -89,9 +124,12 @@ export function InstallGuide() {
                   <button
                     className="copy-button interactive-surface"
                     data-surface-variant="subtle"
+                    data-surface-level="1"
                     type="button"
                     aria-label={`${copyLabel} ${snippet.title} code`}
-                    onClick={() => copySnippet(snippet.id, snippet.code)}
+                    onClick={() =>
+                      copySnippet(snippet.id, snippet.title, snippet.code)
+                    }
                   >
                     <CopyIcon />
                     <span>{copyLabel}</span>
@@ -101,11 +139,6 @@ export function InstallGuide() {
             );
           })}
         </ol>
-        <p className="ly-visually-hidden" aria-live="polite" aria-atomic="true">
-          {Object.values(copyLabels).find((label) => label === "Copied")
-            ? "Installation code copied to the clipboard."
-            : ""}
-        </p>
       </div>
     </section>
   );

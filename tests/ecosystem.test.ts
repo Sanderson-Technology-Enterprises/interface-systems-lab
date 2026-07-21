@@ -133,6 +133,38 @@ test("page runtime emits only canonical Layout 2.1 attributes", async () => {
   );
 });
 
+test("install guide tracks restartable copy timers and cleans them on unmount", async () => {
+  const installGuideSource = await readFile(
+    new URL("../app/components/InstallGuide.tsx", import.meta.url),
+    "utf8",
+  );
+
+  assert.match(
+    installGuideSource,
+    /useRef<Map<SnippetId, number>>\(new Map\(\)\)/,
+  );
+  assert.match(
+    installGuideSource,
+    /copyTimeoutsRef\.current\.get\(id\)[\s\S]*window\.clearTimeout\(existingTimeout\)/,
+  );
+  assert.match(
+    installGuideSource,
+    /const copyTimeouts = copyTimeoutsRef\.current;[\s\S]*return \(\) => \{[\s\S]*copyTimeouts\.values\(\)[\s\S]*window\.clearTimeout\(timeoutId\)[\s\S]*copyTimeouts\.clear\(\)/,
+  );
+});
+
+test("not-found primary action declares its documented surface level", async () => {
+  const notFoundSource = await readFile(
+    new URL("../app/not-found.tsx", import.meta.url),
+    "utf8",
+  );
+
+  assert.match(
+    notFoundSource,
+    /data-surface-variant="primary"\s+data-surface-level="2"/,
+  );
+});
+
 test("package manifest and repository omit the obsolete authoring stack", async () => {
   const manifestSource = await readFile(
     new URL("../package.json", import.meta.url),

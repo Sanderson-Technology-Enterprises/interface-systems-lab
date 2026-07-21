@@ -24,6 +24,7 @@ export default function NotFound() {
         <a
           className="interactive-surface"
           data-surface-variant="primary"
+          data-surface-level="2"
           href={withBasePath("/")}
         >
           Return to Interface Systems Lab

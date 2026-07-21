@@ -31,6 +31,55 @@ const defaultConfiguration: ExpectedConfiguration = {
   mode: "dark",
 };
 
+type RgbColor = {
+  red: number;
+  green: number;
+  blue: number;
+};
+
+function parseComputedRgb(value: string): RgbColor {
+  const components = value.match(/[\d.]+/g)?.map(Number);
+  if (components === undefined || components.length < 3) {
+    throw new Error(`Unable to parse computed color: ${value}`);
+  }
+
+  const [red, green, blue, alpha = 1] = components;
+  if (
+    red === undefined ||
+    green === undefined ||
+    blue === undefined ||
+    alpha !== 1
+  ) {
+    throw new Error(`Expected an opaque computed color, received: ${value}`);
+  }
+
+  return { red, green, blue };
+}
+
+function relativeLuminance(color: RgbColor): number {
+  const linearize = (channel: number) => {
+    const normalized = channel / 255;
+    return normalized <= 0.04045
+      ? normalized / 12.92
+      : ((normalized + 0.055) / 1.055) ** 2.4;
+  };
+
+  return (
+    0.2126 * linearize(color.red) +
+    0.7152 * linearize(color.green) +
+    0.0722 * linearize(color.blue)
+  );
+}
+
+function contrastRatio(foreground: string, background: string): number {
+  const foregroundLuminance = relativeLuminance(parseComputedRgb(foreground));
+  const backgroundLuminance = relativeLuminance(parseComputedRgb(background));
+  const lighter = Math.max(foregroundLuminance, backgroundLuminance);
+  const darker = Math.min(foregroundLuminance, backgroundLuminance);
+
+  return (lighter + 0.05) / (darker + 0.05);
+}
+
 async function expectRootConfiguration(
   page: Page,
   configuration: ExpectedConfiguration,
@@ -177,6 +226,82 @@ test("keeps workbench controls, state, and copy affordances functional", async (
     .toContain('data-ly-layout="bauhaus"');
 });
 
+test("one atomic polite region announces configuration, observatory, and install feedback", async ({
+  page,
+  context,
+}) => {
+  await context.grantPermissions(["clipboard-read", "clipboard-write"]);
+  const liveRegion = page.locator('[aria-live="polite"][aria-atomic="true"]');
+
+  await expect(liveRegion).toHaveCount(1);
+
+  await page.getByLabel(/01.*Layout/).selectOption("bauhaus");
+  await expect(liveRegion).toHaveText("Layout changed to Bauhaus.");
+
+  await page
+    .getByRole("group", { name: "Interface layer selector" })
+    .getByRole("button", { name: "Identity" })
+    .click();
+  await expect(liveRegion).toHaveText(
+    "Identity layer selected: UI Style Kit CSS.",
+  );
+
+  await page
+    .getByRole("button", { name: "Copy Install all three code" })
+    .click();
+  await expect(liveRegion).toHaveText(
+    "Install all three code copied to the clipboard.",
+  );
+});
+
+test("install copy feedback restarts its timer", async ({ page, context }) => {
+  await context.grantPermissions(["clipboard-read", "clipboard-write"]);
+
+  await page
+    .getByRole("button", { name: "Copy Install all three code" })
+    .click();
+  let copyButton = page.getByRole("button", {
+    name: "Copied Install all three code",
+  });
+  await expect(copyButton).toBeVisible();
+
+  await page.waitForTimeout(900);
+  await copyButton.click();
+  await page.waitForTimeout(1_000);
+  copyButton = page.getByRole("button", {
+    name: "Copied Install all three code",
+  });
+  await expect(copyButton).toBeVisible();
+
+  await page.waitForTimeout(900);
+  await expect(
+    page.getByRole("button", { name: "Copy Install all three code" }),
+  ).toBeVisible();
+});
+
+test("install clipboard failure uses the shared feedback region", async ({
+  page,
+}) => {
+  await page.addInitScript(() => {
+    Object.defineProperty(window.navigator, "clipboard", {
+      configurable: true,
+      value: {
+        writeText: async () => {
+          throw new DOMException("Clipboard unavailable", "NotAllowedError");
+        },
+      },
+    });
+  });
+  await page.goto("./");
+
+  await page
+    .getByRole("button", { name: "Copy Install all three code" })
+    .click();
+  await expect(page.locator(".configuration-status")).toHaveText(
+    "Clipboard access failed. Copy the visible Install all three code manually.",
+  );
+});
+
 test("configuration query overrides storage and persists across reloads", async ({
   page,
 }) => {
@@ -211,7 +336,13 @@ test("configuration query overrides storage and persists across reloads", async 
     "?layout=mondrian&ui=retro-glass&theme=rose-quartz&mode=contrast",
   );
 
+  await page.goto("./");
+  expect(new URL(page.url()).search).toBe("");
+  await expectRootConfiguration(page, configured);
+  await expect.poll(() => readStoredConfiguration(page)).toEqual(configured);
+
   await page.reload();
+  expect(new URL(page.url()).search).toBe("");
   await expectRootConfiguration(page, configured);
 });
 
@@ -284,11 +415,87 @@ test("configuration randomize persists a catalog-valid combination", async ({
   expect(new URL(page.url()).search).toBe(
     "?layout=split-screen&ui=retro-glass&theme=arctic-indigo&mode=contrast",
   );
-  const randomizeColors = await randomize.evaluate((button) => {
-    const style = getComputedStyle(button);
-    return { background: style.backgroundColor, foreground: style.color };
+});
+
+test("semantic surfaces declare documented levels and maintain AA contrast", async ({
+  page,
+}) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await page.goto(
+    "./?layout=split-screen&ui=retro-glass&theme=arctic-indigo&mode=contrast",
+  );
+  await expectRootConfiguration(page, {
+    layout: "split-screen",
+    ui: "retro-glass",
+    theme: "arctic-indigo",
+    mode: "contrast",
   });
-  expect(randomizeColors.foreground).not.toBe(randomizeColors.background);
+
+  const actions = await page
+    .locator(
+      '.interactive-surface[data-surface-variant]:not(:disabled):not([aria-disabled="true"])',
+    )
+    .evaluateAll((elements) =>
+      elements
+        .filter((element) => {
+          const style = getComputedStyle(element);
+          const bounds = element.getBoundingClientRect();
+          return (
+            style.display !== "none" &&
+            style.visibility !== "hidden" &&
+            bounds.width > 0 &&
+            bounds.height > 0
+          );
+        })
+        .map((element) => {
+          const style = getComputedStyle(element);
+          return {
+            background: style.backgroundColor,
+            foreground: style.color,
+            label:
+              element.getAttribute("aria-label") ??
+              element.textContent?.trim() ??
+              element.tagName.toLowerCase(),
+            level: element.getAttribute("data-surface-level"),
+            variant: element.getAttribute("data-surface-variant"),
+          };
+        }),
+    );
+
+  const expectedLevelByVariant: Record<string, string> = {
+    accent: "2",
+    danger: "2",
+    primary: "2",
+    secondary: "2",
+    subtle: "1",
+    warning: "2",
+  };
+  const levelViolations = actions
+    .filter(
+      ({ level, variant }) =>
+        variant === null || level !== expectedLevelByVariant[variant],
+    )
+    .map(({ label, level, variant }) => ({ label, level, variant }));
+  const contrastViolations = actions
+    .map(({ background, foreground, label, variant }) => ({
+      label,
+      ratio: contrastRatio(foreground, background),
+      variant,
+    }))
+    .filter(({ ratio }) => ratio < 4.5);
+  const semanticViolations = actions
+    .filter(
+      ({ label, variant }) =>
+        label === "Randomize configuration" && variant !== "primary",
+    )
+    .map(({ label, variant }) => ({ label, variant }));
+
+  expect(actions.length).toBeGreaterThan(0);
+  expect({ contrastViolations, levelViolations, semanticViolations }).toEqual({
+    contrastViolations: [],
+    levelViolations: [],
+    semanticViolations: [],
+  });
 });
 
 test("configuration copy and share announce success and clear transient labels", async ({

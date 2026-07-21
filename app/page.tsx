@@ -154,6 +154,7 @@ function HomeContent() {
                   <a
                     className="interactive-surface"
                     data-surface-variant="subtle"
+                    data-surface-level="1"
                     aria-current="page"
                     href="#preview-dashboard"
                   >
@@ -162,6 +163,7 @@ function HomeContent() {
                   <a
                     className="interactive-surface"
                     data-surface-variant="subtle"
+                    data-surface-level="1"
                     href="#preview-projects"
                   >
                     Projects
@@ -169,6 +171,7 @@ function HomeContent() {
                   <a
                     className="interactive-surface"
                     data-surface-variant="subtle"
+                    data-surface-level="1"
                     href="#preview-insights"
                   >
                     Insights
@@ -218,6 +221,7 @@ function HomeContent() {
                       <button
                         className="interactive-surface"
                         data-surface-variant="primary"
+                        data-surface-level="2"
                         type="button"
                         onClick={() =>
                           announce(
@@ -230,6 +234,7 @@ function HomeContent() {
                       <button
                         className="interactive-surface"
                         data-surface-variant="subtle"
+                        data-surface-level="1"
                         type="button"
                         aria-label={
                           saved
@@ -262,6 +267,7 @@ function HomeContent() {
                       <button
                         className="interactive-surface size-sm"
                         data-surface-variant="secondary"
+                        data-surface-level="2"
                         type="button"
                       >
                         Secondary
@@ -269,6 +275,7 @@ function HomeContent() {
                       <button
                         className="interactive-surface size-sm"
                         data-surface-variant="warning"
+                        data-surface-level="2"
                         type="button"
                       >
                         Warning
