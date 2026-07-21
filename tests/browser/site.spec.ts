@@ -164,6 +164,59 @@ async function readStructuredData(page: Page): Promise<StructuredDataNode[]> {
   return nodes as StructuredDataNode[];
 }
 
+test("exported 404 retains branded ecosystem paint @cross-engine", async ({
+  page,
+}) => {
+  const response = await page.goto("./missing-interface-proof");
+  expect(response?.status()).toBe(404);
+
+  const root = page.locator("main.not-found");
+  await expect(root).toHaveAttribute(
+    "data-ly-layout",
+    defaultConfiguration.layout,
+  );
+  await expect(root).toHaveAttribute("data-ui", defaultConfiguration.ui);
+  await expect(root).toHaveAttribute("data-theme", defaultConfiguration.theme);
+  await expect(root).toHaveAttribute("data-mode", defaultConfiguration.mode);
+
+  const returnAction = page.getByRole("link", {
+    name: "Return to Interface Systems Lab",
+  });
+  const paint = await root.evaluate((element) => {
+    const action = element.querySelector<HTMLElement>("a");
+    if (action === null) {
+      throw new Error("Expected the themed 404 return action.");
+    }
+
+    const rootStyle = getComputedStyle(element);
+    const actionStyle = getComputedStyle(action);
+    return {
+      actionBackground: actionStyle.backgroundColor,
+      actionColor: actionStyle.color,
+      actionHeight: action.getBoundingClientRect().height,
+      actionPaddingEnd: Number.parseFloat(actionStyle.paddingInlineEnd),
+      actionPaddingStart: Number.parseFloat(actionStyle.paddingInlineStart),
+      rootBackground: rootStyle.backgroundColor,
+      rootColor: rootStyle.color,
+      themeToken: rootStyle.getPropertyValue("--usk-bg-rgb").trim(),
+    };
+  });
+
+  await expect(returnAction).toHaveAttribute("href", "/interface-systems-lab/");
+  expect(paint.themeToken).not.toBe("");
+  expect(paint.rootBackground).not.toBe("rgba(0, 0, 0, 0)");
+  expect(paint.actionBackground).not.toBe("rgba(0, 0, 0, 0)");
+  expect(
+    contrastRatio(paint.rootColor, paint.rootBackground),
+  ).toBeGreaterThanOrEqual(4.5);
+  expect(
+    contrastRatio(paint.actionColor, paint.actionBackground),
+  ).toBeGreaterThanOrEqual(4.5);
+  expect(paint.actionHeight).toBeGreaterThanOrEqual(44);
+  expect(paint.actionPaddingStart).toBeGreaterThan(0);
+  expect(paint.actionPaddingEnd).toBeGreaterThan(0);
+});
+
 test("shell scopes the complete experience and balances developer and company paths", async ({
   page,
 }) => {
@@ -345,27 +398,85 @@ test("shell keeps narrow-screen anchors clear of tall sticky regions", async ({
   await expect
     .poll(() =>
       page
-        .locator(".configuration-console")
+        .locator(".configuration-shell")
         .evaluate((element) => getComputedStyle(element).position),
     )
     .toBe("sticky");
 
+  await page.locator("#layouts").scrollIntoViewIfNeeded();
+  const desktopStickyGeometry = await page.evaluate(() => {
+    const header = document.querySelector<HTMLElement>(".site-header");
+    const shell = document.querySelector<HTMLElement>(".configuration-shell");
+    const console = document.querySelector<HTMLElement>(
+      ".configuration-console",
+    );
+    if (header === null || shell === null || console === null) {
+      throw new Error("Expected sticky configuration landmarks are missing.");
+    }
+
+    const headerBounds = header.getBoundingClientRect();
+    const shellBounds = shell.getBoundingClientRect();
+    const consoleBounds = console.getBoundingClientRect();
+    return {
+      consoleBottom: consoleBounds.bottom,
+      consoleTop: consoleBounds.top,
+      headerBottom: headerBounds.bottom,
+      shellTop: shellBounds.top,
+      viewportHeight: window.innerHeight,
+    };
+  });
+  expect(desktopStickyGeometry.shellTop).toBeGreaterThanOrEqual(
+    desktopStickyGeometry.headerBottom - 1,
+  );
+  expect(desktopStickyGeometry.shellTop).toBeLessThanOrEqual(
+    desktopStickyGeometry.headerBottom + 1,
+  );
+  expect(desktopStickyGeometry.consoleTop).toBeGreaterThanOrEqual(
+    desktopStickyGeometry.headerBottom - 1,
+  );
+  expect(desktopStickyGeometry.consoleBottom).toBeLessThanOrEqual(
+    desktopStickyGeometry.viewportHeight,
+  );
+
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.goto("./#workbench");
+  await page.goto("./");
+  await page.evaluate(() => document.fonts.ready.then(() => true));
+  await page
+    .getByRole("navigation", { name: "Primary navigation" })
+    .getByRole("link", { name: "Workbench" })
+    .click();
+  await expect
+    .poll(() => page.evaluate(() => window.location.hash))
+    .toBe("#workbench");
   const mobileGeometry = await page.evaluate(() => {
     const header = document.querySelector<HTMLElement>(".site-header");
     const console = document.querySelector<HTMLElement>(
       ".configuration-console",
     );
+    const consoleShell = document.querySelector<HTMLElement>(
+      ".configuration-shell",
+    );
     const heading = document.querySelector<HTMLElement>("#workbench-title");
-    if (header === null || console === null || heading === null) {
+    const brandOwner = document.querySelector<HTMLElement>(".brand-owner");
+    const brandTitle = document.querySelector<HTMLElement>(".brand-title");
+    const navigation = document.querySelector<HTMLElement>(".primary-nav");
+    const navigationCue =
+      document.querySelector<HTMLElement>(".primary-nav-cue");
+    if (
+      header === null ||
+      console === null ||
+      consoleShell === null ||
+      heading === null ||
+      brandOwner === null ||
+      brandTitle === null ||
+      navigation === null
+    ) {
       throw new Error("Expected shell landmarks are missing.");
     }
 
     const headerBounds = header.getBoundingClientRect();
     const headingBounds = heading.getBoundingClientRect();
-    const navigation = document.querySelector<HTMLElement>(".primary-nav");
-    const navigationBounds = navigation?.getBoundingClientRect();
+    const navigationBounds = navigation.getBoundingClientRect();
     const navigationLinkBounds = Array.from(
       navigation?.querySelectorAll("a") ?? [],
       (link) => link.getBoundingClientRect(),
@@ -376,8 +487,18 @@ test("shell keeps narrow-screen anchors clear of tall sticky regions", async ({
     const headerActions = Array.from(
       document.querySelectorAll<HTMLElement>(".header-links a"),
     );
+    const brandOwnerStyle = getComputedStyle(brandOwner);
     return {
+      brandOwnerFullyVisible:
+        brandOwnerStyle.overflow !== "hidden" &&
+        brandOwnerStyle.textOverflow !== "ellipsis" &&
+        brandOwner.scrollWidth <= brandOwner.clientWidth &&
+        brandOwner.scrollHeight <= brandOwner.clientHeight + 1,
+      brandTitleFontSize: Number.parseFloat(
+        getComputedStyle(brandTitle).fontSize,
+      ),
       consolePosition: getComputedStyle(console).position,
+      consoleShellPosition: getComputedStyle(consoleShell).position,
       headerActionsVisible:
         headerActions.length === 2 &&
         headerActions.every((action) => {
@@ -385,10 +506,10 @@ test("shell keeps narrow-screen anchors clear of tall sticky regions", async ({
           return bounds.width > 0 && bounds.height >= 44;
         }),
       headerHeight: headerBounds.height,
+      headerBottom: headerBounds.bottom,
       headerPosition: getComputedStyle(header).position,
-      headingClearsHeader:
-        headingBounds.top >= Math.max(0, headerBounds.bottom),
-      navigationHeight: navigationBounds?.height ?? 0,
+      headingTop: headingBounds.top,
+      navigationHeight: navigationBounds.height,
       navigationLinksSeparated: navigationLinkBounds.every(
         (bounds, index) =>
           index === 0 ||
@@ -396,69 +517,143 @@ test("shell keeps narrow-screen anchors clear of tall sticky regions", async ({
             bounds.left,
       ),
       navigationLinkTextFits,
-      navigationScrollable:
-        navigation !== null && navigation.scrollWidth > navigation.clientWidth,
+      navigationCueText: navigationCue?.textContent?.trim() ?? "",
+      navigationCueVisible:
+        navigationCue !== null &&
+        navigationCue.getBoundingClientRect().width > 0 &&
+        navigationCue.getBoundingClientRect().height > 0,
+      navigationScrollable: navigation.scrollWidth > navigation.clientWidth,
+      navigationScrollbarWidth: getComputedStyle(navigation).scrollbarWidth,
     };
   });
 
   expect(mobileGeometry.headerActionsVisible).toBe(true);
+  expect(mobileGeometry.brandOwnerFullyVisible).toBe(true);
+  expect(mobileGeometry.brandTitleFontSize).toBeGreaterThanOrEqual(12);
   expect(mobileGeometry.headerHeight).toBeLessThanOrEqual(150);
   expect(mobileGeometry.navigationHeight).toBeLessThanOrEqual(48);
   expect(mobileGeometry.navigationLinkTextFits).toBe(true);
   expect(mobileGeometry.navigationLinksSeparated).toBe(true);
+  expect(mobileGeometry.navigationCueText).toBe("Scroll for more →");
+  expect(mobileGeometry.navigationCueVisible).toBe(true);
   expect(mobileGeometry.navigationScrollable).toBe(true);
+  expect(mobileGeometry.navigationScrollbarWidth).toBe("thin");
   expect(mobileGeometry.consolePosition).toBe("static");
+  expect(mobileGeometry.consoleShellPosition).toBe("static");
   expect(mobileGeometry.headerPosition).toBe("static");
-  expect(mobileGeometry.headingClearsHeader).toBe(true);
+  expect(mobileGeometry.headingTop).toBeGreaterThanOrEqual(
+    Math.max(0, mobileGeometry.headerBottom),
+  );
 });
 
-test("primary navigation keeps anchored sections below the sticky header", async ({
+test("configuration console yields scroll space in short desktop viewports @cross-engine", async ({
   page,
 }) => {
-  await page.setViewportSize({ width: 1440, height: 1000 });
-  await page.emulateMedia({ reducedMotion: "reduce" });
+  await page.setViewportSize({ width: 1280, height: 720 });
   await page.goto("./");
 
-  const anchorContract = await page.evaluate(() => {
-    const header = document.querySelector<HTMLElement>(".site-header");
-    const target = document.querySelector<HTMLElement>("#interactions");
-    if (header === null || target === null) {
-      throw new Error("Expected sticky-header anchor landmarks are missing.");
-    }
-
-    return {
-      headerHeight: header.getBoundingClientRect().height,
-      targetScrollMargin: Number.parseFloat(
-        getComputedStyle(target).scrollMarginBlockStart,
-      ),
-    };
-  });
-  expect(anchorContract.targetScrollMargin).toBeGreaterThanOrEqual(
-    anchorContract.headerHeight + 16,
-  );
-
-  await page
-    .getByRole("navigation", { name: "Primary navigation" })
-    .getByRole("link", { name: "Interactions" })
-    .click();
+  const shell = page.locator(".configuration-shell");
   await expect
-    .poll(() => page.evaluate(() => window.location.hash))
-    .toBe("#interactions");
+    .poll(() => shell.evaluate((element) => getComputedStyle(element).position))
+    .toBe("static");
 
+  await page.locator("#interactions").scrollIntoViewIfNeeded();
   const geometry = await page.evaluate(() => {
-    const header = document.querySelector<HTMLElement>(".site-header");
+    const console = document.querySelector<HTMLElement>(
+      ".configuration-console",
+    );
     const target = document.querySelector<HTMLElement>("#interactions");
-    if (header === null || target === null) {
-      throw new Error("Expected sticky-header anchor landmarks are missing.");
+    if (console === null || target === null) {
+      throw new Error("Expected short-viewport landmarks are missing.");
     }
 
     return {
-      headerBottom: header.getBoundingClientRect().bottom,
+      consoleBottom: console.getBoundingClientRect().bottom,
+      targetBottom: target.getBoundingClientRect().bottom,
       targetTop: target.getBoundingClientRect().top,
+      viewportHeight: window.innerHeight,
     };
   });
+  expect(geometry.consoleBottom).toBeLessThanOrEqual(0);
+  expect(geometry.targetBottom).toBeGreaterThan(0);
+  expect(geometry.targetTop).toBeLessThan(geometry.viewportHeight);
+});
 
-  expect(geometry.targetTop).toBeGreaterThanOrEqual(geometry.headerBottom);
+test("primary navigation keeps anchored sections below the sticky header @cross-engine", async ({
+  page,
+}) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+
+  for (const width of [768, 1024, 1248, 1440]) {
+    await test.step(`${width}px viewport`, async () => {
+      await page.setViewportSize({ width, height: 1000 });
+      await page.goto("./");
+
+      const anchorContract = await page.evaluate(() => {
+        const header = document.querySelector<HTMLElement>(".site-header");
+        const target = document.querySelector<HTMLElement>("#interactions");
+        if (header === null || target === null) {
+          throw new Error(
+            "Expected sticky-header anchor landmarks are missing.",
+          );
+        }
+
+        return {
+          headerHeight: header.getBoundingClientRect().height,
+          targetScrollMargin: Number.parseFloat(
+            getComputedStyle(target).scrollMarginBlockStart,
+          ),
+        };
+      });
+      expect(anchorContract.targetScrollMargin).toBeGreaterThanOrEqual(
+        anchorContract.headerHeight + 16,
+      );
+
+      await page
+        .getByRole("navigation", { name: "Primary navigation" })
+        .getByRole("link", { name: "Interactions" })
+        .click();
+      await expect
+        .poll(() => page.evaluate(() => window.location.hash))
+        .toBe("#interactions");
+
+      const geometry = await page.evaluate(() => {
+        const header = document.querySelector<HTMLElement>(".site-header");
+        const target = document.querySelector<HTMLElement>("#interactions");
+        const shell = document.querySelector<HTMLElement>(
+          ".configuration-shell",
+        );
+        const console = document.querySelector<HTMLElement>(
+          ".configuration-console",
+        );
+        if (
+          header === null ||
+          target === null ||
+          shell === null ||
+          console === null
+        ) {
+          throw new Error(
+            "Expected sticky shell and anchor landmarks are missing.",
+          );
+        }
+
+        return {
+          consoleBottom: console.getBoundingClientRect().bottom,
+          headerBottom: header.getBoundingClientRect().bottom,
+          shellTop: shell.getBoundingClientRect().top,
+          targetTop: target.getBoundingClientRect().top,
+          viewportHeight: window.innerHeight,
+        };
+      });
+
+      expect(geometry.targetTop).toBeGreaterThanOrEqual(geometry.headerBottom);
+      expect(geometry.shellTop).toBeGreaterThanOrEqual(geometry.headerBottom);
+      expect(geometry.shellTop).toBeLessThanOrEqual(geometry.headerBottom + 16);
+      expect(geometry.consoleBottom).toBeLessThanOrEqual(
+        geometry.viewportHeight,
+      );
+    });
+  }
 });
 
 test("mobile header tab order follows its visual rows", async ({ page }) => {

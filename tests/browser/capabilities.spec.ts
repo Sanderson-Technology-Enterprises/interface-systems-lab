@@ -1613,6 +1613,21 @@ test("review contract proves native pseudo parts against package tokens and real
   expect(hoverPaint.backgroundColor).toBe(primaryHover);
   expect(hoverPaint.borderColor).toBe(primaryHover);
 
+  // Earlier pseudo-state reads may leave a sibling aligned beneath sticky chrome.
+  // Put the active specimen at the viewport end and prove the held pointer will hit it.
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await active.evaluate((element) => element.scrollIntoView({ block: "end" }));
+  await expect
+    .poll(() =>
+      active.evaluate((element) => {
+        const bounds = element.getBoundingClientRect();
+        const x = bounds.left + Math.min(24, bounds.width / 2);
+        const y = bounds.top + bounds.height / 2;
+        return document.elementFromPoint(x, y) === element;
+      }),
+    )
+    .toBe(true);
+
   const activeBounds = await active.boundingBox();
   expect(activeBounds).not.toBeNull();
   if (activeBounds !== null) {

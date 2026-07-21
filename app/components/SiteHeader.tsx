@@ -81,6 +81,9 @@ export function SiteHeader({ companyUrl }: SiteHeaderProps) {
             </a>
           ))}
         </nav>
+        <span className="primary-nav-cue" aria-hidden="true">
+          Scroll for more →
+        </span>
       </div>
     </header>
   );

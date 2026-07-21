@@ -134,9 +134,8 @@ export function LabControls() {
 
   return (
     <aside
-      className={`configuration-console ${prefix}-panel ly-surface ly-header--sticky ly-pad-4`}
+      className={`configuration-console ${prefix}-panel ly-surface ly-pad-4`}
       aria-label="Configuration console"
-      style={{ insetBlockStart: "var(--ly-header-height)" }}
     >
       <form
         className="control-deck ly-grid ly-cols-1 ly-md-cols-2 ly-lg-cols-4 ly-gap-4"

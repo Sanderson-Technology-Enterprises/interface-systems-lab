@@ -6,6 +6,15 @@
   .primary-nav {
     inline-size: 100%;
   }
+
+  /* The primary navigation occupies a second sticky row at this breakpoint. */
+  .experience :where(section[id]) {
+    scroll-margin-block-start: calc(var(--ly-header-height) + 5rem);
+  }
+
+  .configuration-shell {
+    inset-block-start: calc(var(--ly-header-height) + 4rem);
+  }
 }
 
 @media (max-width: 62rem) {
@@ -21,8 +30,14 @@
 @media (max-width: 46rem) {
   /* Tall narrow-screen regions stay in document flow so they cannot mask anchored content. */
   .site-header,
+  .configuration-shell,
   .configuration-console {
     position: static;
+  }
+
+  /* Static narrow-screen regions do not need the wrapped-header surcharge. */
+  .experience :where(section[id]) {
+    scroll-margin-block-start: calc(var(--ly-header-height) + 1rem);
   }
 
   .site-header-inner {
@@ -43,18 +58,19 @@
 
   .brand-owner {
     display: block;
-    overflow: hidden;
-    font-size: 0.48rem;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    overflow: visible;
+    font-size: 0.5rem;
+    line-height: 1.2;
+    text-overflow: clip;
+    white-space: normal;
   }
 
   .brand-title {
     display: block;
-    overflow: hidden;
-    font-size: 0.68rem;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    overflow: visible;
+    font-size: 0.75rem;
+    text-overflow: clip;
+    white-space: normal;
   }
 
   .header-links {
@@ -105,6 +121,28 @@
 
   .integration-frame {
     block-size: 32rem;
+  }
+}
+
+@media (max-width: 38rem) {
+  .primary-nav-cue {
+    display: inline-flex;
+    flex: 1 0 100%;
+    justify-content: flex-end;
+    min-block-size: 1rem;
+    color: rgb(var(--usk-primary-rgb));
+    font-family: var(--font-code);
+    font-size: 0.625rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+}
+
+@media (max-height: 50rem) {
+  /* Short desktop viewports keep the full control deck from masking the showcase. */
+  .configuration-shell {
+    position: static;
   }
 }
 
