@@ -1,11 +1,11 @@
 # Interface Systems Lab
 
-[Interface Systems Lab](https://foscat.github.io/interface-systems-lab/) is an interactive observatory for three coordinated, independently useful CSS libraries. It demonstrates how structure, visual identity, and interaction can share one semantic HTML contract.
+[Interface Systems Lab](https://sanderson-technology-enterprises.github.io/interface-systems-lab/) is an interactive observatory for three coordinated, independently useful CSS libraries. It demonstrates how structure, visual identity, and interaction can share one semantic HTML contract.
 
 - Product owner: [Sanderson Technology Enterprises](https://sandersontechnologyenterprises.com)
-- Live site: [foscat.github.io/interface-systems-lab](https://foscat.github.io/interface-systems-lab/)
-- Source: [Foscat/interface-systems-lab](https://github.com/Foscat/interface-systems-lab)
-- Deployment: GitHub Pages through the repository's verified Actions workflow
+- Live site: [sanderson-technology-enterprises.github.io/interface-systems-lab](https://sanderson-technology-enterprises.github.io/interface-systems-lab/)
+- Source: [Sanderson-Technology-Enterprises/interface-systems-lab](https://github.com/Sanderson-Technology-Enterprises/interface-systems-lab)
+- Deployment target: GitHub Pages; the Actions workflow is prepared for the separately approved handoff from the repository's current legacy Pages source
 
 ## Ecosystem resources
 
@@ -119,9 +119,40 @@ Run the full source, export, and rendered browser gate before handoff:
 npm run quality
 ```
 
-`quality` includes linting, type checks, unit/source contracts, deterministic
+`quality` includes formatting, linting, type checks, unit/source contracts, deterministic
 fixture safety and byte-parity checks, the GitHub Pages export build, export
-verification, and Playwright desktop/mobile QA.
+verification, exhaustive Chromium desktop/mobile QA, and representative Firefox
+and WebKit coverage.
+
+## Search ownership verification
+
+Optional search-console verification is configured at build time through the
+server-owned `GOOGLE_SITE_VERIFICATION` and `BING_SITE_VERIFICATION` variables.
+Both values are blank by default in `.env.example`; the export omits each meta
+tag until a real, non-empty token is supplied. Never commit production tokens.
+
+GitHub Pages project sites cannot publish the organization host's root
+`/robots.txt` from an individual repository. After the separately approved
+Pages-source handoff, submit the canonical sitemap directly in Google Search
+Console and Bing Webmaster Tools instead of relying only on project-scoped
+robots discovery:
+
+```text
+https://sanderson-technology-enterprises.github.io/interface-systems-lab/sitemap.xml
+```
+
+## Company and privacy
+
+The developer path leads directly to the source, package resources, and exact
+adoption recipes. Organizations can work with
+[Sanderson Technology Enterprises](https://sandersontechnologyenterprises.com)
+on creator-owned platforms, private systems, admin tools, and operational
+workflows.
+
+The static showcase currently includes no analytics or tracking integration and
+sets no first-party cookies. It stores only the selected Lab UI configuration in
+browser `localStorage`; that preference remains on the device and is not
+transmitted by the site.
 
 ## Local CSS policy
 

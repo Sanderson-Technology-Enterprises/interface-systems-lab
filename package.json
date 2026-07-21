@@ -25,7 +25,7 @@
     "test:browser": "playwright test",
     "verify:export": "node scripts/verify-export.mjs",
     "typecheck": "tsc --noEmit",
-    "quality": "npm run lint && npm run typecheck && npm run test:unit && npm run test:fixtures && npm run build:pages && npm run test:export && npm run test:browser"
+    "quality": "npm run format:check && npm run lint && npm run typecheck && npm run test:unit && npm run test:fixtures && npm run build:pages && npm run test:export && npm run test:browser"
   },
   "dependencies": {
     "interactive-surface-css": "1.5.0",

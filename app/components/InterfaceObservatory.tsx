@@ -109,7 +109,7 @@ export function InterfaceObservatory() {
         <code>{selectedPackage.attribute}</code>
         <nav
           className="ly-cluster ly-gap-2"
-          aria-label={`${selectedPackage.displayName} resources`}
+          aria-label={`Selected ${selectedPackage.displayName} resources`}
         >
           {resourceOrder.map((resource) => (
             <a

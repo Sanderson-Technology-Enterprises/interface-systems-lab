@@ -1,37 +1,83 @@
-const productionBasePath = "/interface-systems-lab";
-const productionUrl = "https://foscat.github.io/interface-systems-lab/";
+const basePath = "/interface-systems-lab";
+const origin = "https://sanderson-technology-enterprises.github.io";
+const productionUrl = `${origin}${basePath}/`;
 
 export const SITE = {
+  basePath,
+  origin,
   name: "Interface Systems Lab",
   title: "Interface Systems Lab | Accessible CSS Interface Systems",
   description:
     "Explore and combine layout-style-css, ui-style-kit-css, and interactive-surface-css in a live accessible interface workbench.",
   url: productionUrl,
-  repository: "https://github.com/Foscat/interface-systems-lab",
-  socialImage:
-    "https://foscat.github.io/interface-systems-lab/interface-systems-lab-social-card.png",
-  brandLogoPath: "logo-master.png",
-  brandLogo: `${productionUrl}logo-master.png`,
-  brandLogoAlt: "Interface Systems Lab public logo",
+  repository:
+    "https://github.com/Sanderson-Technology-Enterprises/interface-systems-lab",
+  socialImage: `${productionUrl}interface-systems-lab-social-card.png`,
+  socialImageAlt:
+    "Interface Systems Lab graphic showing 3 libraries, 1 interface, and 5,280 possibilities across layout, identity, and interaction.",
+  brandLogoPath: "android-chrome-512x512.png",
+  brandLogo: `${productionUrl}android-chrome-512x512.png`,
+  brandLogoAlt: "Interface Systems Lab logo",
   owner: {
     name: "Sanderson Technology Enterprises",
+    title: "Sanderson Technology Enterprises | Strategic Platform Development",
+    slogan: "Strategic Platform Development",
+    url: "https://sandersontechnologyenterprises.com",
+    github: "https://github.com/Sanderson-Technology-Enterprises",
+    organizationId: "https://sandersontechnologyenterprises.com/#organization",
+    logo: "https://sandersontechnologyenterprises.com/assets/icon-512.png",
+    image:
+      "https://sandersontechnologyenterprises.com/assets/social-preview.png",
+    description:
+      "Founder-led software studio building creator-owned web platforms, private content systems, admin dashboards, and operational workflows for adult entertainment businesses.",
   },
   productLine: "A Sanderson Technology Enterprises product",
   locale: "en_US",
 } as const;
 
-/** Keeps generated metadata assets aligned with the GitHub Pages project path. */
-export function withBasePath(path: string): string {
-  const basePath =
-    process.env.PAGES_BASE_PATH ??
-    (process.env.NODE_ENV === "development" ? "" : productionBasePath);
-  const normalizedPath = path.startsWith("/") ? path : `/${path}`;
+type VerificationEnvironment = Readonly<Record<string, string | undefined>>;
 
-  if (!basePath) {
+type VerificationMetadata = {
+  google?: string;
+  other?: Record<string, string>;
+};
+
+/** Prefixes local export assets only when a Pages base path is explicitly supplied. */
+export function withBasePath(
+  path: string,
+  requestedBasePath = process.env.PAGES_BASE_PATH ?? "",
+): string {
+  const trimmedBasePath = requestedBasePath.trim();
+  const normalizedBasePath = trimmedBasePath
+    ? `/${trimmedBasePath.replace(/^\/+|\/+$/g, "")}`
+    : "";
+  const normalizedPath = path === "/" ? "/" : `/${path.replace(/^\/+/, "")}`;
+
+  if (!normalizedBasePath || normalizedBasePath === "/") {
     return normalizedPath;
   }
 
   return normalizedPath === "/"
-    ? `${basePath}/`
-    : `${basePath}${normalizedPath}`;
+    ? `${normalizedBasePath}/`
+    : `${normalizedBasePath}${normalizedPath}`;
+}
+
+/** Resolves metadata assets against the canonical site URL, never the host root. */
+export function absoluteSiteAsset(path: string): string {
+  return new URL(path.replace(/^\/+/, ""), SITE.url).href;
+}
+
+/** Omits optional ownership-verification tags until a real trimmed token exists. */
+export function buildVerificationMetadata(
+  environment: VerificationEnvironment = process.env,
+): VerificationMetadata | undefined {
+  const google = environment.GOOGLE_SITE_VERIFICATION?.trim();
+  const bing = environment.BING_SITE_VERIFICATION?.trim();
+
+  if (!google && !bing) return undefined;
+
+  return {
+    ...(google ? { google } : {}),
+    ...(bing ? { other: { "msvalidate.01": bing } } : {}),
+  };
 }

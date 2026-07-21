@@ -17,6 +17,18 @@ const resourceUrls = [
 
 const configurationStorageKey = "interface-systems-lab:configuration:v1";
 const companyUrl = "https://sandersontechnologyenterprises.com";
+const canonicalUrl =
+  "https://sanderson-technology-enterprises.github.io/interface-systems-lab/";
+const corporateOrganizationId = `${companyUrl}/#organization`;
+const repositoryUrl =
+  "https://github.com/Sanderson-Technology-Enterprises/interface-systems-lab";
+const socialImageUrl = `${canonicalUrl}interface-systems-lab-social-card.png`;
+const socialImageAlt =
+  "Interface Systems Lab graphic showing 3 libraries, 1 interface, and 5,280 possibilities across layout, identity, and interaction.";
+const websiteId = `${canonicalUrl}#website`;
+const webpageId = `${canonicalUrl}#webpage`;
+const applicationId = `${canonicalUrl}#application`;
+const packagesId = `${canonicalUrl}#packages`;
 const requiredSectionIds = [
   "top",
   "workbench",
@@ -34,6 +46,12 @@ type ExpectedConfiguration = {
   ui: string;
   theme: string;
   mode: string;
+};
+
+type StructuredDataNode = {
+  "@id"?: string;
+  "@type"?: string;
+  [key: string]: unknown;
 };
 
 const defaultConfiguration: ExpectedConfiguration = {
@@ -131,6 +149,21 @@ async function expectNoHorizontalOverflow(page: Page) {
   expect(dimensions.scrollWidth).toBeLessThanOrEqual(dimensions.clientWidth);
 }
 
+async function readStructuredData(page: Page): Promise<StructuredDataNode[]> {
+  const nodes = await page
+    .locator('script[type="application/ld+json"]')
+    .evaluateAll((scripts) =>
+      scripts.flatMap((script) => {
+        const value = JSON.parse(script.textContent ?? "{}") as {
+          "@graph"?: Record<string, unknown>[];
+        };
+        return value["@graph"] ?? [value];
+      }),
+    );
+
+  return nodes as StructuredDataNode[];
+}
+
 test("shell scopes the complete experience and balances developer and company paths", async ({
   page,
 }) => {
@@ -162,6 +195,11 @@ test("shell scopes the complete experience and balances developer and company pa
     await expect(page.locator(`#${id}`)).toHaveCount(1);
     await expect(navigation.locator(`a[href="#${id}"]`)).toHaveCount(1);
   }
+  const companyRegion = page.getByRole("region", {
+    name: "Build with the system or with its studio.",
+  });
+  await expect(companyRegion).toHaveAttribute("id", "company");
+  await expect(companyRegion.locator("h3")).toHaveCount(2);
 
   const developerAction = page.locator('[data-hero-action="developer"]');
   const companyAction = page.locator('[data-hero-action="company"]');
@@ -199,7 +237,22 @@ test("shell scopes the complete experience and balances developer and company pa
   expect(actionGeometry[0]!.background).toBe(actionGeometry[1]!.background);
   expect(actionGeometry[0]!.color).toBe(actionGeometry[1]!.color);
 
-  await expect(page.locator(`a[href="${companyUrl}"]`)).toHaveCount(4);
+  for (const [scope, accessibleName] of [
+    [".site-header", /Sanderson/i],
+    [".hero", /Visit Sanderson Technology Enterprises/i],
+    ["#company", /Work with Sanderson Technology Enterprises/i],
+    [".site-footer", /Sanderson Technology Enterprises/i],
+  ] as const) {
+    const corporateLink = page
+      .locator(scope)
+      .getByRole("link", { name: accessibleName });
+    await expect(corporateLink).toHaveCount(1);
+    await expect(corporateLink).toHaveAttribute("href", companyUrl);
+    await expect(corporateLink).toHaveAttribute(
+      "rel",
+      /^(?=.*\bnoreferrer\b)(?=.*\bnoopener\b).+$/,
+    );
+  }
 
   for (const [selector, asset] of [
     [".brand-logo", "favicon-48x48.png"],
@@ -359,6 +412,55 @@ test("shell keeps narrow-screen anchors clear of tall sticky regions", async ({
   expect(mobileGeometry.headingClearsHeader).toBe(true);
 });
 
+test("primary navigation keeps anchored sections below the sticky header", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1440, height: 1000 });
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await page.goto("./");
+
+  const anchorContract = await page.evaluate(() => {
+    const header = document.querySelector<HTMLElement>(".site-header");
+    const target = document.querySelector<HTMLElement>("#interactions");
+    if (header === null || target === null) {
+      throw new Error("Expected sticky-header anchor landmarks are missing.");
+    }
+
+    return {
+      headerHeight: header.getBoundingClientRect().height,
+      targetScrollMargin: Number.parseFloat(
+        getComputedStyle(target).scrollMarginBlockStart,
+      ),
+    };
+  });
+  expect(anchorContract.targetScrollMargin).toBeGreaterThanOrEqual(
+    anchorContract.headerHeight + 16,
+  );
+
+  await page
+    .getByRole("navigation", { name: "Primary navigation" })
+    .getByRole("link", { name: "Interactions" })
+    .click();
+  await expect
+    .poll(() => page.evaluate(() => window.location.hash))
+    .toBe("#interactions");
+
+  const geometry = await page.evaluate(() => {
+    const header = document.querySelector<HTMLElement>(".site-header");
+    const target = document.querySelector<HTMLElement>("#interactions");
+    if (header === null || target === null) {
+      throw new Error("Expected sticky-header anchor landmarks are missing.");
+    }
+
+    return {
+      headerBottom: header.getBoundingClientRect().bottom,
+      targetTop: target.getBoundingClientRect().top,
+    };
+  });
+
+  expect(geometry.targetTop).toBeGreaterThanOrEqual(geometry.headerBottom);
+});
+
 test("mobile header tab order follows its visual rows", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto("./");
@@ -507,15 +609,145 @@ test("renders the production metadata and complete resource directory", async ({
   ).toBeVisible();
   await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
     "href",
-    "https://foscat.github.io/interface-systems-lab/",
+    canonicalUrl,
+  );
+  await expect(page.locator('meta[property="og:url"]')).toHaveAttribute(
+    "content",
+    canonicalUrl,
   );
   await expect(page.locator('meta[property="og:image"]')).toHaveAttribute(
     "content",
-    "https://foscat.github.io/interface-systems-lab/interface-systems-lab-social-card.png",
+    socialImageUrl,
   );
-  await expect(page.locator('script[type="application/ld+json"]')).toHaveCount(
-    1,
+  await expect(page.locator('meta[property="og:image:alt"]')).toHaveAttribute(
+    "content",
+    socialImageAlt,
   );
+  await expect(page.locator('meta[name="twitter:image"]')).toHaveAttribute(
+    "content",
+    socialImageUrl,
+  );
+  await expect(page.locator('meta[name="twitter:image:alt"]')).toHaveAttribute(
+    "content",
+    socialImageAlt,
+  );
+  for (const [selector, asset] of [
+    ['link[rel="shortcut icon"]', "favicon.ico"],
+    ['link[rel="icon"][sizes="any"]', "favicon.ico"],
+    ['link[rel="icon"][sizes="32x32"]', "favicon-32x32.png"],
+    ['link[rel="icon"][sizes="16x16"]', "favicon-16x16.png"],
+    ['link[rel="apple-touch-icon"]', "apple-touch-icon.png"],
+  ] as const) {
+    await expect(page.locator(selector)).toHaveAttribute(
+      "href",
+      `${canonicalUrl}${asset}`,
+    );
+  }
+  for (const [name, expected] of [
+    ["google-site-verification", process.env.GOOGLE_SITE_VERIFICATION?.trim()],
+    ["msvalidate.01", process.env.BING_SITE_VERIFICATION?.trim()],
+  ] as const) {
+    const tag = page.locator(`meta[name="${name}"]`);
+    if (expected) {
+      await expect(tag).toHaveCount(1);
+      await expect(tag).toHaveAttribute("content", expected);
+    } else {
+      await expect(tag).toHaveCount(0);
+    }
+  }
+
+  const structuredData = await readStructuredData(page);
+  const node = (type: string) =>
+    structuredData.filter((candidate) => candidate["@type"] === type);
+  for (const type of [
+    "Organization",
+    "WebSite",
+    "WebPage",
+    "SoftwareApplication",
+    "ItemList",
+  ]) {
+    expect(node(type), type).toHaveLength(1);
+  }
+  const organization = node("Organization")[0]!;
+  expect(organization).toMatchObject({
+    "@id": corporateOrganizationId,
+    description:
+      "Founder-led software studio building creator-owned web platforms, private content systems, admin dashboards, and operational workflows for adult entertainment businesses.",
+    image:
+      "https://sandersontechnologyenterprises.com/assets/social-preview.png",
+    legalName: "Sanderson Technology Enterprises",
+    logo: "https://sandersontechnologyenterprises.com/assets/icon-512.png",
+    name: "Sanderson Technology Enterprises",
+    sameAs: ["https://github.com/Sanderson-Technology-Enterprises"],
+    slogan: "Strategic Platform Development",
+    url: companyUrl,
+  });
+  expect(node("SoftwareApplication")[0]).toMatchObject({
+    "@id": applicationId,
+    codeRepository: repositoryUrl,
+    isAccessibleForFree: true,
+    logo: `${canonicalUrl}android-chrome-512x512.png`,
+    operatingSystem: "Any",
+    publisher: { "@id": corporateOrganizationId },
+    url: canonicalUrl,
+  });
+  expect(node("WebSite")[0]).toMatchObject({
+    "@id": websiteId,
+    publisher: { "@id": corporateOrganizationId },
+    url: canonicalUrl,
+  });
+  expect(node("WebPage")[0]).toMatchObject({
+    "@id": webpageId,
+    isPartOf: { "@id": websiteId },
+    publisher: { "@id": corporateOrganizationId },
+    url: canonicalUrl,
+  });
+  expect(node("ItemList")[0]).toMatchObject({
+    "@id": packagesId,
+    url: canonicalUrl,
+    itemListElement: [
+      {
+        item: {
+          codeRepository: "https://github.com/Foscat/Layout-Style-CSS",
+          name: "layout-style-css",
+          programmingLanguage: "CSS",
+          url: "https://www.npmjs.com/package/layout-style-css",
+          version: "2.1.0",
+        },
+      },
+      {
+        item: {
+          codeRepository: "https://github.com/Foscat/ui-style-kit-css",
+          name: "ui-style-kit-css",
+          programmingLanguage: "CSS",
+          url: "https://www.npmjs.com/package/ui-style-kit-css",
+          version: "2.1.0",
+        },
+      },
+      {
+        item: {
+          codeRepository: "https://github.com/Foscat/Interactive-Surface-CSS",
+          name: "interactive-surface-css",
+          programmingLanguage: "CSS",
+          url: "https://www.npmjs.com/package/interactive-surface-css",
+          version: "1.5.0",
+        },
+      },
+    ],
+    numberOfItems: 3,
+  });
+
+  for (const [name, version] of [
+    ["layout-style-css", "2.1.0"],
+    ["ui-style-kit-css", "2.1.0"],
+    ["interactive-surface-css", "1.5.0"],
+  ]) {
+    const packageEntry = page.locator(`[data-package="${name}"]`);
+    await expect(packageEntry.getByRole("heading", { name })).toBeAttached();
+    await expect(
+      packageEntry.getByText(`v${version}`, { exact: true }),
+    ).toBeAttached();
+  }
 
   for (const url of resourceUrls) {
     await expect(page.locator(`a[href="${url}"]`).first()).toBeAttached();
@@ -527,6 +759,90 @@ test("renders the production metadata and complete resource directory", async ({
   });
   expect(runtimeErrors).toEqual([]);
 });
+
+test(
+  "representative configurations remain healthy across engines",
+  { tag: "@cross-engine" },
+  async ({ page }) => {
+    const runtimeErrors: string[] = [];
+    page.on("console", (message) => {
+      if (message.type() === "error") runtimeErrors.push(message.text());
+    });
+    page.on("pageerror", (error) => runtimeErrors.push(error.message));
+
+    const configurations: ExpectedConfiguration[] = [
+      defaultConfiguration,
+      {
+        layout: "split-screen",
+        ui: "maximalist",
+        theme: "cyber-lime",
+        mode: "contrast",
+      },
+    ];
+
+    for (const configuration of configurations) {
+      const query = new URLSearchParams(configuration).toString();
+      await page.goto(`./?${query}`);
+      await expectRootConfiguration(page, configuration);
+      await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
+        "href",
+        canonicalUrl,
+      );
+      for (const section of [
+        ".site-header",
+        "#workbench",
+        "#layouts",
+        "#ui-native",
+        "#interactions",
+        "#integrate",
+        "#install",
+        "#company",
+        ".site-footer",
+      ]) {
+        await expect(page.locator(section)).toBeVisible();
+      }
+      await expect(
+        page.locator("#company").getByRole("link", {
+          name: /Work with Sanderson Technology Enterprises/i,
+        }),
+      ).toBeVisible();
+
+      const paint = await page.locator(".experience").evaluate((element) => {
+        const style = getComputedStyle(element);
+        return {
+          background: style.backgroundColor,
+          backgroundImage: style.backgroundImage,
+          color: style.color,
+        };
+      });
+      expect(
+        paint.background !== "rgba(0, 0, 0, 0)" ||
+          paint.backgroundImage !== "none",
+      ).toBe(true);
+      expect(paint.color).not.toBe("rgba(0, 0, 0, 0)");
+
+      const developerAction = page.locator('[data-hero-action="developer"]');
+      const companyAction = page.locator('[data-hero-action="company"]');
+      await developerAction.focus();
+      await page.keyboard.press("Tab");
+      await expect(companyAction).toBeFocused();
+      const focusStyle = await companyAction.evaluate((element) => {
+        const style = getComputedStyle(element);
+        return {
+          focusVisible: element.matches(":focus-visible"),
+          outlineStyle: style.outlineStyle,
+          outlineWidth: Number.parseFloat(style.outlineWidth),
+        };
+      });
+      expect(focusStyle.focusVisible).toBe(true);
+      expect(focusStyle.outlineStyle).not.toBe("none");
+      expect(focusStyle.outlineWidth).toBeGreaterThanOrEqual(2);
+      await expectNoHorizontalOverflow(page);
+    }
+
+    expect(runtimeErrors).toEqual([]);
+  },
+);
 
 test("keeps workbench controls, state, and copy affordances functional", async ({
   page,

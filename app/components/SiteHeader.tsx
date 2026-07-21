@@ -1,5 +1,5 @@
 import { ExternalLinkIcon } from "./Icons";
-import { SITE } from "../lib/site";
+import { SITE, withBasePath } from "../lib/site";
 
 const navigationItems = [
   ["Home", "top"],
@@ -26,11 +26,11 @@ export function SiteHeader({ companyUrl }: SiteHeaderProps) {
           href="#top"
           aria-label="Interface Systems Lab home"
         >
-          {/* A relative public path remains valid under the exported Pages project route. */}
+          {/* The explicit helper keeps this rendered asset correct in local and Pages builds. */}
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             className="brand-logo"
-            src="favicon-48x48.png"
+            src={withBasePath("/favicon-48x48.png")}
             width="48"
             height="48"
             alt=""

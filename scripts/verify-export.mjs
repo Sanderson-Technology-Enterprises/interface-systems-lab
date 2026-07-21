@@ -1,4 +1,4 @@
-import { readFile } from "node:fs/promises";
+import { readFile, readdir, stat } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
 
@@ -8,7 +8,26 @@ const repositoryRoot = path.resolve(
 );
 const exportRoot = path.join(repositoryRoot, "out");
 const basePath = "/interface-systems-lab";
-const siteUrl = "https://foscat.github.io/interface-systems-lab/";
+const siteUrl =
+  "https://sanderson-technology-enterprises.github.io/interface-systems-lab/";
+const corporateUrl = "https://sandersontechnologyenterprises.com";
+const corporateOrganizationId = `${corporateUrl}/#organization`;
+const corporateGithub = "https://github.com/Sanderson-Technology-Enterprises";
+const repositoryUrl = `${corporateGithub}/interface-systems-lab`;
+const socialImageUrl = `${siteUrl}interface-systems-lab-social-card.png`;
+const socialImageAlt =
+  "Interface Systems Lab graphic showing 3 libraries, 1 interface, and 5,280 possibilities across layout, identity, and interaction.";
+const labLogoUrl = `${siteUrl}android-chrome-512x512.png`;
+const websiteId = `${siteUrl}#website`;
+const webpageId = `${siteUrl}#webpage`;
+const applicationId = `${siteUrl}#application`;
+const packagesId = `${siteUrl}#packages`;
+const corporateDescription =
+  "Founder-led software studio building creator-owned web platforms, private content systems, admin dashboards, and operational workflows for adult entertainment businesses.";
+const staleLabUrls = [
+  ["https://foscat.github.io", "/interface-systems-lab/"].join(""),
+  ["https://github.com/Foscat", "/interface-systems-lab"].join(""),
+];
 
 const resourceUrls = [
   "https://github.com/Foscat/Layout-Style-CSS",
@@ -40,7 +59,315 @@ function requireText(haystack, needle, label, issues) {
   }
 }
 
-/** Validates the files that GitHub Pages will receive, rather than source intent. */
+function rejectText(haystack, needle, label, issues) {
+  if (haystack.includes(needle)) {
+    issues.push(`Found ${label}: ${needle}`);
+  }
+}
+
+function requireExact(actual, expected, label, issues) {
+  if (actual !== expected) {
+    issues.push(
+      `${label} must be ${JSON.stringify(expected)}, found ${JSON.stringify(actual)}`,
+    );
+  }
+}
+
+function readStructuredDataNodes(html, documentName, issues) {
+  const nodes = [];
+  const scripts = html.matchAll(
+    /<script[^>]*type="application\/ld\+json"[^>]*>([\s\S]*?)<\/script>/g,
+  );
+
+  for (const script of scripts) {
+    try {
+      const parsed = JSON.parse(script[1]);
+      nodes.push(...(parsed["@graph"] ?? [parsed]));
+    } catch {
+      issues.push(`${documentName} contains invalid JSON-LD`);
+    }
+  }
+
+  return nodes;
+}
+
+function requireSingleSchemaNode(nodes, type, documentName, issues) {
+  const matches = nodes.filter((node) => node["@type"] === type);
+  if (matches.length !== 1) {
+    issues.push(
+      `${documentName} must contain one ${type} schema node, found ${matches.length}`,
+    );
+  }
+  return matches[0];
+}
+
+async function validateLocalAssets(html, documentName, issues) {
+  const references = new Set(
+    Array.from(
+      html.matchAll(/(?:href|src)="([^"]+)"/g),
+      (match) => match[1],
+    ).filter(
+      (reference) =>
+        !reference.startsWith("https://") &&
+        !reference.startsWith("http://") &&
+        !reference.startsWith("data:") &&
+        !reference.startsWith("#") &&
+        !reference.startsWith("mailto:") &&
+        !reference.startsWith("tel:"),
+    ),
+  );
+
+  for (const reference of references) {
+    if (!reference.startsWith(`${basePath}/`)) {
+      issues.push(`${documentName} asset is not Pages-aware: ${reference}`);
+      continue;
+    }
+
+    const pathname = reference.split(/[?#]/, 1)[0];
+    const relativePath = pathname.slice(basePath.length + 1) || "index.html";
+    const resolvedPath = path.resolve(exportRoot, relativePath);
+    const exportRelativePath = path.relative(exportRoot, resolvedPath);
+    if (
+      exportRelativePath.startsWith("..") ||
+      path.isAbsolute(exportRelativePath)
+    ) {
+      issues.push(`${documentName} asset escapes the export: ${reference}`);
+      continue;
+    }
+    await readExportFile(exportRelativePath, issues);
+  }
+}
+
+async function collectArtifactFiles(directory, issues) {
+  let entries;
+  try {
+    entries = await readdir(directory, { withFileTypes: true });
+  } catch {
+    issues.push(
+      `Missing artifact directory: ${path.relative(exportRoot, directory)}`,
+    );
+    return [];
+  }
+
+  const files = [];
+  for (const entry of entries) {
+    const entryPath = path.join(directory, entry.name);
+    if (entry.isDirectory()) {
+      files.push(...(await collectArtifactFiles(entryPath, issues)));
+    } else if (entry.isFile()) {
+      files.push({ path: entryPath, size: (await stat(entryPath)).size });
+    }
+  }
+  return files;
+}
+
+function enforceArtifactBudget(actual, budget, label, issues) {
+  if (actual > budget) {
+    issues.push(`${label} exceeds ${budget} bytes: ${actual}`);
+  }
+}
+
+function validateStructuredData(index, notFound, issues) {
+  const indexNodes = readStructuredDataNodes(index, "index.html", issues);
+  const notFoundNodes = readStructuredDataNodes(notFound, "404.html", issues);
+  const organization = requireSingleSchemaNode(
+    indexNodes,
+    "Organization",
+    "index.html",
+    issues,
+  );
+  const website = requireSingleSchemaNode(
+    indexNodes,
+    "WebSite",
+    "index.html",
+    issues,
+  );
+  const webpage = requireSingleSchemaNode(
+    indexNodes,
+    "WebPage",
+    "index.html",
+    issues,
+  );
+  const application = requireSingleSchemaNode(
+    indexNodes,
+    "SoftwareApplication",
+    "index.html",
+    issues,
+  );
+  const packages = requireSingleSchemaNode(
+    indexNodes,
+    "ItemList",
+    "index.html",
+    issues,
+  );
+
+  if (organization) {
+    requireExact(
+      organization["@id"],
+      corporateOrganizationId,
+      "Organization @id",
+      issues,
+    );
+    requireExact(
+      organization.name,
+      "Sanderson Technology Enterprises",
+      "Organization name",
+      issues,
+    );
+    requireExact(
+      organization.legalName,
+      "Sanderson Technology Enterprises",
+      "Organization legalName",
+      issues,
+    );
+    requireExact(
+      organization.slogan,
+      "Strategic Platform Development",
+      "Organization slogan",
+      issues,
+    );
+    requireExact(
+      organization.description,
+      corporateDescription,
+      "Organization description",
+      issues,
+    );
+    requireExact(organization.url, corporateUrl, "Organization URL", issues);
+    requireExact(
+      organization.logo,
+      `${corporateUrl}/assets/icon-512.png`,
+      "Organization logo",
+      issues,
+    );
+    requireExact(
+      organization.image,
+      `${corporateUrl}/assets/social-preview.png`,
+      "Organization image",
+      issues,
+    );
+    requireExact(
+      JSON.stringify(organization.sameAs),
+      JSON.stringify([corporateGithub]),
+      "Organization sameAs",
+      issues,
+    );
+  }
+
+  if (website) {
+    requireExact(website["@id"], websiteId, "WebSite @id", issues);
+    requireExact(website.url, siteUrl, "WebSite URL", issues);
+    requireExact(website.image, socialImageUrl, "WebSite image", issues);
+    requireExact(
+      website.publisher?.["@id"],
+      corporateOrganizationId,
+      "WebSite publisher",
+      issues,
+    );
+  }
+  if (webpage) {
+    requireExact(webpage["@id"], webpageId, "WebPage @id", issues);
+    requireExact(webpage.url, siteUrl, "WebPage URL", issues);
+    requireExact(
+      webpage.isPartOf?.["@id"],
+      websiteId,
+      "WebPage isPartOf",
+      issues,
+    );
+    requireExact(
+      webpage.publisher?.["@id"],
+      corporateOrganizationId,
+      "WebPage publisher",
+      issues,
+    );
+  }
+  if (application) {
+    requireExact(
+      application["@id"],
+      applicationId,
+      "SoftwareApplication @id",
+      issues,
+    );
+    requireExact(application.url, siteUrl, "SoftwareApplication URL", issues);
+    requireExact(
+      application.publisher?.["@id"],
+      corporateOrganizationId,
+      "SoftwareApplication publisher",
+      issues,
+    );
+    requireExact(
+      application.codeRepository,
+      repositoryUrl,
+      "SoftwareApplication repository",
+      issues,
+    );
+    requireExact(
+      application.isAccessibleForFree,
+      true,
+      "SoftwareApplication free access",
+      issues,
+    );
+    requireExact(
+      application.operatingSystem,
+      "Any",
+      "SoftwareApplication operating system",
+      issues,
+    );
+    requireExact(
+      application.logo,
+      labLogoUrl,
+      "SoftwareApplication logo",
+      issues,
+    );
+  }
+  if (packages) {
+    requireExact(packages["@id"], packagesId, "ItemList @id", issues);
+    requireExact(packages.url, siteUrl, "ItemList URL", issues);
+    requireExact(packages.numberOfItems, 3, "ItemList count", issues);
+    const packageContracts = (packages.itemListElement ?? []).map((entry) => ({
+      codeRepository: entry.item?.codeRepository,
+      name: entry.item?.name,
+      programmingLanguage: entry.item?.programmingLanguage,
+      url: entry.item?.url,
+      version: entry.item?.version,
+    }));
+    requireExact(
+      JSON.stringify(packageContracts),
+      JSON.stringify([
+        {
+          codeRepository: "https://github.com/Foscat/Layout-Style-CSS",
+          name: "layout-style-css",
+          programmingLanguage: "CSS",
+          url: "https://www.npmjs.com/package/layout-style-css",
+          version: "2.1.0",
+        },
+        {
+          codeRepository: "https://github.com/Foscat/ui-style-kit-css",
+          name: "ui-style-kit-css",
+          programmingLanguage: "CSS",
+          url: "https://www.npmjs.com/package/ui-style-kit-css",
+          version: "2.1.0",
+        },
+        {
+          codeRepository: "https://github.com/Foscat/Interactive-Surface-CSS",
+          name: "interactive-surface-css",
+          programmingLanguage: "CSS",
+          url: "https://www.npmjs.com/package/interactive-surface-css",
+          version: "1.5.0",
+        },
+      ]),
+      "ItemList package contracts",
+      issues,
+    );
+  }
+
+  for (const type of ["WebPage", "SoftwareApplication", "ItemList"]) {
+    if (notFoundNodes.some((node) => node["@type"] === type)) {
+      issues.push(`404.html incorrectly contains home-only ${type} schema`);
+    }
+  }
+}
+
+/** Validates the exact files GitHub Pages receives, rather than source intent. */
 export async function collectExportIssues() {
   const issues = [];
   const index = (await readExportFile("index.html", issues)).toString("utf8");
@@ -59,6 +386,49 @@ export async function collectExportIssues() {
     "interface-systems-lab-social-card.png",
     issues,
   );
+  const shippingOutput = [
+    index,
+    notFound,
+    robots,
+    sitemap,
+    manifest,
+    browserConfig,
+  ].join("\n");
+
+  // Generous raw-size ceilings catch accidental payload duplication without
+  // turning normal framework chunk movement into a brittle snapshot.
+  const nextStaticFiles = await collectArtifactFiles(
+    path.join(exportRoot, "_next", "static"),
+    issues,
+  );
+  const totalByExtension = (pattern) =>
+    nextStaticFiles
+      .filter((file) => pattern.test(file.path))
+      .reduce((total, file) => total + file.size, 0);
+  enforceArtifactBudget(
+    Buffer.byteLength(index),
+    256 * 1024,
+    "Raw index.html",
+    issues,
+  );
+  enforceArtifactBudget(
+    totalByExtension(/\.js$/),
+    1024 * 1024,
+    "Total Next.js JavaScript",
+    issues,
+  );
+  enforceArtifactBudget(
+    totalByExtension(/\.css$/),
+    512 * 1024,
+    "Total Next.js CSS",
+    issues,
+  );
+  enforceArtifactBudget(
+    totalByExtension(/\.(?:woff2?|ttf|otf)$/),
+    256 * 1024,
+    "Total exported fonts",
+    issues,
+  );
 
   requireText(index, '<html lang="en">', "document language", issues);
   requireText(
@@ -75,8 +445,26 @@ export async function collectExportIssues() {
   );
   requireText(
     index,
-    `property="og:image" content="${siteUrl}interface-systems-lab-social-card.png"`,
+    `property="og:image" content="${socialImageUrl}"`,
     "Open Graph image",
+    issues,
+  );
+  requireText(
+    index,
+    `property="og:image:alt" content="${socialImageAlt}"`,
+    "Open Graph image alt",
+    issues,
+  );
+  requireText(
+    index,
+    `name="twitter:image" content="${socialImageUrl}"`,
+    "Twitter image",
+    issues,
+  );
+  requireText(
+    index,
+    `name="twitter:image:alt" content="${socialImageAlt}"`,
+    "Twitter image alt",
     issues,
   );
   requireText(
@@ -85,10 +473,22 @@ export async function collectExportIssues() {
     "Twitter card",
     issues,
   );
-  requireText(index, 'type="application/ld+json"', "structured data", issues);
+  for (const asset of [
+    "favicon.ico",
+    "favicon-32x32.png",
+    "favicon-16x16.png",
+    "apple-touch-icon.png",
+  ]) {
+    requireText(
+      index,
+      `href="${siteUrl}${asset}"`,
+      `absolute metadata icon ${asset}`,
+      issues,
+    );
+  }
   requireText(
     index,
-    `${basePath}/manifest.webmanifest`,
+    `<link rel="manifest" href="${basePath}/manifest.webmanifest"`,
     "manifest path",
     issues,
   );
@@ -105,6 +505,20 @@ export async function collectExportIssues() {
     "custom 404 content",
     issues,
   );
+
+  const companyLinkCount = (
+    index.match(new RegExp(`href="${corporateUrl}"`, "g")) ?? []
+  ).length;
+  if (companyLinkCount < 4) {
+    issues.push(
+      `Expected at least four corporate links, found ${companyLinkCount}`,
+    );
+  }
+
+  for (const staleUrl of staleLabUrls) {
+    rejectText(shippingOutput, staleUrl, "superseded Lab URL", issues);
+  }
+
   const notFoundRobotDirectives = [
     ...notFound.matchAll(/<meta name="robots" content="([^"]+)"/g),
   ].map((match) => match[1].toLowerCase());
@@ -119,24 +533,29 @@ export async function collectExportIssues() {
   ) {
     issues.push("Custom 404 contains a conflicting index directive");
   }
-  if (notFound.includes(`<link rel="canonical" href="${siteUrl}"`)) {
-    issues.push("Custom 404 incorrectly canonicalizes to the home page");
-  }
+  rejectText(notFound, '<link rel="canonical"', "404 canonical", issues);
+  rejectText(notFound, '<meta property="og:', "404 Open Graph tag", issues);
+  rejectText(notFound, '<meta name="twitter:', "404 Twitter tag", issues);
 
   const headingCount = (index.match(/<h1(?:\s|>)/g) ?? []).length;
-  if (headingCount !== 1) {
-    issues.push(`Expected one h1, found ${headingCount}`);
-  }
+  requireExact(headingCount, 1, "home h1 count", issues);
 
   for (const url of resourceUrls) {
     requireText(index, `href="${url}"`, "library resource link", issues);
   }
 
-  const unsafeRootAsset =
-    /(?:href|src)="\/(?!interface-systems-lab(?:\/|"|#))[^"#]*"/g;
-  const rootAssetMatches = index.match(unsafeRootAsset) ?? [];
-  if (rootAssetMatches.length > 0) {
-    issues.push(`Found unprefixed root assets: ${rootAssetMatches.join(", ")}`);
+  await validateLocalAssets(index, "index.html", issues);
+  await validateLocalAssets(notFound, "404.html", issues);
+  validateStructuredData(index, notFound, issues);
+
+  // Absolute metadata URLs still need a corresponding file in the Pages artifact.
+  for (const metadataIcon of [
+    "favicon.ico",
+    "favicon-32x32.png",
+    "favicon-16x16.png",
+    "apple-touch-icon.png",
+  ]) {
+    await readExportFile(metadataIcon, issues);
   }
 
   requireText(robots, "User-Agent: *", "robots rule", issues);
@@ -147,19 +566,79 @@ export async function collectExportIssues() {
     "robots sitemap",
     issues,
   );
+  if (/^Host:/m.test(robots)) {
+    issues.push("robots.txt must not emit a project-path Host directive");
+  }
+  requireExact(
+    (sitemap.match(/<loc>/g) ?? []).length,
+    1,
+    "sitemap location count",
+    issues,
+  );
   requireText(sitemap, `<loc>${siteUrl}</loc>`, "sitemap location", issues);
+  rejectText(sitemap, "<lastmod>", "unstable sitemap lastmod", issues);
+
+  for (const [name, expected] of [
+    ["google-site-verification", process.env.GOOGLE_SITE_VERIFICATION?.trim()],
+    ["msvalidate.01", process.env.BING_SITE_VERIFICATION?.trim()],
+  ]) {
+    const tags = Array.from(
+      index.matchAll(
+        new RegExp(
+          `<meta name="${name.replace(".", "\\.")}" content="([^"]*)"`,
+          "g",
+        ),
+      ),
+    );
+    if (expected) {
+      requireExact(tags.length, 1, `${name} tag count`, issues);
+      requireExact(tags[0]?.[1], expected, `${name} token`, issues);
+    } else if (tags.length > 0) {
+      issues.push(`Unexpected ${name} tag without a configured token`);
+    }
+  }
 
   if (manifest) {
     try {
       const parsedManifest = JSON.parse(manifest);
       for (const key of ["id", "start_url", "scope"]) {
-        if (parsedManifest[key] !== `${basePath}/`) {
-          issues.push(`Manifest ${key} is not Pages-aware`);
-        }
+        requireExact(
+          parsedManifest[key],
+          `${basePath}/`,
+          `Manifest ${key}`,
+          issues,
+        );
       }
+      requireExact(
+        JSON.stringify(parsedManifest.icons),
+        JSON.stringify([
+          {
+            src: `${basePath}/android-chrome-192x192.png`,
+            sizes: "192x192",
+            type: "image/png",
+            purpose: "any",
+          },
+          {
+            src: `${basePath}/android-chrome-512x512.png`,
+            sizes: "512x512",
+            type: "image/png",
+            purpose: "any",
+          },
+          {
+            src: `${basePath}/maskable-icon-512x512.png`,
+            sizes: "512x512",
+            type: "image/png",
+            purpose: "maskable",
+          },
+        ]),
+        "Manifest icon descriptors",
+        issues,
+      );
       for (const icon of parsedManifest.icons ?? []) {
         if (!icon.src.startsWith(`${basePath}/`)) {
           issues.push(`Manifest icon is not Pages-aware: ${icon.src}`);
+        } else {
+          await readExportFile(icon.src.slice(basePath.length + 1), issues);
         }
       }
     } catch {
@@ -173,8 +652,20 @@ export async function collectExportIssues() {
     "Pages-aware Microsoft tile",
     issues,
   );
+  requireText(
+    browserConfig,
+    "<TileColor>#07111f</TileColor>",
+    "Microsoft tile color",
+    issues,
+  );
 
   if (socialImage.length >= 24) {
+    requireExact(
+      socialImage.subarray(0, 8).toString("hex"),
+      "89504e470d0a1a0a",
+      "Social image PNG signature",
+      issues,
+    );
     const width = socialImage.readUInt32BE(16);
     const height = socialImage.readUInt32BE(20);
     if (width !== 1200 || height !== 630) {

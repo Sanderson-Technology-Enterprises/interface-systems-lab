@@ -5,6 +5,8 @@ export default defineConfig({
   fullyParallel: false,
   forbidOnly: Boolean(process.env.CI),
   retries: process.env.CI ? 2 : 0,
+  timeout: 90_000,
+  workers: process.env.CI ? 2 : undefined,
   reporter: process.env.CI ? "github" : "list",
   use: {
     baseURL: "http://127.0.0.1:4173/interface-systems-lab/",
@@ -23,11 +25,21 @@ export default defineConfig({
       name: "mobile-chromium",
       use: { ...devices["Pixel 7"] },
     },
+    {
+      name: "desktop-firefox",
+      grep: /@cross-engine/,
+      use: { ...devices["Desktop Firefox"] },
+    },
+    {
+      name: "desktop-webkit",
+      grep: /@cross-engine/,
+      use: { ...devices["Desktop Safari"] },
+    },
   ],
   webServer: {
     command: "npm run preview:prepare && serve .preview -l 4173 --no-clipboard",
     url: "http://127.0.0.1:4173/interface-systems-lab/",
-    reuseExistingServer: !process.env.CI,
-    timeout: 30_000,
+    reuseExistingServer: false,
+    timeout: 120_000,
   },
 });

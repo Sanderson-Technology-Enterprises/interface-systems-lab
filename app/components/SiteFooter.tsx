@@ -1,5 +1,5 @@
 import { ECOSYSTEM_PACKAGES } from "../data/ecosystem";
-import { SITE } from "../lib/site";
+import { SITE, withBasePath } from "../lib/site";
 import { ExternalLinkIcon } from "./Icons";
 
 type SiteFooterProps = {
@@ -11,11 +11,11 @@ export function SiteFooter({ companyUrl }: SiteFooterProps) {
     <footer className="site-footer">
       <div className="site-footer-inner ly-wrapper ly-stack ly-gap-5">
         <div className="footer-brand ly-cluster ly-gap-3">
-          {/* A relative public path remains valid under the exported Pages project route. */}
+          {/* The explicit helper keeps this rendered asset correct in local and Pages builds. */}
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             className="footer-logo"
-            src="android-chrome-192x192.png"
+            src={withBasePath("/android-chrome-192x192.png")}
             width="64"
             height="64"
             alt=""

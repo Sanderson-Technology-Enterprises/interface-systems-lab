@@ -1,3 +1,5 @@
+import type { Metadata } from "next";
+
 import { CombinedWorkbench, HeroActions } from "./components/CombinedWorkbench";
 import { ExternalLinkIcon } from "./components/Icons";
 import { InstallGuide } from "./components/InstallGuide";
@@ -11,9 +13,115 @@ import { UiNativeLab } from "./components/labs/UiNativeLab";
 import { LibraryDirectory } from "./components/LibraryDirectory";
 import { SiteFooter } from "./components/SiteFooter";
 import { SiteHeader } from "./components/SiteHeader";
+import { ECOSYSTEM_PACKAGES } from "./data/ecosystem";
 import { SITE } from "./lib/site";
 
-const companyUrl = "https://sandersontechnologyenterprises.com";
+const companyUrl = SITE.owner.url;
+
+export const metadata: Metadata = {
+  description: SITE.description,
+  category: "technology",
+  classification: "Developer tools",
+  keywords: [
+    "CSS design system",
+    "CSS layout library",
+    "accessible interface components",
+    "layout-style-css",
+    "ui-style-kit-css",
+    "interactive-surface-css",
+    "frontend development",
+  ],
+  alternates: { canonical: SITE.url },
+  robots: {
+    index: true,
+    follow: true,
+    nocache: false,
+    googleBot: {
+      index: true,
+      follow: true,
+      noimageindex: false,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+      "max-video-preview": -1,
+    },
+  },
+  openGraph: {
+    type: "website",
+    url: SITE.url,
+    title: SITE.title,
+    description: SITE.description,
+    siteName: SITE.name,
+    locale: SITE.locale,
+    images: [
+      {
+        url: SITE.socialImage,
+        width: 1200,
+        height: 630,
+        alt: SITE.socialImageAlt,
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: SITE.title,
+    description: SITE.description,
+    images: [{ url: SITE.socialImage, alt: SITE.socialImageAlt }],
+  },
+};
+
+const homeStructuredData = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebPage",
+      "@id": `${SITE.url}#webpage`,
+      name: SITE.title,
+      url: SITE.url,
+      description: SITE.description,
+      isPartOf: { "@id": `${SITE.url}#website` },
+      publisher: { "@id": SITE.owner.organizationId },
+      inLanguage: "en-US",
+    },
+    {
+      "@type": "SoftwareApplication",
+      "@id": `${SITE.url}#application`,
+      name: SITE.name,
+      url: SITE.url,
+      description: SITE.description,
+      applicationCategory: "DeveloperApplication",
+      operatingSystem: "Any",
+      isAccessibleForFree: true,
+      codeRepository: SITE.repository,
+      publisher: { "@id": SITE.owner.organizationId },
+      logo: SITE.brandLogo,
+    },
+    {
+      "@type": "ItemList",
+      "@id": `${SITE.url}#packages`,
+      name: "Interface Systems Lab CSS packages",
+      url: SITE.url,
+      numberOfItems: ECOSYSTEM_PACKAGES.length,
+      itemListElement: ECOSYSTEM_PACKAGES.map((pkg, index) => ({
+        "@type": "ListItem",
+        position: index + 1,
+        item: {
+          "@type": "SoftwareSourceCode",
+          name: pkg.name,
+          description: pkg.summary,
+          version: pkg.version,
+          codeRepository: pkg.links.repository,
+          url: pkg.links.npm,
+          programmingLanguage: "CSS",
+        },
+      })),
+    },
+  ],
+};
+
+const serializedHomeStructuredData = JSON.stringify(homeStructuredData).replace(
+  /</g,
+  "\\u003c",
+);
 
 function CompanySection() {
   return (
@@ -23,10 +131,18 @@ function CompanySection() {
       aria-labelledby="company-title"
     >
       <div className="ly-wrapper">
+        <div className="section-heading ly-stack ly-gap-3">
+          <p className="section-label">Two paths forward</p>
+          <h2 id="company-title">Build with the system or with its studio.</h2>
+          <p>
+            Explore the open CSS ecosystem directly, or bring Sanderson
+            Technology Enterprises into a specialized delivery engagement.
+          </p>
+        </div>
         <div className="ly-split ly-gap-6">
           <article className="conversion-path ly-stack ly-gap-4 ly-items-start">
             <p className="section-label">For developers</p>
-            <h2 id="company-title">Adopt the system at your own pace.</h2>
+            <h3>Adopt the system at your own pace.</h3>
             <p>
               Start with one package or use the complete cascade. Every layer
               stays independently versioned, documented, and testable.
@@ -47,10 +163,11 @@ function CompanySection() {
 
           <article className="conversion-path ly-stack ly-gap-4 ly-items-start">
             <p className="section-label">For organizations</p>
-            <h2>Turn interface ambition into a delivery system.</h2>
+            <h3>Turn interface ambition into a delivery system.</h3>
             <p>
-              Sanderson Technology Enterprises helps teams connect product
-              strategy, accessible interface design, and durable implementation.
+              Sanderson Technology Enterprises builds creator-owned platforms,
+              private systems, admin tools, and operational workflows for
+              specialized businesses.
             </p>
             <a
               className="interactive-surface site-action"
@@ -74,6 +191,10 @@ function CompanySection() {
 export default function Home() {
   return (
     <LabExperience>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: serializedHomeStructuredData }}
+      />
       <a className="skip-link" href="#main-content">
         Skip to main content
       </a>

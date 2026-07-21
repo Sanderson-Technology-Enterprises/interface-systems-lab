@@ -21,12 +21,14 @@ export function HeroActions({ companyUrl }: HeroActionsProps) {
         Launch the workbench
         <ArrowRightIcon />
       </a>
+      {/* Explicit tab order keeps the external CTA reachable in WebKit's default keyboard mode. */}
       <a
         className={pillClass}
         data-hero-action="company"
         href={companyUrl}
         target="_blank"
         rel="noreferrer noopener"
+        tabIndex={0}
       >
         Visit Sanderson Technology Enterprises
         <ExternalLinkIcon />

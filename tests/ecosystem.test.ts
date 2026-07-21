@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { access, readFile } from "node:fs/promises";
+import { access, readFile, readdir } from "node:fs/promises";
 import test from "node:test";
 
 import {
@@ -10,7 +10,34 @@ import {
   ECOSYSTEM_PACKAGES,
   NPM_INSTALL,
 } from "../app/data/ecosystem";
-import { SITE, withBasePath } from "../app/lib/site";
+import {
+  absoluteSiteAsset,
+  buildVerificationMetadata,
+  SITE,
+  withBasePath,
+} from "../app/lib/site";
+
+async function readShippingSources(directory: URL): Promise<string[]> {
+  const sources: string[] = [];
+  const supportedExtensions =
+    /\.(?:json|md|mjs|ts|tsx|txt|webmanifest|xml|ya?ml)$/;
+
+  for (const entry of await readdir(directory, { withFileTypes: true })) {
+    if (entry.name === "generated") continue;
+    const entryUrl = new URL(
+      `${encodeURIComponent(entry.name)}${entry.isDirectory() ? "/" : ""}`,
+      directory,
+    );
+
+    if (entry.isDirectory()) {
+      sources.push(...(await readShippingSources(entryUrl)));
+    } else if (supportedExtensions.test(entry.name)) {
+      sources.push(await readFile(entryUrl, "utf8"));
+    }
+  }
+
+  return sources;
+}
 
 const expectedNames = [
   "layout-style-css",
@@ -413,6 +440,113 @@ test("package manifest and repository omit the obsolete authoring stack", async 
   assert.doesNotMatch(manifestSource, /legacy-peer-deps/);
 });
 
+test("quality runs every source, fixture, export, and browser gate", async () => {
+  const manifestSource = await readFile(
+    new URL("../package.json", import.meta.url),
+    "utf8",
+  );
+  const manifest = JSON.parse(manifestSource) as {
+    scripts: Record<string, string>;
+  };
+
+  const requiredCommands = [
+    "npm run format:check",
+    "npm run lint",
+    "npm run typecheck",
+    "npm run test:unit",
+    "npm run test:fixtures",
+    "npm run build:pages",
+    "npm run test:export",
+    "npm run test:browser",
+  ];
+  let previousCommandIndex = -1;
+  for (const command of requiredCommands) {
+    const commandIndex = manifest.scripts.quality.indexOf(
+      command,
+      previousCommandIndex + 1,
+    );
+    assert.ok(commandIndex > previousCommandIndex, command);
+    previousCommandIndex = commandIndex;
+  }
+});
+
+test("Pages workflow verifies the complete artifact before non-PR deployment", async () => {
+  const workflow = await readFile(
+    new URL("../.github/workflows/deploy-pages.yml", import.meta.url),
+    "utf8",
+  );
+
+  assert.match(workflow, /^\s*run: npm ci\s*$/m);
+  assert.doesNotMatch(workflow, /legacy-peer-deps/);
+  assert.match(workflow, /^\s*run: npm run fixtures:build\s*$/m);
+  assert.match(
+    workflow,
+    /^\s*run: npx playwright install --with-deps chromium firefox webkit\s*$/m,
+  );
+  assert.match(workflow, /^\s*path: out\s*$/m);
+  assert.match(
+    workflow,
+    /- name: Upload verified Pages artifact\s+if: github\.event_name != 'pull_request' && github\.ref == 'refs\/heads\/main'[\s\S]*?path: out/,
+  );
+  assert.match(
+    workflow,
+    /deploy:\s+name: Deploy GitHub Pages\s+if: github\.event_name != 'pull_request' && github\.ref == 'refs\/heads\/main'\s+needs: verify/,
+  );
+  assert.match(
+    workflow,
+    /concurrency:\s+group: \$\{\{ github\.event_name == 'pull_request' && format\('verify-pr-\{0\}', github\.event\.pull_request\.number\) \|\| 'pages' \}\}\s+cancel-in-progress: true/,
+  );
+  const mainDeploymentGuard =
+    "if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'";
+  assert.equal(workflow.split(mainDeploymentGuard).length - 1, 2);
+  const verifyTimeout = Number(
+    workflow.match(/verify:[\s\S]*?timeout-minutes:\s*(\d+)/)?.[1],
+  );
+  assert.ok(verifyTimeout >= 30, `verify timeout was ${verifyTimeout}`);
+
+  const fixtureStep = workflow.indexOf("run: npm run fixtures:build");
+  const browserStep = workflow.indexOf(
+    "run: npx playwright install --with-deps chromium firefox webkit",
+  );
+  const qualityStep = workflow.indexOf("run: npm run quality");
+  assert.ok(fixtureStep >= 0);
+  assert.ok(browserStep > fixtureStep);
+  assert.ok(qualityStep > browserStep);
+});
+
+test("Playwright keeps exhaustive Chromium and tagged cross-engine projects", async () => {
+  const config = (await import("../playwright.config")).default;
+  const projects = config.projects ?? [];
+  const byName = new Map(projects.map((project) => [project.name, project]));
+  assert.equal(projects.length, 4);
+
+  for (const project of [
+    "desktop-chromium",
+    "mobile-chromium",
+    "desktop-firefox",
+    "desktop-webkit",
+  ]) {
+    assert.ok(byName.has(project), project);
+  }
+  for (const project of ["desktop-chromium", "mobile-chromium"]) {
+    assert.equal(byName.get(project)?.grep, undefined, `${project} grep`);
+  }
+  for (const project of projects) {
+    assert.equal(project.grepInvert, undefined, `${project.name} grepInvert`);
+  }
+  for (const [project, browser] of [
+    ["desktop-chromium", "chromium"],
+    ["mobile-chromium", "chromium"],
+    ["desktop-firefox", "firefox"],
+    ["desktop-webkit", "webkit"],
+  ] as const) {
+    assert.equal(byName.get(project)?.use?.defaultBrowserType, browser);
+  }
+  for (const project of ["desktop-firefox", "desktop-webkit"]) {
+    assert.equal(String(byName.get(project)?.grep), "/@cross-engine/");
+  }
+});
+
 test("catalog exposes every released ecosystem option", async () => {
   const {
     INTERACTION_LEVELS,
@@ -532,23 +666,192 @@ test("documented package versions match the pinned CDN URLs", () => {
   }
 });
 
-test("site URLs target the GitHub Pages project site", () => {
-  assert.equal(SITE.url, "https://foscat.github.io/interface-systems-lab/");
+test("site identity targets the transferred organization", () => {
+  const site = SITE as unknown as {
+    basePath: string;
+    brandLogo: string;
+    brandLogoPath: string;
+    origin: string;
+    owner: {
+      description: string;
+      github: string;
+      image: string;
+      logo: string;
+      name: string;
+      organizationId: string;
+      slogan: string;
+      title: string;
+      url: string;
+    };
+    repository: string;
+    socialImage: string;
+    socialImageAlt: string;
+    url: string;
+  };
+
+  assert.equal(site.basePath, "/interface-systems-lab");
   assert.equal(
-    SITE.repository,
-    "https://github.com/Foscat/interface-systems-lab",
-  );
-  assert.equal(SITE.owner.name, "Sanderson Technology Enterprises");
-  assert.equal(SITE.brandLogoPath, "logo-master.png");
-  assert.equal(
-    SITE.brandLogo,
-    "https://foscat.github.io/interface-systems-lab/logo-master.png",
+    site.origin,
+    "https://sanderson-technology-enterprises.github.io",
   );
   assert.equal(
-    withBasePath("/site.webmanifest"),
-    "/interface-systems-lab/site.webmanifest",
+    site.url,
+    "https://sanderson-technology-enterprises.github.io/interface-systems-lab/",
   );
-  assert.equal(withBasePath("/"), "/interface-systems-lab/");
+  assert.equal(
+    site.repository,
+    "https://github.com/Sanderson-Technology-Enterprises/interface-systems-lab",
+  );
+  assert.equal(
+    site.socialImage,
+    "https://sanderson-technology-enterprises.github.io/interface-systems-lab/interface-systems-lab-social-card.png",
+  );
+  assert.equal(
+    site.socialImageAlt,
+    "Interface Systems Lab graphic showing 3 libraries, 1 interface, and 5,280 possibilities across layout, identity, and interaction.",
+  );
+  assert.equal(site.brandLogoPath, "android-chrome-512x512.png");
+  assert.equal(
+    site.brandLogo,
+    "https://sanderson-technology-enterprises.github.io/interface-systems-lab/android-chrome-512x512.png",
+  );
+  const requiredOwnerIdentity = {
+    name: "Sanderson Technology Enterprises",
+    title: "Sanderson Technology Enterprises | Strategic Platform Development",
+    slogan: "Strategic Platform Development",
+    url: "https://sandersontechnologyenterprises.com",
+    github: "https://github.com/Sanderson-Technology-Enterprises",
+    organizationId: "https://sandersontechnologyenterprises.com/#organization",
+    logo: "https://sandersontechnologyenterprises.com/assets/icon-512.png",
+    image:
+      "https://sandersontechnologyenterprises.com/assets/social-preview.png",
+    description:
+      "Founder-led software studio building creator-owned web platforms, private content systems, admin dashboards, and operational workflows for adult entertainment businesses.",
+  } as const;
+  for (const [key, value] of Object.entries(requiredOwnerIdentity)) {
+    assert.equal(site.owner[key as keyof typeof site.owner], value, key);
+  }
+});
+
+test("asset helpers distinguish explicit Pages paths from canonical URLs", () => {
+  assert.equal(withBasePath("/favicon.ico", ""), "/favicon.ico");
+  assert.equal(withBasePath("/favicon.ico", "   "), "/favicon.ico");
+  assert.equal(
+    withBasePath("favicon.ico", "/interface-systems-lab"),
+    "/interface-systems-lab/favicon.ico",
+  );
+  assert.equal(
+    withBasePath("/", "/interface-systems-lab/"),
+    "/interface-systems-lab/",
+  );
+  assert.equal(
+    absoluteSiteAsset("/favicon.ico"),
+    "https://sanderson-technology-enterprises.github.io/interface-systems-lab/favicon.ico",
+  );
+
+  const mutableEnvironment = process.env as Record<string, string | undefined>;
+  const originalNodeEnvironment = mutableEnvironment.NODE_ENV;
+  const originalPagesBasePath = mutableEnvironment.PAGES_BASE_PATH;
+  try {
+    mutableEnvironment.NODE_ENV = "production";
+    delete mutableEnvironment.PAGES_BASE_PATH;
+    assert.equal(withBasePath("/favicon.ico"), "/favicon.ico");
+  } finally {
+    if (originalNodeEnvironment === undefined)
+      delete mutableEnvironment.NODE_ENV;
+    else mutableEnvironment.NODE_ENV = originalNodeEnvironment;
+    if (originalPagesBasePath === undefined)
+      delete mutableEnvironment.PAGES_BASE_PATH;
+    else mutableEnvironment.PAGES_BASE_PATH = originalPagesBasePath;
+  }
+});
+
+test("verification metadata includes only trimmed non-empty values", () => {
+  assert.equal(buildVerificationMetadata({}), undefined);
+  assert.equal(
+    buildVerificationMetadata({
+      BING_SITE_VERIFICATION: "  ",
+      GOOGLE_SITE_VERIFICATION: "\t",
+    }),
+    undefined,
+  );
+  assert.deepEqual(
+    buildVerificationMetadata({ GOOGLE_SITE_VERIFICATION: " google-token " }),
+    { google: "google-token" },
+  );
+  assert.deepEqual(
+    buildVerificationMetadata({ BING_SITE_VERIFICATION: " bing-token " }),
+    { other: { "msvalidate.01": "bing-token" } },
+  );
+  assert.deepEqual(
+    buildVerificationMetadata({
+      BING_SITE_VERIFICATION: "bing-token",
+      GOOGLE_SITE_VERIFICATION: "google-token",
+    }),
+    {
+      google: "google-token",
+      other: { "msvalidate.01": "bing-token" },
+    },
+  );
+});
+
+test("active shipping surfaces omit the superseded Foscat lab identity", async () => {
+  const sources = (
+    await Promise.all(
+      ["../app/", "../scripts/", "../.github/", "../public/"].map(
+        (relativePath) =>
+          readShippingSources(new URL(relativePath, import.meta.url)),
+      ),
+    )
+  ).flat();
+  sources.push(
+    await readFile(new URL("../README.md", import.meta.url), "utf8"),
+  );
+  const shippingSource = sources.join("\n");
+  const staleSite = shippingSource.match(
+    /https:\/\/foscat\.github\.io\/interface-systems-lab\/?/i,
+  );
+  const staleRepository = shippingSource.match(
+    /https:\/\/github\.com\/Foscat\/interface-systems-lab\/?/i,
+  );
+
+  assert.equal(
+    staleSite?.[0] ?? null,
+    null,
+    `stale lab site: ${staleSite?.[0]}`,
+  );
+  assert.equal(
+    staleRepository?.[0] ?? null,
+    null,
+    `stale lab repository: ${staleRepository?.[0]}`,
+  );
+});
+
+test("search verification examples remain empty and server-owned", async () => {
+  const exampleUrl = new URL("../.env.example", import.meta.url);
+  let example = "";
+  try {
+    example = await readFile(exampleUrl, "utf8");
+  } catch {
+    assert.fail(".env.example must document optional verification variables");
+  }
+  const layoutSource = await readFile(
+    new URL("../app/layout.tsx", import.meta.url),
+    "utf8",
+  );
+  const declarations = Object.fromEntries(
+    example
+      .split(/\r?\n/)
+      .filter((line) => line && !line.startsWith("#"))
+      .map((line) => line.split("=", 2)),
+  );
+
+  assert.deepEqual(declarations, {
+    GOOGLE_SITE_VERIFICATION: "",
+    BING_SITE_VERIFICATION: "",
+  });
+  assert.match(layoutSource, /buildVerificationMetadata\(process\.env\)/);
+  assert.doesNotMatch(layoutSource, /NEXT_PUBLIC_.*SITE_VERIFICATION/);
 });
 
 test("metadata routes opt into static generation for the exported site", async () => {
