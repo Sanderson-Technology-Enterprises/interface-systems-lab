@@ -4,7 +4,9 @@ import { InstallGuide } from "./components/InstallGuide";
 import { InterfaceObservatory } from "./components/InterfaceObservatory";
 import { LabControls } from "./components/LabControls";
 import { LabExperience } from "./components/LabExperience";
+import { InteractionLab } from "./components/labs/InteractionLab";
 import { LayoutLab } from "./components/labs/LayoutLab";
+import { UiNativeLab } from "./components/labs/UiNativeLab";
 import { LibraryDirectory } from "./components/LibraryDirectory";
 import { SiteFooter } from "./components/SiteFooter";
 import { SiteHeader } from "./components/SiteHeader";
@@ -12,66 +14,29 @@ import { SITE } from "./lib/site";
 
 const companyUrl = "https://sandersontechnologyenterprises.com";
 
-function CapabilityRunway() {
+function IntegrationRunway() {
   return (
     <section
       className="section-band ly-section"
-      aria-labelledby="capability-runway-title"
+      id="integrate"
+      aria-labelledby="integrate-title"
     >
       <div className="ly-wrapper">
         <div className="section-heading ly-split ly-gap-6 ly-items-end">
           <div className="ly-stack ly-gap-2">
             <p className="section-label">Complete ecosystem path</p>
-            <h2 id="capability-runway-title">
-              Every layer has a focused proof.
-            </h2>
+            <h2 id="integrate-title">Integration proofs</h2>
           </div>
           <p>
-            Layout is live now. The remaining anchored chapters establish the
-            narrative path without pre-empting their dedicated capability labs.
+            Package-by-package and combined examples lead into the pinned
+            installation guide and resource directory below.
           </p>
         </div>
-
-        <div className="ly-grid ly-grid--auto ly-gap-5">
-          <section
-            className="capability-preview-panel ly-stack ly-gap-3"
-            id="ui-native"
-            aria-labelledby="ui-native-title"
-          >
-            <p className="section-label">Identity</p>
-            <h2 id="ui-native-title">UI and native elements</h2>
-            <p>
-              Preset paint, themes, modes, and native browser controls share the
-              same root configuration without borrowing Layout geometry.
-            </p>
-          </section>
-
-          <section
-            className="capability-preview-panel ly-stack ly-gap-3"
-            id="interactions"
-            aria-labelledby="interactions-title"
-          >
-            <p className="section-label">Behavior</p>
-            <h2 id="interactions-title">Interaction states</h2>
-            <p>
-              Hover, focus-visible, active, pressed, busy, and disabled remain
-              one predictable mechanics layer across every visual preset.
-            </p>
-          </section>
-
-          <section
-            className="capability-preview-panel ly-stack ly-gap-3"
-            id="integrate"
-            aria-labelledby="integrate-title"
-          >
-            <p className="section-label">Adoption</p>
-            <h2 id="integrate-title">Integration proofs</h2>
-            <p>
-              Package-by-package and combined examples lead into the pinned
-              installation guide and resource directory below.
-            </p>
-          </section>
-        </div>
+        <p className="capability-preview-panel">
+          The isolated package and pair fixtures arrive in the next dedicated
+          chapter; this anchor preserves the approved one-page adoption path
+          without mixing fixture CSS into the flagship runtime.
+        </p>
       </div>
     </section>
   );
@@ -169,7 +134,9 @@ export default function Home() {
 
         <CombinedWorkbench />
         <LayoutLab />
-        <CapabilityRunway />
+        <UiNativeLab />
+        <InteractionLab />
+        <IntegrationRunway />
         <InstallGuide />
         <LibraryDirectory />
         <CompanySection />

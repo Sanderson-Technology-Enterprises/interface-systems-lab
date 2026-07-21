@@ -12,6 +12,10 @@
   .observatory-stage {
     inline-size: min(100%, 24rem);
   }
+
+  .collision-console-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }
 
 @media (max-width: 46rem) {
@@ -87,8 +91,14 @@
   }
 
   .workbench-toolbar > *,
-  .control-actions > * {
+  .control-actions > *,
+  .dialog-actions > *,
+  .interaction-levels > * {
     inline-size: 100%;
+  }
+
+  .interaction-levels {
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 

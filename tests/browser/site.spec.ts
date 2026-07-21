@@ -55,15 +55,21 @@ function parseComputedRgb(value: string): RgbColor {
     throw new Error(`Unable to parse computed color: ${value}`);
   }
 
-  const [red, green, blue, alpha = 1] = components;
+  const [rawRed, rawGreen, rawBlue, alpha = 1] = components;
   if (
-    red === undefined ||
-    green === undefined ||
-    blue === undefined ||
+    rawRed === undefined ||
+    rawGreen === undefined ||
+    rawBlue === undefined ||
     alpha !== 1
   ) {
     throw new Error(`Expected an opaque computed color, received: ${value}`);
   }
+
+  // Chromium serializes color-mix() results as normalized color(srgb) channels.
+  const channelScale = value.startsWith("color(srgb ") ? 255 : 1;
+  const red = rawRed * channelScale;
+  const green = rawGreen * channelScale;
+  const blue = rawBlue * channelScale;
 
   return { red, green, blue };
 }
@@ -805,6 +811,10 @@ test("semantic surfaces declare documented levels and maintain AA contrast", asy
               element.getAttribute("aria-label") ??
               element.textContent?.trim() ??
               element.tagName.toLowerCase(),
+            interactionLevel: element.getAttribute("data-interaction-level"),
+            interactionVariant: element.getAttribute(
+              "data-interaction-variant",
+            ),
             level: element.getAttribute("data-surface-level"),
             variant: element.getAttribute("data-surface-variant"),
           };
@@ -820,10 +830,11 @@ test("semantic surfaces declare documented levels and maintain AA contrast", asy
     warning: "2",
   };
   const levelViolations = actions
-    .filter(
-      ({ level, variant }) =>
-        variant === null || level !== expectedLevelByVariant[variant],
-    )
+    .filter(({ interactionLevel, interactionVariant, level, variant }) => {
+      if (interactionVariant !== null) return level !== "2";
+      if (interactionLevel !== null) return level !== interactionLevel;
+      return variant === null || level !== expectedLevelByVariant[variant];
+    })
     .map(({ label, level, variant }) => ({ label, level, variant }));
   const contrastViolations = actions
     .map(({ background, foreground, label, variant }) => ({
