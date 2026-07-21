@@ -107,6 +107,21 @@ test("site consumes the CSS libraries as local dependencies", async () => {
   assert.match(manifest.scripts.quality, /npm run test:browser/);
 });
 
+test("page runtime emits only canonical Layout 2.1 attributes", async () => {
+  const pageSource = await readFile(
+    new URL("../app/page.tsx", import.meta.url),
+    "utf8",
+  );
+
+  assert.equal(
+    pageSource.match(/\bdata-layout\b/g)?.length ?? 0,
+    0,
+    "app/page.tsx must not emit the deprecated data-layout attribute",
+  );
+  assert.match(pageSource, /data-ly-layout=\{lab\.layout\}/);
+  assert.match(pageSource, /data-ly-layout="\$\{lab\.layout\}"/);
+});
+
 test("package manifest and repository omit the obsolete authoring stack", async () => {
   const manifestSource = await readFile(
     new URL("../package.json", import.meta.url),

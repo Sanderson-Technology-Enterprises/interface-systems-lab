@@ -118,7 +118,7 @@ test("keeps workbench controls, state, and copy affordances functional", async (
   const layout = page.getByLabel(/01.*Layout/);
   await layout.selectOption("bauhaus");
   await expect(page.locator(".experience")).toHaveAttribute(
-    "data-layout",
+    "data-ly-layout",
     "bauhaus",
   );
   await expect(page.getByText("Layout changed to Bauhaus.")).toBeAttached();
@@ -138,7 +138,7 @@ test("keeps workbench controls, state, and copy affordances functional", async (
   await expect(copy).toHaveText("Copied");
   await expect
     .poll(() => page.evaluate(() => navigator.clipboard.readText()))
-    .toContain('data-layout="bauhaus"');
+    .toContain('data-ly-layout="bauhaus"');
 });
 
 test("fits the viewport and honors reduced motion", async ({ page }) => {

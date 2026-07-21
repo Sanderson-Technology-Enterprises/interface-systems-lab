@@ -93,7 +93,7 @@ export default function Home() {
 
   const configMarkup = useMemo(
     () =>
-      `<main class="ly-root" data-layout="${lab.layout}" data-ui="${lab.ui}" data-theme="${lab.theme}" data-mode="${lab.mode}">`,
+      `<main class="ly-root" data-ly-layout="${lab.layout}" data-ui="${lab.ui}" data-theme="${lab.theme}" data-mode="${lab.mode}">`,
     [lab],
   );
 
@@ -147,7 +147,7 @@ export default function Home() {
   return (
     <div
       className="experience ly-root ly-page"
-      data-layout={lab.layout}
+      data-ly-layout={lab.layout}
       data-ui={lab.ui}
       data-theme={lab.theme}
       data-mode={lab.mode}
