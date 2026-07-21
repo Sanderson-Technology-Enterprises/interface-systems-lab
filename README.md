@@ -11,24 +11,26 @@
 
 | Layer     | Package                         | Repository                                                      | Wiki                                                           | npm                                                          | Demo                                                           |
 | --------- | ------------------------------- | --------------------------------------------------------------- | -------------------------------------------------------------- | ------------------------------------------------------------ | -------------------------------------------------------------- |
-| Structure | `layout-style-css@1.1.2`        | [Repository](https://github.com/Foscat/Layout-Style-CSS)        | [Wiki](https://github.com/Foscat/Layout-Style-CSS/wiki)        | [npm](https://www.npmjs.com/package/layout-style-css)        | [Live demo](https://foscat.github.io/Layout-Style-CSS/)        |
-| Identity  | `ui-style-kit-css@2.0.3`        | [Repository](https://github.com/Foscat/ui-style-kit-css)        | [Wiki](https://github.com/Foscat/ui-style-kit-css/wiki)        | [npm](https://www.npmjs.com/package/ui-style-kit-css)        | [Live demo](https://foscat.github.io/ui-style-kit-css/)        |
-| Behavior  | `interactive-surface-css@1.3.0` | [Repository](https://github.com/Foscat/Interactive-Surface-CSS) | [Wiki](https://github.com/Foscat/Interactive-Surface-CSS/wiki) | [npm](https://www.npmjs.com/package/interactive-surface-css) | [Live demo](https://foscat.github.io/Interactive-Surface-CSS/) |
+| Structure | `layout-style-css@2.1.0`        | [Repository](https://github.com/Foscat/Layout-Style-CSS)        | [Wiki](https://github.com/Foscat/Layout-Style-CSS/wiki)        | [npm](https://www.npmjs.com/package/layout-style-css)        | [Live demo](https://foscat.github.io/Layout-Style-CSS/)        |
+| Identity  | `ui-style-kit-css@2.1.0`        | [Repository](https://github.com/Foscat/ui-style-kit-css)        | [Wiki](https://github.com/Foscat/ui-style-kit-css/wiki)        | [npm](https://www.npmjs.com/package/ui-style-kit-css)        | [Live demo](https://foscat.github.io/ui-style-kit-css/)        |
+| Behavior  | `interactive-surface-css@1.5.0` | [Repository](https://github.com/Foscat/Interactive-Surface-CSS) | [Wiki](https://github.com/Foscat/Interactive-Surface-CSS/wiki) | [npm](https://www.npmjs.com/package/interactive-surface-css) | [Live demo](https://foscat.github.io/Interactive-Surface-CSS/) |
 
 ## Install with npm
 
-Install the package layers in dependency order:
+Install the exact aligned releases:
 
 ```bash
-npm install layout-style-css@1.1.2 ui-style-kit-css@2.0.3 interactive-surface-css@1.3.0
+npm install ui-style-kit-css@2.1.0 layout-style-css@2.1.0 interactive-surface-css@1.5.0
 ```
 
-Then load styles in cascade order. Identity establishes the design tokens, behavior consumes those tokens, and structure loads last so layout utilities retain their intended geometry.
+Then load styles in ownership order. UI Style Kit establishes paint and theme
+tokens, Interactive Surface adds state mechanics, and Layout Style owns the
+final geometry layer.
 
 ```css
-@import "ui-style-kit-css/with-bridge.css";
-@import "interactive-surface-css/interactive-surface.css";
-@import "layout-style-css/bridge.css";
+@import "ui-style-kit-css/visual.css";
+@import "ui-style-kit-css/interactive-surface-theme.css";
+@import "interactive-surface-css/state-core.css";
 @import "layout-style-css";
 ```
 
@@ -38,9 +40,9 @@ The site itself installs the libraries as direct dependencies and imports them
 from `app/layout.tsx` in this order:
 
 ```css
-@import "ui-style-kit-css/with-bridge.css";
-@import "interactive-surface-css/interactive-surface.css";
-@import "layout-style-css/bridge.css";
+@import "ui-style-kit-css/visual.css";
+@import "ui-style-kit-css/interactive-surface-theme.css";
+@import "interactive-surface-css/state-core.css";
 @import "layout-style-css";
 ```
 
@@ -51,15 +53,19 @@ For static HTML consumers, keep this exact order in the document head:
 ```html
 <link
   rel="stylesheet"
-  href="https://cdn.jsdelivr.net/npm/ui-style-kit-css@2.0.3/dist/ui-style-kit.with-bridge.min.css"
+  href="https://cdn.jsdelivr.net/npm/ui-style-kit-css@2.1.0/dist/ui-style-kit.visual.min.css"
 />
 <link
   rel="stylesheet"
-  href="https://cdn.jsdelivr.net/npm/interactive-surface-css@1.3.0/interactive-surface.css"
+  href="https://cdn.jsdelivr.net/npm/ui-style-kit-css@2.1.0/styles/interactive-surface-theme.css"
 />
 <link
   rel="stylesheet"
-  href="https://cdn.jsdelivr.net/npm/layout-style-css@1.1.2/dist/layout-style-css.min.css"
+  href="https://cdn.jsdelivr.net/npm/interactive-surface-css@1.5.0/state-core.css"
+/>
+<link
+  rel="stylesheet"
+  href="https://cdn.jsdelivr.net/npm/layout-style-css@2.1.0/dist/layout-style-css.min.css"
 />
 ```
 
@@ -94,7 +100,7 @@ The libraries coordinate through four root attributes while preserving semantic 
 ```html
 <main
   class="ly-root"
-  data-layout="bento"
+  data-ly-layout="bento"
   data-ui="minimal-saas"
   data-theme="midnight-gold"
   data-mode="dark"

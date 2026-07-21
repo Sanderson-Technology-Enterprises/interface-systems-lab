@@ -1,9 +1,9 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 
-import "ui-style-kit-css/with-bridge.css";
-import "interactive-surface-css/interactive-surface.css";
-import "layout-style-css/bridge.css";
+import "ui-style-kit-css/visual.css";
+import "ui-style-kit-css/interactive-surface-theme.css";
+import "interactive-surface-css/state-core.css";
 import "layout-style-css";
 
 import { ECOSYSTEM_PACKAGES } from "./data/ecosystem";
