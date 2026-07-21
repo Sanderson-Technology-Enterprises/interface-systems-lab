@@ -93,12 +93,18 @@
   .workbench-toolbar > *,
   .control-actions > *,
   .dialog-actions > *,
-  .interaction-levels > * {
+  .interaction-levels > *,
+  .integration-paths > *,
+  .library-next-steps > * {
     inline-size: 100%;
   }
 
   .interaction-levels {
     grid-template-columns: minmax(0, 1fr);
+  }
+
+  .integration-frame {
+    block-size: 32rem;
   }
 }
 

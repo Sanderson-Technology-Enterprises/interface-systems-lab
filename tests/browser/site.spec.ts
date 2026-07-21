@@ -595,10 +595,12 @@ test("one atomic polite region announces configuration, observatory, and install
   );
 
   await page
-    .getByRole("button", { name: "Copy Install all three code" })
+    .getByRole("button", {
+      name: "Copy Install all three code for The canonical all-three stack",
+    })
     .click();
   await expect(liveRegion).toHaveText(
-    "Install all three code copied to the clipboard.",
+    "Install all three code for The canonical all-three stack copied to the clipboard.",
   );
 });
 
@@ -606,10 +608,12 @@ test("install copy feedback restarts its timer", async ({ page, context }) => {
   await context.grantPermissions(["clipboard-read", "clipboard-write"]);
 
   await page
-    .getByRole("button", { name: "Copy Install all three code" })
+    .getByRole("button", {
+      name: "Copy Install all three code for The canonical all-three stack",
+    })
     .click();
   let copyButton = page.getByRole("button", {
-    name: "Copied Install all three code",
+    name: "Copied Install all three code for The canonical all-three stack",
   });
   await expect(copyButton).toBeVisible();
 
@@ -617,13 +621,15 @@ test("install copy feedback restarts its timer", async ({ page, context }) => {
   await copyButton.click();
   await page.waitForTimeout(1_000);
   copyButton = page.getByRole("button", {
-    name: "Copied Install all three code",
+    name: "Copied Install all three code for The canonical all-three stack",
   });
   await expect(copyButton).toBeVisible();
 
   await page.waitForTimeout(900);
   await expect(
-    page.getByRole("button", { name: "Copy Install all three code" }),
+    page.getByRole("button", {
+      name: "Copy Install all three code for The canonical all-three stack",
+    }),
   ).toBeVisible();
 });
 
@@ -643,17 +649,19 @@ test("install clipboard failure uses the shared feedback region", async ({
   await page.goto("./");
 
   await page
-    .getByRole("button", { name: "Copy Install all three code" })
+    .getByRole("button", {
+      name: "Copy Install all three code for The canonical all-three stack",
+    })
     .click();
   const retryCopy = page.getByRole("button", {
-    name: "Retry copy Install all three code",
+    name: "Retry copy Install all three code for The canonical all-three stack",
   });
   await expect(retryCopy).toHaveText("Retry copy");
   await expect(retryCopy).toHaveAccessibleName(
-    "Retry copy Install all three code",
+    "Retry copy Install all three code for The canonical all-three stack",
   );
   await expect(page.locator(".configuration-status")).toHaveText(
-    "Clipboard access failed. Copy the visible Install all three code manually.",
+    "Clipboard access failed. Copy the visible Install all three code for The canonical all-three stack manually.",
   );
 });
 

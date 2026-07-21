@@ -1,4 +1,5 @@
 import { ECOSYSTEM_PACKAGES, type ResourceLink } from "../data/ecosystem";
+import { withBasePath } from "../lib/site";
 import { ExternalLinkIcon } from "./Icons";
 
 const resourceLabels: Record<ResourceLink, string> = {
@@ -38,6 +39,7 @@ export function LibraryDirectory() {
           {ECOSYSTEM_PACKAGES.map((pkg, index) => (
             <li
               className="ly-grid ly-cols-1 ly-md-cols-4 ly-gap-4 ly-py-6"
+              data-package={pkg.name}
               key={pkg.name}
             >
               <span className="library-index">
@@ -48,33 +50,77 @@ export function LibraryDirectory() {
                 <h3>{pkg.name}</h3>
                 <p className="muted-copy">{pkg.summary}</p>
               </div>
-              <code>v{pkg.version}</code>
-              <nav
-                className="ly-cluster ly-gap-2"
-                aria-label={`${pkg.displayName} resources`}
-              >
-                {resourceOrder.map((resource) => (
-                  <a
-                    className="interactive-surface site-action"
-                    data-surface-variant="subtle"
-                    data-surface-level="1"
-                    key={resource}
-                    href={pkg.links[resource]}
-                    target="_blank"
-                    rel="noreferrer noopener"
-                  >
-                    {resourceLabels[resource]}
-                    <ExternalLinkIcon />
-                    <span className="ly-visually-hidden">
-                      {" "}
-                      (opens in a new tab)
-                    </span>
-                  </a>
-                ))}
-              </nav>
+              <div className="library-entrypoint ly-stack ly-gap-2">
+                <code>v{pkg.version}</code>
+                <small>Recommended entry point</small>
+                <code>{pkg.recommendedEntryPoint}</code>
+              </div>
+              <div className="ly-stack ly-gap-3">
+                <nav
+                  className="ly-cluster ly-gap-2"
+                  aria-label={`${pkg.displayName} resources`}
+                >
+                  {resourceOrder.map((resource) => (
+                    <a
+                      className="interactive-surface site-action"
+                      data-surface-variant="subtle"
+                      data-surface-level="1"
+                      key={resource}
+                      href={pkg.links[resource]}
+                      target="_blank"
+                      rel="noreferrer noopener"
+                    >
+                      {resourceLabels[resource]}
+                      <ExternalLinkIcon />
+                      <span className="ly-visually-hidden">
+                        {" "}
+                        (opens in a new tab)
+                      </span>
+                    </a>
+                  ))}
+                </nav>
+                <a
+                  className="interactive-surface site-action"
+                  data-standalone-fixture={pkg.fixture}
+                  data-surface-variant="accent"
+                  data-surface-level="2"
+                  href={withBasePath(`/fixtures/generated/${pkg.fixture}.html`)}
+                  target="_blank"
+                  rel="noreferrer noopener"
+                >
+                  View {pkg.displayName} standalone proof
+                  <ExternalLinkIcon />
+                  <span className="ly-visually-hidden">
+                    {" "}
+                    (opens in a new tab)
+                  </span>
+                </a>
+              </div>
             </li>
           ))}
         </ol>
+
+        <nav
+          className="library-next-steps ly-split ly-gap-4 ly-py-6"
+          aria-label="Library adoption next steps"
+        >
+          <a
+            className="interactive-surface site-action"
+            data-surface-variant="primary"
+            data-surface-level="2"
+            href="#install"
+          >
+            Choose an installation path
+          </a>
+          <a
+            className="interactive-surface site-action"
+            data-surface-variant="accent"
+            data-surface-level="2"
+            href="#company"
+          >
+            Plan an ecosystem engagement
+          </a>
+        </nav>
       </div>
     </section>
   );

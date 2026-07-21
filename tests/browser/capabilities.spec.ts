@@ -1,6 +1,12 @@
 import { createRequire } from "node:module";
 
-import { expect, type Locator, type Page, test } from "@playwright/test";
+import {
+  expect,
+  type Frame,
+  type Locator,
+  type Page,
+  test,
+} from "@playwright/test";
 
 type PublishedUiManifest = {
   classApi: {
@@ -106,6 +112,39 @@ const interactionVariants = [
 ] as const;
 
 const interactionLevels = ["1", "2", "3"] as const;
+
+const integrationFixtures = [
+  "layout-only",
+  "ui-only",
+  "interactive-only",
+  "layout-ui",
+  "layout-interactive",
+  "ui-interactive",
+  "all-canonical",
+  "all-legacy",
+] as const;
+
+const integrationDomOrder = [
+  "all-canonical",
+  "layout-only",
+  "ui-only",
+  "interactive-only",
+  "layout-ui",
+  "layout-interactive",
+  "ui-interactive",
+  "all-legacy",
+] as const;
+
+const integrationTruth = {
+  "layout-only": { interaction: false, layout: true, ui: false },
+  "ui-only": { interaction: false, layout: false, ui: true },
+  "interactive-only": { interaction: true, layout: false, ui: false },
+  "layout-ui": { interaction: false, layout: true, ui: true },
+  "layout-interactive": { interaction: true, layout: true, ui: false },
+  "ui-interactive": { interaction: true, layout: false, ui: true },
+  "all-canonical": { interaction: true, layout: true, ui: true },
+  "all-legacy": { interaction: true, layout: true, ui: true },
+} as const;
 
 const nativeInputTypes = [
   "text",
@@ -253,6 +292,73 @@ async function openTask4Details(page: Page) {
     .evaluateAll((details) => {
       for (const detail of details) (detail as HTMLDetailsElement).open = true;
     });
+}
+
+async function openIntegrationDetails(page: Page) {
+  await page.locator("#integrate details").evaluateAll((details) => {
+    for (const detail of details) (detail as HTMLDetailsElement).open = true;
+  });
+}
+
+async function integrationFrame(page: Page, id: string): Promise<Frame> {
+  const iframe = page.locator(`[data-integration-fixture="${id}"]`);
+  await iframe.scrollIntoViewIfNeeded();
+  await expect(iframe).toBeVisible();
+  const handle = await iframe.elementHandle();
+  const frame = await handle?.contentFrame();
+  if (frame === null || frame === undefined) {
+    throw new Error(`Fixture frame did not load: ${id}`);
+  }
+
+  // Resolve the child from its owning element so static-server URL
+  // canonicalization cannot disconnect the assertion from the fixture.
+  await expect(frame.locator("[data-fixture-root]")).toHaveCount(1);
+  await frame.waitForLoadState("load");
+  return frame;
+}
+
+async function readFixtureCapabilities(frame: Frame) {
+  return frame.evaluate(() => {
+    const root = document.querySelector<HTMLElement>("[data-fixture-root]");
+    const layout = document.querySelector<HTMLElement>("[data-proof-layout]");
+    const paint = document.querySelector<HTMLElement>("[data-proof-paint]");
+    const interaction = document.querySelector<HTMLElement>(
+      "[data-proof-interaction]",
+    );
+    if (
+      root === null ||
+      layout === null ||
+      paint === null ||
+      interaction === null
+    ) {
+      throw new Error("The fixture proof contract is incomplete.");
+    }
+
+    const rootStyle = getComputedStyle(root);
+    const layoutStyle = getComputedStyle(layout);
+    const paintStyle = getComputedStyle(paint);
+    const interactionStyle = getComputedStyle(interaction);
+    const stateLayer = getComputedStyle(interaction, "::before");
+    const paintedBackground =
+      paintStyle.backgroundImage !== "none" ||
+      !["rgba(0, 0, 0, 0)", "transparent"].includes(paintStyle.backgroundColor);
+
+    return {
+      interaction:
+        interactionStyle.position === "relative" &&
+        interactionStyle.isolation === "isolate" &&
+        stateLayer.content !== "none" &&
+        interactionStyle.transitionProperty.includes("translate"),
+      layout:
+        rootStyle.getPropertyValue("--ly-space-4").trim().length > 0 &&
+        layoutStyle.display === "grid",
+      ui:
+        rootStyle.getPropertyValue("--usk-primary-rgb").trim().length > 0 &&
+        rootStyle.getPropertyValue("--saas-card-bg").trim().length > 0 &&
+        paintStyle.borderStyle !== "none" &&
+        paintedBackground,
+    };
+  });
 }
 
 async function clickDialogBackdrop(page: Page, dialog: Locator) {
@@ -1830,4 +1936,324 @@ test("review contract renders distinct variant and level treatments", async ({
     }),
   );
   expect(new Set(levelSignatures).size).toBe(interactionLevels.length);
+});
+
+test("integration laboratory progressively discloses exactly eight isolated fixtures", async ({
+  page,
+}) => {
+  await expect(page.locator("#integrate")).toHaveCount(1);
+  await expect(page.locator("#integrate")).toContainText(/fixed baseline/i);
+  await expect(page.locator("#integrate details > summary")).toHaveCount(3);
+  await expect(
+    page.locator('[data-integration-fixture="all-canonical"]'),
+  ).toBeVisible();
+  await expect(
+    page.locator('[data-integration-group="one"] [data-integration-fixture]'),
+  ).toHaveCount(3);
+  await expect(
+    page.locator('[data-integration-group="pair"] [data-integration-fixture]'),
+  ).toHaveCount(3);
+  await expect(
+    page.locator(
+      '[data-integration-group="legacy"] [data-integration-fixture]',
+    ),
+  ).toHaveCount(1);
+  await expect(
+    page.locator('[data-integration-group="legacy"]'),
+  ).not.toHaveAttribute("open");
+
+  const frames = page.locator("#integrate iframe[data-integration-fixture]");
+  await expect(frames).toHaveCount(integrationFixtures.length);
+  expect(
+    await frames.evaluateAll((elements) =>
+      elements.map((element) => ({
+        id: element.getAttribute("data-integration-fixture"),
+        loading: element.getAttribute("loading"),
+        src: element.getAttribute("src"),
+        title: element.getAttribute("title"),
+      })),
+    ),
+  ).toEqual(
+    integrationDomOrder.map((id) => ({
+      id,
+      loading: "lazy",
+      src: `/interface-systems-lab/fixtures/generated/${id}.html`,
+      title: expect.stringMatching(/integration proof/i),
+    })),
+  );
+  const titles = await frames.evaluateAll((elements) =>
+    elements.map((element) => element.getAttribute("title")),
+  );
+  expect(new Set(titles).size).toBe(integrationFixtures.length);
+  await expect(page.locator('[data-integration-group="legacy"]')).toContainText(
+    /deprecated|migration-only/i,
+  );
+
+  const standaloneProofs = page.locator(
+    "#libraries [data-package] [data-standalone-fixture]",
+  );
+  await expect(standaloneProofs).toHaveCount(3);
+  expect(
+    await standaloneProofs.evaluateAll((links) =>
+      links.map((link) => ({
+        fixture: link.getAttribute("data-standalone-fixture"),
+        href: link.getAttribute("href"),
+        packageName: link
+          .closest("[data-package]")
+          ?.getAttribute("data-package"),
+      })),
+    ),
+  ).toEqual([
+    {
+      fixture: "layout-only",
+      href: "/interface-systems-lab/fixtures/generated/layout-only.html",
+      packageName: "layout-style-css",
+    },
+    {
+      fixture: "ui-only",
+      href: "/interface-systems-lab/fixtures/generated/ui-only.html",
+      packageName: "ui-style-kit-css",
+    },
+    {
+      fixture: "interactive-only",
+      href: "/interface-systems-lab/fixtures/generated/interactive-only.html",
+      packageName: "interactive-surface-css",
+    },
+  ]);
+  for (const displayName of [
+    "Layout Style CSS",
+    "UI Style Kit CSS",
+    "Interactive Surface CSS",
+  ]) {
+    await expect(
+      page.getByRole("link", {
+        name: `View ${displayName} standalone proof (opens in a new tab)`,
+      }),
+    ).toHaveCount(1);
+  }
+});
+
+test("isolated fixtures resolve only their declared ownership layers", async ({
+  page,
+}) => {
+  await openIntegrationDetails(page);
+
+  for (const id of integrationFixtures) {
+    const frame = await integrationFrame(page, id);
+    expect(await readFixtureCapabilities(frame), id).toEqual(
+      integrationTruth[id],
+    );
+  }
+
+  const legacy = await integrationFrame(page, "all-legacy");
+  const legacyProof = legacy.locator("[data-proof-legacy-layout]");
+  await expect(legacyProof).toHaveCSS("display", "grid");
+  expect(
+    await legacy
+      .locator("[data-fixture-root]")
+      .evaluate((element) =>
+        getComputedStyle(element).getPropertyValue("--ly-grid-columns").trim(),
+      ),
+  ).toBe("6");
+});
+
+test("canonical integration preserves geometry and paint through real hover and keyboard focus", async ({
+  page,
+}) => {
+  const frame = await integrationFrame(page, "all-canonical");
+  const layout = frame.locator("[data-proof-layout]");
+  const paint = frame.locator("[data-proof-paint]");
+  const uiControl = frame.locator("[data-proof-ui-control]");
+  const interaction = frame.locator("[data-proof-interaction]");
+  await page.mouse.move(1, 1);
+  const baseGeometry = await layout.evaluate((element) => {
+    const style = getComputedStyle(element);
+    const bounds = element.getBoundingClientRect();
+    return {
+      columns: style.gridTemplateColumns,
+      height: bounds.height,
+      width: bounds.width,
+    };
+  });
+  let settledPaint = await readPaintSignature(paint);
+  await expect
+    .poll(async () => {
+      const currentPaint = await readPaintSignature(paint);
+      const isStable = currentPaint === settledPaint;
+      settledPaint = currentPaint;
+      return isStable;
+    })
+    .toBe(true);
+  const basePaint = settledPaint;
+  const baseInteraction = await interaction.evaluate((element) => {
+    const style = getComputedStyle(element);
+    const layer = getComputedStyle(element, "::before");
+    return { layerOpacity: layer.opacity, translate: style.translate };
+  });
+
+  const hasFineHover = await page.evaluate(
+    () => matchMedia("(hover: hover) and (pointer: fine)").matches,
+  );
+  if (hasFineHover) {
+    await interaction.hover();
+    await expect
+      .poll(() =>
+        interaction.evaluate((element) => ({
+          layerOpacity: getComputedStyle(element, "::before").opacity,
+          translate: getComputedStyle(element).translate,
+        })),
+      )
+      .not.toEqual(baseInteraction);
+    expect(
+      await layout.evaluate((element) => {
+        const style = getComputedStyle(element);
+        const bounds = element.getBoundingClientRect();
+        return {
+          columns: style.gridTemplateColumns,
+          height: bounds.height,
+          width: bounds.width,
+        };
+      }),
+    ).toEqual(baseGeometry);
+    expect(await readPaintSignature(paint)).toBe(basePaint);
+  }
+
+  await uiControl.focus();
+  await page.keyboard.press("Tab");
+  await expect(interaction).toBeFocused();
+  expect(
+    await interaction.evaluate((element) => element.matches(":focus-visible")),
+  ).toBe(true);
+  const focused = await interaction.evaluate((element) => {
+    const style = getComputedStyle(element);
+    return { color: style.outlineColor, style: style.outlineStyle };
+  });
+  expect(focused.style).not.toBe("none");
+  expect(focused.color).not.toBe("rgba(0, 0, 0, 0)");
+  expect(
+    await layout.evaluate((element) => {
+      const style = getComputedStyle(element);
+      const bounds = element.getBoundingClientRect();
+      return {
+        columns: style.gridTemplateColumns,
+        height: bounds.height,
+        width: bounds.width,
+      };
+    }),
+  ).toEqual(baseGeometry);
+  expect(await readPaintSignature(paint)).toBe(basePaint);
+});
+
+test("installation guidance renders all adoption paths with legacy isolated", async ({
+  page,
+}) => {
+  const paths = page.locator("#install [data-adoption-path]");
+  await expect(paths).toHaveCount(integrationFixtures.length);
+  expect(
+    await paths.evaluateAll((elements) =>
+      elements.map((element) => element.getAttribute("data-adoption-path")),
+    ),
+  ).toEqual(integrationDomOrder);
+  await expect(page.locator("#install details > summary")).toHaveCount(3);
+  await expect(
+    page.locator('#install [data-adoption-group="one"]'),
+  ).toHaveCount(1);
+  await expect(
+    page.locator('#install [data-adoption-group="pair"]'),
+  ).toHaveCount(1);
+  const legacy = page.locator('#install [data-adoption-group="legacy"]');
+  await expect(legacy).toHaveCount(1);
+  await expect(legacy).not.toHaveAttribute("open");
+  await expect(legacy).toContainText(/deprecated|migration-only/i);
+  await expect(
+    page.locator('[data-adoption-path="all-canonical"]'),
+  ).toContainText("Install all three");
+
+  // The repeated snippet titles remain distinguishable when every supported
+  // path is visible to assistive technology at the same time.
+  await page.locator("#install details").evaluateAll((details) => {
+    for (const detail of details) {
+      detail.setAttribute("open", "");
+    }
+  });
+  const copyButtons = page.locator("#install .copy-button");
+  const accessibleNames = await copyButtons.evaluateAll((buttons) =>
+    buttons.map((button) => button.getAttribute("aria-label")),
+  );
+  expect(accessibleNames).toHaveLength(integrationFixtures.length * 3);
+  expect(accessibleNames.every((name) => Boolean(name))).toBe(true);
+  expect(new Set(accessibleNames).size).toBe(accessibleNames.length);
+});
+
+test("integration fixtures load locally without errors or overflow", async ({
+  page,
+}) => {
+  const consoleErrors: string[] = [];
+  const pageErrors: string[] = [];
+  const failedStylesheets: string[] = [];
+  const remoteFixtureStylesheets: string[] = [];
+  page.on("console", (message) => {
+    if (message.type() === "error") consoleErrors.push(message.text());
+  });
+  page.on("pageerror", (error) => pageErrors.push(error.message));
+  page.on("requestfailed", (request) => {
+    if (
+      request.resourceType() === "stylesheet" &&
+      request.failure()?.errorText !== "net::ERR_ABORTED"
+    ) {
+      failedStylesheets.push(request.url());
+    }
+  });
+  page.on("response", (response) => {
+    if (
+      response.request().resourceType() === "stylesheet" &&
+      response.status() >= 400
+    ) {
+      failedStylesheets.push(`${response.status()} ${response.url()}`);
+    }
+  });
+  page.on("request", (request) => {
+    if (
+      request.resourceType() === "stylesheet" &&
+      request.frame().url().includes("/fixtures/generated/") &&
+      new URL(request.url()).origin !== "http://127.0.0.1:4173"
+    ) {
+      remoteFixtureStylesheets.push(request.url());
+    }
+  });
+
+  for (const viewport of [
+    { height: 568, width: 320 },
+    { height: 844, width: 390 },
+    { height: 1024, width: 768 },
+    { height: 1000, width: 1440 },
+  ]) {
+    await page.setViewportSize(viewport);
+    await page.reload();
+    await openIntegrationDetails(page);
+    for (const id of integrationFixtures) {
+      const frame = await integrationFrame(page, id);
+      const overflow = await frame.evaluate(() => ({
+        clientWidth: document.documentElement.clientWidth,
+        scrollWidth: document.documentElement.scrollWidth,
+      }));
+      expect(
+        overflow.scrollWidth,
+        `${id} at ${viewport.width}px`,
+      ).toBeLessThanOrEqual(overflow.clientWidth);
+    }
+    const pageOverflow = await page.evaluate(() => ({
+      clientWidth: document.documentElement.clientWidth,
+      scrollWidth: document.documentElement.scrollWidth,
+    }));
+    expect(
+      pageOverflow.scrollWidth,
+      `${viewport.width}px host`,
+    ).toBeLessThanOrEqual(pageOverflow.clientWidth);
+  }
+
+  expect(consoleErrors).toEqual([]);
+  expect(pageErrors).toEqual([]);
+  expect(failedStylesheets).toEqual([]);
+  expect(remoteFixtureStylesheets).toEqual([]);
 });

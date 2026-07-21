@@ -7,8 +7,11 @@
     "node": ">=22.13.0"
   },
   "scripts": {
+    "predev": "npm run fixtures:build",
     "dev": "next dev",
+    "prebuild": "npm run fixtures:build",
     "build": "next build",
+    "prebuild:pages": "npm run fixtures:build",
     "build:pages": "cross-env PAGES_BASE_PATH=/interface-systems-lab next build",
     "start": "next start",
     "preview:prepare": "node scripts/prepare-preview.mjs",
@@ -16,11 +19,13 @@
     "format:check": "prettier --check --ignore-unknown .",
     "lint": "eslint .",
     "test:unit": "node --import tsx --test tests/*.test.ts",
+    "fixtures:build": "node scripts/build-fixtures.mjs",
+    "test:fixtures": "node --test tests/fixtures.test.mjs",
     "test:export": "node --test tests/export.test.mjs",
     "test:browser": "playwright test",
     "verify:export": "node scripts/verify-export.mjs",
     "typecheck": "tsc --noEmit",
-    "quality": "npm run lint && npm run typecheck && npm run test:unit && npm run build:pages && npm run test:export && npm run test:browser"
+    "quality": "npm run lint && npm run typecheck && npm run test:unit && npm run test:fixtures && npm run build:pages && npm run test:export && npm run test:browser"
   },
   "dependencies": {
     "interactive-surface-css": "1.5.0",

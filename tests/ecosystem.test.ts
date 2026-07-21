@@ -3,6 +3,7 @@ import { access, readFile } from "node:fs/promises";
 import test from "node:test";
 
 import {
+  ADOPTION_PATHS,
   BUNDLER_IMPORTS,
   CDN_LINKS,
   CDN_MARKUP,
@@ -79,6 +80,226 @@ test("installation examples pin approved versions and cascade order", () => {
     CDN_LINKS.map(({ href }) => `<link rel="stylesheet" href="${href}">`).join(
       "\n",
     ),
+  );
+});
+
+test("adoption paths cover every standalone, pair, canonical, and legacy fixture", () => {
+  assert.deepEqual(
+    ADOPTION_PATHS.map(({ id }) => id),
+    [
+      "layout-only",
+      "ui-only",
+      "interactive-only",
+      "layout-ui",
+      "layout-interactive",
+      "ui-interactive",
+      "all-canonical",
+      "all-legacy",
+    ],
+  );
+  assert.deepEqual(
+    ADOPTION_PATHS.reduce<Record<string, number>>((counts, path) => {
+      counts[path.scope] = (counts[path.scope] ?? 0) + 1;
+      return counts;
+    }, {}),
+    { one: 3, pair: 3, all: 1, legacy: 1 },
+  );
+
+  const uiVisualCdn =
+    '<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ui-style-kit-css@2.1.0/dist/ui-style-kit.visual.min.css">';
+  const uiThemeCdn =
+    '<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ui-style-kit-css@2.1.0/styles/interactive-surface-theme.css">';
+  const uiLegacyCdn =
+    '<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ui-style-kit-css@2.1.0/dist/ui-style-kit.with-bridge.min.css">';
+  const interactionCoreCdn =
+    '<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/interactive-surface-css@1.5.0/state-core.css">';
+  const interactionStandaloneCdn =
+    '<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/interactive-surface-css@1.5.0/standalone-preset.css">';
+  const interactionLegacyCdn =
+    '<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/interactive-surface-css@1.5.0/interactive-surface.css">';
+  const layoutCdn =
+    '<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/layout-style-css@2.1.0/dist/layout-style-css.min.css">';
+  const layoutBridgeCdn =
+    '<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/layout-style-css@2.1.0/dist/integrations/ui-style-kit.css">';
+  const layoutLegacyCdn =
+    '<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/layout-style-css@2.1.0/dist/legacy.css">';
+  const expectedMatrix = {
+    "layout-only": {
+      packages: ["layout-style-css"],
+      snippets: [
+        "npm install layout-style-css@2.1.0",
+        '@import "layout-style-css";',
+        layoutCdn,
+      ],
+    },
+    "ui-only": {
+      packages: ["ui-style-kit-css"],
+      snippets: [
+        "npm install ui-style-kit-css@2.1.0",
+        '@import "ui-style-kit-css/visual.css";',
+        uiVisualCdn,
+      ],
+    },
+    "interactive-only": {
+      packages: ["interactive-surface-css"],
+      snippets: [
+        "npm install interactive-surface-css@1.5.0",
+        '@import "interactive-surface-css/standalone-preset.css";',
+        interactionStandaloneCdn,
+      ],
+    },
+    "layout-ui": {
+      packages: ["ui-style-kit-css", "layout-style-css"],
+      snippets: [
+        "npm install ui-style-kit-css@2.1.0 layout-style-css@2.1.0",
+        [
+          '@import "ui-style-kit-css/visual.css";',
+          '@import "layout-style-css";',
+        ].join("\n"),
+        [uiVisualCdn, layoutCdn].join("\n"),
+      ],
+    },
+    "layout-interactive": {
+      packages: ["interactive-surface-css", "layout-style-css"],
+      snippets: [
+        "npm install interactive-surface-css@1.5.0 layout-style-css@2.1.0",
+        [
+          '@import "interactive-surface-css/standalone-preset.css";',
+          '@import "layout-style-css";',
+        ].join("\n"),
+        [interactionStandaloneCdn, layoutCdn].join("\n"),
+      ],
+    },
+    "ui-interactive": {
+      packages: ["ui-style-kit-css", "interactive-surface-css"],
+      snippets: [
+        "npm install ui-style-kit-css@2.1.0 interactive-surface-css@1.5.0",
+        [
+          '@import "ui-style-kit-css/visual.css";',
+          '@import "ui-style-kit-css/interactive-surface-theme.css";',
+          '@import "interactive-surface-css/state-core.css";',
+        ].join("\n"),
+        [uiVisualCdn, uiThemeCdn, interactionCoreCdn].join("\n"),
+      ],
+    },
+    "all-canonical": {
+      packages: [
+        "ui-style-kit-css",
+        "layout-style-css",
+        "interactive-surface-css",
+      ],
+      snippets: [NPM_INSTALL, BUNDLER_IMPORTS.join("\n"), CDN_MARKUP],
+    },
+    "all-legacy": {
+      packages: [
+        "ui-style-kit-css",
+        "layout-style-css",
+        "interactive-surface-css",
+      ],
+      snippets: [
+        NPM_INSTALL,
+        [
+          '@import "ui-style-kit-css/with-bridge.css";',
+          '@import "interactive-surface-css/interactive-surface.css";',
+          '@import "layout-style-css/integrations/ui-style-kit.css";',
+          '@import "layout-style-css/legacy.css";',
+        ].join("\n"),
+        [
+          uiLegacyCdn,
+          interactionLegacyCdn,
+          layoutBridgeCdn,
+          layoutLegacyCdn,
+        ].join("\n"),
+      ],
+    },
+  } as const;
+
+  for (const path of ADOPTION_PATHS) {
+    const expected = expectedMatrix[path.id];
+    assert.deepEqual(path.packages, expected.packages, path.id);
+    assert.deepEqual(
+      path.snippets.map(({ format }) => format),
+      ["npm", "bundler", "cdn"],
+      path.id,
+    );
+    assert.deepEqual(
+      path.snippets.map(({ code }) => code),
+      expected.snippets,
+      path.id,
+    );
+    for (const snippet of path.snippets) {
+      assert.doesNotMatch(snippet.code, /\blatest\b/i, path.id);
+    }
+    for (const packageName of path.packages) {
+      const packageVersion = ECOSYSTEM_PACKAGES.find(
+        (candidate) => candidate.name === packageName,
+      )?.version;
+      assert.ok(packageVersion, packageName);
+      assert.match(
+        path.snippets[0].code,
+        new RegExp(`${packageName}@${packageVersion}`),
+      );
+    }
+  }
+});
+
+test("canonical adoption preserves ownership while legacy imports stay quarantined", () => {
+  const canonical = ADOPTION_PATHS.find(({ id }) => id === "all-canonical");
+  const legacy = ADOPTION_PATHS.find(({ id }) => id === "all-legacy");
+  assert.ok(canonical);
+  assert.ok(legacy);
+
+  assert.equal(canonical.deprecated, false);
+  assert.equal(legacy.deprecated, true);
+  assert.equal(canonical.snippets[0].title, "Install all three");
+  assert.equal(canonical.snippets[1].code, BUNDLER_IMPORTS.join("\n"));
+  assert.equal(canonical.snippets[2].code, CDN_MARKUP);
+
+  const deprecatedImports =
+    /with-bridge|interactive-surface\.css|integrations\/ui-style-kit|legacy\.css|data-layout/;
+  for (const path of ADOPTION_PATHS.filter(({ deprecated }) => !deprecated)) {
+    assert.doesNotMatch(
+      path.snippets.map(({ code }) => code).join("\n"),
+      deprecatedImports,
+      path.id,
+    );
+  }
+  assert.match(legacy.snippets[1].code, /ui-style-kit-css\/with-bridge\.css/);
+  assert.match(
+    legacy.snippets[1].code,
+    /interactive-surface-css\/interactive-surface\.css/,
+  );
+  assert.match(
+    legacy.snippets[1].code,
+    /layout-style-css\/integrations\/ui-style-kit\.css/,
+  );
+  assert.match(legacy.snippets[1].code, /layout-style-css\/legacy\.css/);
+});
+
+test("package directory exposes independent entrypoints and fixture anchors", () => {
+  assert.deepEqual(
+    ECOSYSTEM_PACKAGES.map(({ name, recommendedEntryPoint, fixture }) => ({
+      fixture,
+      name,
+      recommendedEntryPoint,
+    })),
+    [
+      {
+        fixture: "layout-only",
+        name: "layout-style-css",
+        recommendedEntryPoint: "layout-style-css",
+      },
+      {
+        fixture: "ui-only",
+        name: "ui-style-kit-css",
+        recommendedEntryPoint: "ui-style-kit-css/visual.css",
+      },
+      {
+        fixture: "interactive-only",
+        name: "interactive-surface-css",
+        recommendedEntryPoint: "interactive-surface-css/standalone-preset.css",
+      },
+    ],
   );
 });
 

@@ -284,8 +284,57 @@
 .collision-console,
 .collision-console-layout,
 .collision-controls,
-.collision-stage {
+.collision-stage,
+.integration-lab,
+.integration-card,
+.integration-frame,
+.integration-grid,
+.integration-disclosures,
+.integration-paths,
+.adoption-path,
+.adoption-grid,
+.adoption-disclosures,
+.library-entrypoint,
+.library-next-steps {
   min-inline-size: 0;
+}
+
+.integration-frame {
+  display: block;
+  inline-size: 100%;
+  max-inline-size: 100%;
+  block-size: clamp(28rem, 55vw, 34rem);
+}
+
+.integration-grid,
+.adoption-grid {
+  padding-block: 1.5rem;
+}
+
+.integration-grid {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 24rem), 1fr));
+}
+
+.integration-disclosure,
+.adoption-disclosure {
+  scroll-margin-block-start: calc(var(--ly-header-height) + 2rem);
+}
+
+.integration-disclosure > summary,
+.adoption-disclosure > summary {
+  min-block-size: 44px;
+}
+
+.integration-card code,
+.adoption-path code,
+.library-entrypoint code {
+  max-inline-size: 100%;
+  overflow-wrap: anywhere;
+}
+
+.integration-paths > *,
+.library-next-steps > * {
+  min-block-size: 44px;
 }
 
 .ui-surface-grid,

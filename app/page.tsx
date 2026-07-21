@@ -5,6 +5,7 @@ import { InterfaceObservatory } from "./components/InterfaceObservatory";
 import { LabControls } from "./components/LabControls";
 import { LabExperience } from "./components/LabExperience";
 import { InteractionLab } from "./components/labs/InteractionLab";
+import { IntegrationLab } from "./components/labs/IntegrationLab";
 import { LayoutLab } from "./components/labs/LayoutLab";
 import { UiNativeLab } from "./components/labs/UiNativeLab";
 import { LibraryDirectory } from "./components/LibraryDirectory";
@@ -13,34 +14,6 @@ import { SiteHeader } from "./components/SiteHeader";
 import { SITE } from "./lib/site";
 
 const companyUrl = "https://sandersontechnologyenterprises.com";
-
-function IntegrationRunway() {
-  return (
-    <section
-      className="section-band ly-section"
-      id="integrate"
-      aria-labelledby="integrate-title"
-    >
-      <div className="ly-wrapper">
-        <div className="section-heading ly-split ly-gap-6 ly-items-end">
-          <div className="ly-stack ly-gap-2">
-            <p className="section-label">Complete ecosystem path</p>
-            <h2 id="integrate-title">Integration proofs</h2>
-          </div>
-          <p>
-            Package-by-package and combined examples lead into the pinned
-            installation guide and resource directory below.
-          </p>
-        </div>
-        <p className="capability-preview-panel">
-          The isolated package and pair fixtures arrive in the next dedicated
-          chapter; this anchor preserves the approved one-page adoption path
-          without mixing fixture CSS into the flagship runtime.
-        </p>
-      </div>
-    </section>
-  );
-}
 
 function CompanySection() {
   return (
@@ -136,7 +109,7 @@ export default function Home() {
         <LayoutLab />
         <UiNativeLab />
         <InteractionLab />
-        <IntegrationRunway />
+        <IntegrationLab />
         <InstallGuide />
         <LibraryDirectory />
         <CompanySection />

@@ -2,7 +2,7 @@
 
 [Interface Systems Lab](https://foscat.github.io/interface-systems-lab/) is an interactive observatory for three coordinated, independently useful CSS libraries. It demonstrates how structure, visual identity, and interaction can share one semantic HTML contract.
 
-- Product owner: Sanderson Technology Enterprises
+- Product owner: [Sanderson Technology Enterprises](https://sandersontechnologyenterprises.com)
 - Live site: [foscat.github.io/interface-systems-lab](https://foscat.github.io/interface-systems-lab/)
 - Source: [Foscat/interface-systems-lab](https://github.com/Foscat/interface-systems-lab)
 - Deployment: GitHub Pages through the repository's verified Actions workflow
@@ -14,6 +14,23 @@
 | Structure | `layout-style-css@2.1.0`        | [Repository](https://github.com/Foscat/Layout-Style-CSS)        | [Wiki](https://github.com/Foscat/Layout-Style-CSS/wiki)        | [npm](https://www.npmjs.com/package/layout-style-css)        | [Live demo](https://foscat.github.io/Layout-Style-CSS/)        |
 | Identity  | `ui-style-kit-css@2.1.0`        | [Repository](https://github.com/Foscat/ui-style-kit-css)        | [Wiki](https://github.com/Foscat/ui-style-kit-css/wiki)        | [npm](https://www.npmjs.com/package/ui-style-kit-css)        | [Live demo](https://foscat.github.io/ui-style-kit-css/)        |
 | Behavior  | `interactive-surface-css@1.5.0` | [Repository](https://github.com/Foscat/Interactive-Surface-CSS) | [Wiki](https://github.com/Foscat/Interactive-Surface-CSS/wiki) | [npm](https://www.npmjs.com/package/interactive-surface-css) | [Live demo](https://foscat.github.io/Interactive-Surface-CSS/) |
+
+## Adoption matrix
+
+Every package is independently useful. The showcase documents and renders all
+supported combinations so teams can begin with one responsibility and add
+layers without changing ownership boundaries.
+
+| Path                 | Packages                | Recommended entry points                                                                                                                      |
+| -------------------- | ----------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
+| Layout only          | Layout                  | `layout-style-css`                                                                                                                            |
+| UI only              | UI                      | `ui-style-kit-css/visual.css`                                                                                                                 |
+| Interaction only     | Interaction             | `interactive-surface-css/standalone-preset.css`                                                                                               |
+| Layout + UI          | Layout, UI              | `ui-style-kit-css/visual.css`, `layout-style-css`                                                                                             |
+| Layout + interaction | Layout, interaction     | `interactive-surface-css/standalone-preset.css`, `layout-style-css`                                                                           |
+| UI + interaction     | UI, interaction         | `ui-style-kit-css/visual.css`, `ui-style-kit-css/interactive-surface-theme.css`, `interactive-surface-css/state-core.css`                     |
+| Canonical all-three  | Layout, UI, interaction | `ui-style-kit-css/visual.css`, `ui-style-kit-css/interactive-surface-theme.css`, `interactive-surface-css/state-core.css`, `layout-style-css` |
+| Legacy compatibility | Layout, UI, interaction | Frozen v2 bridge and legacy entry points; migration-only                                                                                      |
 
 ## Install with npm
 
@@ -71,6 +88,29 @@ For static HTML consumers, keep this exact order in the document head:
 
 The versions are intentionally pinned so production interfaces do not change when a package publishes a new release.
 
+## Isolated integration fixtures
+
+The integration laboratory builds eight deterministic iframe fixtures: each
+single package, each pair, the canonical all-three stack, and the deprecated
+legacy compatibility stack. Generate them from the exact installed package
+exports before local development or artifact inspection:
+
+```bash
+npm run fixtures:build
+```
+
+The `predev`, `prebuild`, and `prebuild:pages` hooks run the generator
+automatically. Generated files live under `public/fixtures/generated/` and are
+intentionally ignored by Git. Each fixture copies CSS from local, pinned
+`node_modules` package exports; it does not load runtime styles from a CDN.
+
+Validate the catalog, package versions, copied bytes, safe paths, semantic
+hooks, and deterministic output with:
+
+```bash
+npm run test:fixtures
+```
+
 ## Quality gate
 
 Run the full source, export, and rendered browser gate before handoff:
@@ -79,8 +119,9 @@ Run the full source, export, and rendered browser gate before handoff:
 npm run quality
 ```
 
-`quality` includes linting, type checks, unit/source contract tests, the GitHub
-Pages export build, export verification, and Playwright desktop/mobile QA.
+`quality` includes linting, type checks, unit/source contracts, deterministic
+fixture safety and byte-parity checks, the GitHub Pages export build, export
+verification, and Playwright desktop/mobile QA.
 
 ## Local CSS policy
 
