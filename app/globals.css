@@ -1,10 +1,5 @@
 :root {
   color-scheme: light dark;
-  --font-display: var(--font-geist-sans), "Arial Narrow", sans-serif;
-  --font-copy: var(--font-geist-sans), Arial, sans-serif;
-  --font-code: var(--font-geist-mono), "Cascadia Code", monospace;
-  --lab-rule: rgb(var(--usk-border-rgb) / 0.64);
-  --lab-rule-soft: rgb(var(--usk-border-rgb) / 0.34);
 }
 
 *,
@@ -20,11 +15,17 @@ html {
 }
 
 body {
+  /* Resolve the site aliases where Next.js supplies its font variables. */
+  --font-display: var(--font-geist-sans), "Arial Narrow", sans-serif;
+  --font-copy: var(--font-geist-sans), Arial, sans-serif;
+  --font-code: var(--font-geist-mono), "Cascadia Code", monospace;
+
   max-inline-size: 100%;
   margin: 0;
   overflow-x: clip;
   background: rgb(var(--usk-bg-rgb));
   color: rgb(var(--usk-text-rgb));
+  font-family: var(--font-copy);
 }
 
 img,

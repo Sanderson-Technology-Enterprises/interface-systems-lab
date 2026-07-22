@@ -60,8 +60,8 @@
     "summary": "Paint, state mechanics, and structure compose in the documented ownership order.",
     "packages": [
       "ui-style-kit-css",
-      "layout-style-css",
-      "interactive-surface-css"
+      "interactive-surface-css",
+      "layout-style-css"
     ],
     "styles": ["ui-visual", "ui-theme", "interaction-core", "layout-core"],
     "deprecated": false
@@ -73,8 +73,8 @@
     "summary": "Frozen v2 compatibility paths remain available for staged migrations, not new adoption.",
     "packages": [
       "ui-style-kit-css",
-      "layout-style-css",
-      "interactive-surface-css"
+      "interactive-surface-css",
+      "layout-style-css"
     ],
     "styles": [
       "ui-with-bridge",

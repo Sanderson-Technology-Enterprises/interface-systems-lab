@@ -212,16 +212,16 @@ test("adoption paths cover every standalone, pair, canonical, and legacy fixture
     "all-canonical": {
       packages: [
         "ui-style-kit-css",
-        "layout-style-css",
         "interactive-surface-css",
+        "layout-style-css",
       ],
       snippets: [NPM_INSTALL, BUNDLER_IMPORTS.join("\n"), CDN_MARKUP],
     },
     "all-legacy": {
       packages: [
         "ui-style-kit-css",
-        "layout-style-css",
         "interactive-surface-css",
+        "layout-style-css",
       ],
       snippets: [
         NPM_INSTALL,

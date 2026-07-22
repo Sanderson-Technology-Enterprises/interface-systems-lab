@@ -41,6 +41,25 @@ const expectedFixtures = [
   "all-legacy",
 ];
 
+const expectedPackages = {
+  "layout-only": ["layout-style-css"],
+  "ui-only": ["ui-style-kit-css"],
+  "interactive-only": ["interactive-surface-css"],
+  "layout-ui": ["ui-style-kit-css", "layout-style-css"],
+  "layout-interactive": ["interactive-surface-css", "layout-style-css"],
+  "ui-interactive": ["ui-style-kit-css", "interactive-surface-css"],
+  "all-canonical": [
+    "ui-style-kit-css",
+    "interactive-surface-css",
+    "layout-style-css",
+  ],
+  "all-legacy": [
+    "ui-style-kit-css",
+    "interactive-surface-css",
+    "layout-style-css",
+  ],
+};
+
 const expectedAssets = {
   "ui-visual": {
     export: "ui-style-kit-css/visual.css",
@@ -145,6 +164,7 @@ test("the fixture catalog declares the exact package combinations", async () => 
   );
   assert.equal(new Set(catalog.map(({ id }) => id)).size, catalog.length);
   for (const fixture of catalog) {
+    assert.deepEqual(fixture.packages, expectedPackages[fixture.id]);
     assert.deepEqual(fixture.styles, expectedStyles[fixture.id]);
   }
 });
@@ -242,6 +262,20 @@ test("validation rejects unsafe inputs before replacing generated output", async
         ],
       },
       pattern: /unknown asset key.*not-a-public-asset/i,
+    },
+    {
+      label: "missing fixture title",
+      options: {
+        catalog: [{ ...catalog[0], title: undefined }, ...catalog.slice(1)],
+      },
+      pattern: /fixture.*layout-only.*non-empty title/i,
+    },
+    {
+      label: "non-string fixture summary",
+      options: {
+        catalog: [{ ...catalog[0], summary: 42 }, ...catalog.slice(1)],
+      },
+      pattern: /fixture.*layout-only.*non-empty summary/i,
     },
     {
       label: "version drift",

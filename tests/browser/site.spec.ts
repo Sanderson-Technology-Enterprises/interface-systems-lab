@@ -575,23 +575,34 @@ test("primary navigation keeps anchored sections below the sticky header @cross-
     await test.step(`${width}px viewport`, async () => {
       await page.setViewportSize({ width, height: 1000 });
       await page.goto("./");
+      await page.evaluate(() => document.fonts.ready.then(() => true));
 
       const anchorContract = await page.evaluate(() => {
+        const body = document.body;
         const header = document.querySelector<HTMLElement>(".site-header");
+        const navigation = document.querySelector<HTMLElement>(".primary-nav");
         const target = document.querySelector<HTMLElement>("#interactions");
-        if (header === null || target === null) {
+        if (header === null || navigation === null || target === null) {
           throw new Error(
             "Expected sticky-header anchor landmarks are missing.",
           );
         }
 
         return {
+          bodyFontFamily: getComputedStyle(body).fontFamily,
+          headerBorderWidth: Number.parseFloat(
+            getComputedStyle(header).borderBottomWidth,
+          ),
           headerHeight: header.getBoundingClientRect().height,
+          navigationFontFamily: getComputedStyle(navigation).fontFamily,
           targetScrollMargin: Number.parseFloat(
             getComputedStyle(target).scrollMarginBlockStart,
           ),
         };
       });
+      expect(anchorContract.headerBorderWidth).toBeGreaterThanOrEqual(1);
+      expect(anchorContract.bodyFontFamily).toMatch(/Geist/i);
+      expect(anchorContract.navigationFontFamily).toMatch(/Geist/i);
       expect(anchorContract.targetScrollMargin).toBeGreaterThanOrEqual(
         anchorContract.headerHeight + 16,
       );
@@ -1098,6 +1109,41 @@ test("one atomic polite region announces configuration, observatory, and install
   await expect(liveRegion).toHaveText(
     "Install all three code for The canonical all-three stack copied to the clipboard.",
   );
+});
+
+test("the polite region re-announces repeated identical feedback", async ({
+  page,
+}) => {
+  const liveRegion = page.locator(".configuration-status");
+  const randomize = page.getByRole("button", {
+    name: "Randomize configuration",
+  });
+  const message = "A randomized interface configuration is ready.";
+
+  await randomize.click();
+  await expect(liveRegion).toHaveText(message);
+  await liveRegion.evaluate((element) => {
+    const changes: string[] = [];
+    element.dataset.observedChanges = JSON.stringify(changes);
+    new MutationObserver(() => {
+      changes.push(element.textContent ?? "");
+      element.dataset.observedChanges = JSON.stringify(changes);
+    }).observe(element, {
+      characterData: true,
+      childList: true,
+      subtree: true,
+    });
+  });
+
+  await randomize.click();
+  await expect
+    .poll(() =>
+      liveRegion.evaluate((element) =>
+        JSON.parse(element.dataset.observedChanges ?? "[]"),
+      ),
+    )
+    .not.toEqual([]);
+  await expect(liveRegion).toHaveText(message);
 });
 
 test("install copy feedback restarts its timer", async ({ page, context }) => {

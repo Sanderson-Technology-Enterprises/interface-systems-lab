@@ -117,6 +117,16 @@ export function validateFixtureCatalog(catalog, assets = FIXTURE_ASSETS) {
       throw new Error(`Duplicate fixture id: ${fixture.id}`);
     }
     ids.add(fixture.id);
+    for (const field of ["title", "summary"]) {
+      if (
+        typeof fixture[field] !== "string" ||
+        fixture[field].trim().length === 0
+      ) {
+        throw new Error(
+          `Fixture "${fixture.id}" requires a non-empty ${field}.`,
+        );
+      }
+    }
     if (!Array.isArray(fixture.styles) || fixture.styles.length === 0) {
       throw new Error(`Fixture "${fixture.id}" requires at least one style.`);
     }

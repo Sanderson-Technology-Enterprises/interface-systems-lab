@@ -107,11 +107,17 @@ export function LabExperience({ children }: LabExperienceProps) {
   const [configuration, setConfiguration] = useState<LabConfiguration>(() => ({
     ...DEFAULT_CONFIGURATION,
   }));
-  const [announcement, setAnnouncement] = useState("");
+  const [announcement, setAnnouncement] = useState({
+    message: "",
+    revision: 0,
+  });
   const configurationRef = useRef(configuration);
 
   const announce = useCallback((message: string) => {
-    setAnnouncement(message);
+    setAnnouncement((current) => ({
+      message,
+      revision: current.revision + 1,
+    }));
   }, []);
 
   const commitConfiguration = useCallback(
@@ -259,7 +265,7 @@ export function LabExperience({ children }: LabExperienceProps) {
           aria-live="polite"
           aria-atomic="true"
         >
-          {announcement}
+          <span key={announcement.revision}>{announcement.message}</span>
         </p>
       </div>
     </LabConfigurationContext.Provider>

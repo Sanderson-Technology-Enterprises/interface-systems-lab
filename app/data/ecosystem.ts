@@ -309,8 +309,8 @@ export const ADOPTION_PATHS = [
       "Use the complete ownership-separated cascade demonstrated by the flagship page.",
     packages: [
       "ui-style-kit-css",
-      "layout-style-css",
       "interactive-surface-css",
+      "layout-style-css",
     ],
     deprecated: false,
     snippets: adoptionSnippets(
@@ -329,8 +329,8 @@ export const ADOPTION_PATHS = [
       "Use only while migrating frozen structural and stateful compatibility paths to the canonical stack.",
     packages: [
       "ui-style-kit-css",
-      "layout-style-css",
       "interactive-surface-css",
+      "layout-style-css",
     ],
     deprecated: true,
     snippets: adoptionSnippets(

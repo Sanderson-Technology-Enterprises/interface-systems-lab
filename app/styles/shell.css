@@ -1,4 +1,8 @@
 .experience {
+  /* Theme-derived aliases live with the UI tokens they consume. */
+  --lab-rule: rgb(var(--usk-border-rgb) / 0.64);
+  --lab-rule-soft: rgb(var(--usk-border-rgb) / 0.34);
+
   min-block-size: 100svh;
   background: rgb(var(--usk-bg-rgb));
   color: rgb(var(--usk-text-rgb));
@@ -19,9 +23,9 @@
   flex: 0 0 auto;
 }
 
-/* Section anchors reserve the inherited Layout header height plus a readable gap. */
+/* Section anchors include the header rule before adding a readable gap. */
 .experience :where(section[id]) {
-  scroll-margin-block-start: calc(var(--ly-header-height) + 1rem);
+  scroll-margin-block-start: calc(var(--ly-header-height) + 1px + 1rem);
 }
 
 .site-action {
