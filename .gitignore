@@ -5,6 +5,8 @@ out/
 .tmp/
 playwright-report/
 test-results/
+/public/fixtures/generated/
+.superpowers/
 *.tsbuildinfo
 .env*
 !.env.example

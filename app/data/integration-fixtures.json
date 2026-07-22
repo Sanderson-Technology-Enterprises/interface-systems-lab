@@ -1,0 +1,87 @@
+[
+  {
+    "id": "layout-only",
+    "title": "Layout Style CSS standalone",
+    "group": "one",
+    "summary": "Structural wrappers and adaptive grid geometry without companion paint or state mechanics.",
+    "packages": ["layout-style-css"],
+    "styles": ["layout-core"],
+    "deprecated": false
+  },
+  {
+    "id": "ui-only",
+    "title": "UI Style Kit CSS standalone",
+    "group": "one",
+    "summary": "Theme paint, native controls, and component identity without structural or interaction dependencies.",
+    "packages": ["ui-style-kit-css"],
+    "styles": ["ui-visual"],
+    "deprecated": false
+  },
+  {
+    "id": "interactive-only",
+    "title": "Interactive Surface CSS standalone",
+    "group": "one",
+    "summary": "Portable neutral paint and complete interaction mechanics from the standalone preset.",
+    "packages": ["interactive-surface-css"],
+    "styles": ["interaction-standalone"],
+    "deprecated": false
+  },
+  {
+    "id": "layout-ui",
+    "title": "Layout plus UI",
+    "group": "pair",
+    "summary": "Layout geometry and visual identity remain complementary without richer surface mechanics.",
+    "packages": ["ui-style-kit-css", "layout-style-css"],
+    "styles": ["ui-visual", "layout-core"],
+    "deprecated": false
+  },
+  {
+    "id": "layout-interactive",
+    "title": "Layout plus interaction",
+    "group": "pair",
+    "summary": "Responsive composition combines with the neutral standalone interaction presentation.",
+    "packages": ["interactive-surface-css", "layout-style-css"],
+    "styles": ["interaction-standalone", "layout-core"],
+    "deprecated": false
+  },
+  {
+    "id": "ui-interactive",
+    "title": "UI plus interaction",
+    "group": "pair",
+    "summary": "UI paint and public bridge tokens feed one canonical interaction-state engine.",
+    "packages": ["ui-style-kit-css", "interactive-surface-css"],
+    "styles": ["ui-visual", "ui-theme", "interaction-core"],
+    "deprecated": false
+  },
+  {
+    "id": "all-canonical",
+    "title": "Canonical all-three stack",
+    "group": "all",
+    "summary": "Paint, state mechanics, and structure compose in the documented ownership order.",
+    "packages": [
+      "ui-style-kit-css",
+      "interactive-surface-css",
+      "layout-style-css"
+    ],
+    "styles": ["ui-visual", "ui-theme", "interaction-core", "layout-core"],
+    "deprecated": false
+  },
+  {
+    "id": "all-legacy",
+    "title": "Legacy compatibility stack",
+    "group": "legacy",
+    "summary": "Frozen v2 compatibility paths remain available for staged migrations, not new adoption.",
+    "packages": [
+      "ui-style-kit-css",
+      "interactive-surface-css",
+      "layout-style-css"
+    ],
+    "styles": [
+      "ui-with-bridge",
+      "interaction-complete",
+      "layout-ui-bridge",
+      "layout-legacy"
+    ],
+    "deprecated": true
+  }
+]

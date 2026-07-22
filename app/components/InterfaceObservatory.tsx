@@ -2,8 +2,10 @@
 
 import { useState } from "react";
 
+import { getUiPrefix } from "../data/catalog";
 import { ECOSYSTEM_PACKAGES, type ResourceLink } from "../data/ecosystem";
 import { ExternalLinkIcon } from "./Icons";
+import { useLabConfiguration } from "./LabExperience";
 
 const resourceLabels: Record<ResourceLink, string> = {
   repository: "Repository",
@@ -19,9 +21,13 @@ const resourceOrder: readonly ResourceLink[] = [
   "demo",
 ];
 
+const orbitVariants = ["primary", "accent", "secondary"] as const;
+
 export function InterfaceObservatory() {
+  const { announce, configuration } = useLabConfiguration();
   const [selectedIndex, setSelectedIndex] = useState(0);
   const selectedPackage = ECOSYSTEM_PACKAGES[selectedIndex];
+  const prefix = getUiPrefix(configuration.ui);
 
   return (
     <figure
@@ -51,12 +57,17 @@ export function InterfaceObservatory() {
         ))}
         {ECOSYSTEM_PACKAGES.map((pkg, index) => (
           <button
-            className={`observatory-orbit observatory-orbit-${pkg.layer.toLowerCase()}`}
+            className={`observatory-orbit observatory-orbit-${pkg.layer.toLowerCase()} interactive-surface site-action`}
+            data-surface-variant={orbitVariants[index]}
+            data-surface-level="2"
             type="button"
             key={pkg.name}
             aria-pressed={selectedIndex === index}
             aria-controls="observatory-active-package"
-            onClick={() => setSelectedIndex(index)}
+            onClick={() => {
+              setSelectedIndex(index);
+              announce(`${pkg.layer} layer selected: ${pkg.displayName}.`);
+            }}
           >
             <span className="orbit-label">{pkg.layer}</span>
           </button>
@@ -72,7 +83,11 @@ export function InterfaceObservatory() {
         aria-label="Interface Observatory layers"
       >
         {ECOSYSTEM_PACKAGES.map((pkg, index) => (
-          <li key={pkg.name} data-active={selectedIndex === index}>
+          <li
+            className={`${prefix}-surface ly-surface ly-cluster ly-gap-3 ly-items-start ly-pad-3`}
+            key={pkg.name}
+            data-active={selectedIndex === index}
+          >
             <span className="layer-number">
               {String(index + 1).padStart(2, "0")}
             </span>
@@ -85,18 +100,22 @@ export function InterfaceObservatory() {
       </ol>
 
       <article
-        className="observatory-detail ly-surface ly-pad-4 ly-stack ly-gap-3"
+        className={`observatory-detail ${prefix}-card ly-surface ly-pad-4 ly-stack ly-gap-3`}
         id="observatory-active-package"
-        aria-live="polite"
-        aria-atomic="true"
       >
         <p className="section-label">Selected layer</p>
         <h2>{selectedPackage.layer}</h2>
         <p>{selectedPackage.summary}</p>
         <code>{selectedPackage.attribute}</code>
-        <nav aria-label={`${selectedPackage.displayName} resources`}>
+        <nav
+          className="ly-cluster ly-gap-2"
+          aria-label={`Selected ${selectedPackage.displayName} resources`}
+        >
           {resourceOrder.map((resource) => (
             <a
+              className="interactive-surface site-action"
+              data-surface-variant="subtle"
+              data-surface-level="1"
               href={selectedPackage.links[resource]}
               key={resource}
               target="_blank"

@@ -1,0 +1,533 @@
+.configuration-shell,
+.configuration-console,
+.control-deck,
+.active-config,
+.code-strip,
+.workbench-frame,
+.client-workspace,
+.layout-base-grid,
+.layout-disclosures,
+.recipe-atlas,
+.primitive-atlas,
+.wrapper-atlas {
+  min-inline-size: 0;
+}
+
+.configuration-shell {
+  /* The full control deck remains in flow so it cannot obscure showcase destinations. */
+  position: static;
+  margin-block-end: var(--ly-space-6);
+}
+
+.control-deck label,
+.control-deck fieldset {
+  display: grid;
+  gap: 0.45rem;
+  min-inline-size: 0;
+  margin: 0;
+}
+
+.control-deck fieldset {
+  padding: 0;
+  border: 0;
+}
+
+.mode-options,
+.active-config {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+
+.mode-options label {
+  display: inline-flex;
+  align-items: center;
+  min-block-size: 44px;
+  gap: 0.35rem;
+}
+
+.active-config {
+  margin-block: 1.25rem;
+}
+
+.active-config span {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.35rem;
+}
+
+.live-status {
+  color: rgb(var(--usk-success-rgb));
+}
+
+.code-strip {
+  margin-block-start: 1rem;
+}
+
+.code-strip > div,
+.code-strip code {
+  min-inline-size: 0;
+}
+
+.code-strip code {
+  display: block;
+  max-inline-size: 100%;
+  overflow-x: auto;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.configuration-console textarea {
+  inline-size: 100%;
+  max-inline-size: 100%;
+}
+
+.workbench-frame {
+  padding: clamp(0.35rem, 1vw, 0.75rem);
+  border: 1px solid var(--lab-rule);
+}
+
+.client-workspace {
+  overflow-wrap: anywhere;
+}
+
+.workbench-kicker,
+.workbench-region small,
+.workbench-region dt {
+  color: rgb(var(--usk-text-muted-rgb));
+  font-size: 0.74rem;
+  font-weight: 750;
+}
+
+.workbench-nav {
+  margin-block-start: 1rem;
+}
+
+.workbench-main h3 {
+  font-family: var(--font-display);
+  font-size: clamp(1.7rem, 4vw, 2.8rem);
+  line-height: 1.05;
+}
+
+.workbench-mode {
+  justify-self: end;
+  color: rgb(var(--usk-primary-rgb));
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+.workbench-metrics,
+.workbench-config {
+  margin: 0;
+}
+
+.workbench-metrics > div,
+.workbench-config > div {
+  min-inline-size: 0;
+}
+
+.workbench-metrics dd {
+  margin-block-start: 0.35rem;
+  color: rgb(var(--usk-primary-rgb));
+  font-family: var(--font-display);
+  font-size: 1.65rem;
+  font-weight: 750;
+}
+
+.workbench-deliverables article,
+.workbench-deliverables p,
+.workbench-activity {
+  min-inline-size: 0;
+}
+
+.workbench-activity {
+  margin: 0;
+  padding-inline-start: 1.2rem;
+}
+
+.workbench-config dd {
+  margin-block-start: 0.2rem;
+  overflow-wrap: anywhere;
+}
+
+.layout-base-grid {
+  margin-block-end: clamp(2rem, 5vw, 4rem);
+}
+
+.specimen-intro,
+.layout-grid-cell,
+.specimen-heading,
+.primitive-specimen,
+.wrapper-sample,
+.utility-chip {
+  min-inline-size: 0;
+  overflow-wrap: anywhere;
+}
+
+.specimen-intro {
+  color: rgb(var(--usk-text-muted-rgb));
+}
+
+.specimen-intro strong,
+.layout-grid-cell strong {
+  color: rgb(var(--usk-text-rgb));
+}
+
+.layout-grid-cell small,
+.specimen-label {
+  color: rgb(var(--usk-primary-rgb));
+  font-family: var(--font-code);
+  font-size: 0.72rem;
+  font-weight: 850;
+  text-transform: uppercase;
+}
+
+.layout-disclosures > details {
+  scroll-margin-block-start: calc(var(--ly-header-height) + 2rem);
+}
+
+.layout-disclosures summary {
+  min-block-size: 44px;
+  font-family: var(--font-display);
+  font-size: clamp(1.1rem, 2vw, 1.45rem);
+  font-weight: 750;
+}
+
+.recipe-atlas,
+.primitive-atlas,
+.wrapper-atlas {
+  padding-block: 1.5rem;
+}
+
+.recipe-entry {
+  min-inline-size: 0;
+  padding-block-start: 1rem;
+  border-block-start: 1px solid var(--lab-rule-soft);
+}
+
+.recipe-specimen {
+  overflow-wrap: anywhere;
+}
+
+.recipe-media > span,
+.gallery-field,
+.media-field,
+.frame-field {
+  display: grid;
+  place-items: center;
+  min-block-size: 7rem;
+  color: rgb(var(--usk-primary-rgb));
+  font-family: var(--font-code);
+  text-align: center;
+}
+
+.primitive-cover {
+  --ly-cover-min: 16rem;
+}
+
+.primitive-scroll {
+  --ly-scroll-max: 13rem;
+}
+
+.primitive-specimen > span,
+.primitive-specimen > p {
+  min-inline-size: 0;
+}
+
+.wrapper-sample strong,
+.wrapper-sample span {
+  display: block;
+}
+
+.breakout-sample > * {
+  min-block-size: 3rem;
+}
+
+.utility-inventory,
+.alignment-inventory {
+  min-inline-size: 0;
+}
+
+.alignment-inventory code {
+  overflow-wrap: anywhere;
+}
+
+.ui-inventory,
+.ui-surface-grid,
+.ui-button-board,
+.feedback-grid,
+.badge-board,
+.ui-field-grid,
+.choice-recipe,
+.switch-recipe,
+.spinner-board,
+.tooltip-scroll,
+.tooltip-board,
+.ui-data-board,
+.helper-board,
+.preset-extra-board,
+.preset-extra-grid,
+.native-laboratory,
+.native-inventory,
+.native-input-grid,
+.native-choice-grid,
+.native-state-grid,
+.native-semantic-grid,
+.native-support-disclosure,
+.native-support-grid,
+.native-token-list,
+.native-dialog-demo,
+.native-dialog-body,
+.interaction-atlas,
+.interaction-matrix,
+.interaction-state-grid,
+.collision-console,
+.collision-console-layout,
+.collision-controls,
+.collision-stage,
+.integration-lab,
+.integration-card,
+.integration-frame,
+.integration-grid,
+.integration-disclosures,
+.integration-paths,
+.adoption-path,
+.adoption-grid,
+.adoption-disclosures,
+.library-entrypoint,
+.library-next-steps {
+  min-inline-size: 0;
+}
+
+.integration-frame {
+  display: block;
+  inline-size: 100%;
+  max-inline-size: 100%;
+  block-size: clamp(28rem, 55vw, 34rem);
+}
+
+.integration-grid,
+.adoption-grid {
+  padding-block: 1.5rem;
+}
+
+.integration-grid {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 24rem), 1fr));
+}
+
+.integration-disclosure,
+.adoption-disclosure {
+  scroll-margin-block-start: calc(var(--ly-header-height) + 2rem);
+}
+
+.integration-disclosure > summary,
+.adoption-disclosure > summary {
+  min-block-size: 44px;
+}
+
+.integration-card code,
+.adoption-path code,
+.library-entrypoint code {
+  max-inline-size: 100%;
+  overflow-wrap: anywhere;
+}
+
+.integration-paths > *,
+.library-next-steps > * {
+  min-block-size: 44px;
+}
+
+.ui-surface-grid,
+.feedback-grid,
+.ui-field-grid,
+.preset-extra-grid,
+.native-input-grid,
+.native-state-grid,
+.native-semantic-grid,
+.native-support-grid,
+.interaction-matrix,
+.interaction-state-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
+  gap: clamp(0.8rem, 2vw, 1.35rem);
+}
+
+.ui-paint-signature,
+.ui-surface-sample,
+.helper-board > span,
+.native-support-grid > section,
+.collision-stage {
+  padding: clamp(0.9rem, 2vw, 1.4rem);
+}
+
+.semantic-text-roles,
+.ui-button-board,
+.badge-board,
+.spinner-board,
+.helper-board,
+.native-token-list {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.8rem;
+}
+
+.ui-button-board,
+.feedback-grid,
+.badge-board,
+.ui-field-grid,
+.choice-recipe,
+.switch-recipe,
+.spinner-board,
+.tooltip-scroll,
+.ui-data-board,
+.helper-board,
+.preset-extra-board,
+.native-support-disclosure,
+.interaction-state-grid {
+  padding-block: 1.5rem;
+}
+
+.ui-pill-row {
+  flex: 1 0 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.ui-field-grid label,
+.native-control,
+.native-state-grid label {
+  display: grid;
+  align-content: start;
+  gap: 0.55rem;
+  min-inline-size: 0;
+}
+
+.ui-field-grid :where(input, select, textarea),
+.native-control :where(input, select, textarea),
+.native-state-grid :where(input, button),
+.native-input-grid :where(input, select, textarea) {
+  max-inline-size: 100%;
+}
+
+.choice-recipe,
+.switch-recipe {
+  display: grid;
+  align-content: start;
+  gap: 1rem;
+}
+
+.tooltip-scroll {
+  max-inline-size: 100%;
+  overflow-x: auto;
+  overflow-y: clip;
+}
+
+.tooltip-board {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(10rem, 1fr));
+  min-inline-size: 72rem;
+  padding: 6rem 9rem;
+  gap: 7rem;
+}
+
+.tooltip-anchor {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  justify-self: center;
+  min-block-size: 44px;
+}
+
+.ui-data-board :where(nav, [role="toolbar"]) {
+  min-inline-size: 0;
+}
+
+.helper-board > hr {
+  flex: 1 0 100%;
+}
+
+.native-laboratory {
+  margin-block-start: clamp(4rem, 10vw, 8rem);
+}
+
+.native-choice-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 13rem), 1fr));
+  gap: 1rem;
+}
+
+.native-choice-grid label,
+.collision-controls label {
+  display: inline-flex;
+  align-items: center;
+  min-block-size: 44px;
+  gap: 0.6rem;
+}
+
+.native-scroll-sample {
+  max-block-size: 10rem;
+  overflow: auto;
+}
+
+.native-token-list code {
+  max-inline-size: 100%;
+  overflow-wrap: anywhere;
+}
+
+.native-dialog-body {
+  inline-size: min(36rem, calc(100vw - 2rem));
+  max-inline-size: 100%;
+  padding: clamp(1rem, 4vw, 2rem);
+}
+
+.dialog-actions {
+  align-items: stretch;
+}
+
+.interaction-atlas > details,
+.ui-inventory > details,
+.native-inventory > details,
+.native-support-details {
+  scroll-margin-block-start: calc(var(--ly-header-height) + 2rem);
+}
+
+.interaction-atlas summary,
+.ui-inventory summary,
+.native-inventory summary,
+.native-support-details summary {
+  min-block-size: 44px;
+}
+
+.interaction-levels {
+  grid-template-columns: repeat(3, minmax(min(100%, 12rem), 1fr));
+}
+
+.interaction-state-grid > [role="tablist"] {
+  min-inline-size: 0;
+}
+
+.interaction-state-grid .site-action,
+.interaction-state-grid > [role="tablist"] .site-action {
+  inline-size: 100%;
+}
+
+.disabled-activation-status {
+  margin-block: 1rem;
+}
+
+.collision-console-layout {
+  display: grid;
+  grid-template-columns: minmax(14rem, 0.65fr) minmax(0, 1.35fr);
+  gap: clamp(1.25rem, 4vw, 3rem);
+}
+
+.collision-stage {
+  place-content: center;
+  min-block-size: 18rem;
+  text-align: center;
+}
+
+.collision-surface {
+  min-inline-size: min(100%, 15rem);
+}

@@ -7,7 +7,7 @@ export function FeatureShowcase() {
       id="features"
       aria-labelledby="features-title"
     >
-      <div className="ly-wrapper ly-wrapper--xl">
+      <div className="ly-wrapper">
         <div className="section-heading">
           <p className="section-label">Library proof cards</p>
           <h2 id="features-title">Library proof cards</h2>
@@ -82,30 +82,37 @@ export function FeatureShowcase() {
               aria-label="Behavior proof sample"
             >
               <button
-                className="interactive-surface"
+                className="interactive-surface site-action"
                 data-surface-variant="primary"
+                data-surface-level="2"
                 type="button"
               >
                 Primary
                 <ArrowRightIcon />
               </button>
               <button
-                className="interactive-surface"
+                className="interactive-surface site-action"
                 data-surface-variant="accent"
+                data-surface-level="2"
                 aria-pressed="true"
                 type="button"
               >
                 Pressed
               </button>
               <button
-                className="interactive-surface icon-only"
+                className="interactive-surface site-action"
                 data-surface-variant="subtle"
+                data-surface-level="1"
                 type="button"
                 aria-label="Open proof action"
               >
                 <ExternalLinkIcon />
               </button>
-              <button className="interactive-surface" type="button" disabled>
+              <button
+                className="interactive-surface site-action"
+                type="button"
+                disabled
+              >
                 Disabled
               </button>
             </div>
