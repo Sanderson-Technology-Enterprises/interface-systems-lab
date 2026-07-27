@@ -19,7 +19,7 @@
     "format": "prettier --write --ignore-unknown .",
     "format:check": "prettier --check --ignore-unknown .",
     "lint": "eslint .",
-    "test:unit": "node --import tsx --test tests/*.test.ts",
+    "test:unit": "node --import tsx --test tests/*.test.ts tests/unit/*.test.mjs",
     "fixtures:build": "node scripts/build-fixtures.mjs",
     "test:fixtures": "node --test tests/fixtures.test.mjs",
     "test:export": "node --test tests/export.test.mjs",

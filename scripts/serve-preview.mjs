@@ -1,7 +1,8 @@
-import { createReadStream } from "node:fs";
 import { stat } from "node:fs/promises";
 import { createServer } from "node:http";
 import path from "node:path";
+
+import { streamFileResponse } from "./preview-response.mjs";
 
 const previewRoot = path.resolve(process.argv[2] ?? ".preview");
 const requestedPort = Number.parseInt(process.argv[3] ?? "4173", 10);
@@ -90,20 +91,16 @@ const server = createServer(async (request, response) => {
     }
 
     const fileStatus = await stat(filePath);
-    response.writeHead(statusCode, {
-      "Cache-Control": "no-store",
-      "Content-Length": fileStatus.size,
-      "Content-Type":
+    streamFileResponse({
+      contentLength: fileStatus.size,
+      contentType:
         contentTypes.get(path.extname(filePath).toLowerCase()) ??
         "application/octet-stream",
+      filePath,
+      method: request.method,
+      response,
+      statusCode,
     });
-
-    if (request.method === "HEAD") {
-      response.end();
-      return;
-    }
-
-    createReadStream(filePath).pipe(response);
   } catch (error) {
     response.writeHead(400, { "Content-Type": "text/plain; charset=utf-8" });
     response.end("Invalid request");
