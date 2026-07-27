@@ -16,7 +16,7 @@ export const ECOSYSTEM_PACKAGES: readonly EcosystemPackage[] = [
   {
     name: "layout-style-css",
     displayName: "Layout Style CSS",
-    version: "2.1.0",
+    version: "2.1.1",
     layer: "Structure",
     summary:
       "Responsive shells, wrappers, grids, panes, and switchable layout personalities.",
@@ -67,7 +67,7 @@ export const ECOSYSTEM_PACKAGES: readonly EcosystemPackage[] = [
 ] as const;
 
 export const NPM_INSTALL =
-  "npm install ui-style-kit-css@2.1.0 layout-style-css@2.1.0 interactive-surface-css@1.5.0";
+  "npm install ui-style-kit-css@2.1.0 layout-style-css@2.1.1 interactive-surface-css@1.5.0";
 
 // The cascade follows each package's documented ownership boundary.
 export const BUNDLER_IMPORTS = [
@@ -92,7 +92,7 @@ export const CDN_LINKS = [
   },
   {
     packageName: "layout-style-css",
-    href: "https://cdn.jsdelivr.net/npm/layout-style-css@2.1.0/dist/layout-style-css.min.css",
+    href: "https://cdn.jsdelivr.net/npm/layout-style-css@2.1.1/dist/layout-style-css.min.css",
   },
 ] as const;
 
@@ -149,11 +149,11 @@ const interactionLegacyCdn = {
 } as const;
 const layoutBridgeCdn = {
   packageName: "layout-style-css",
-  href: "https://cdn.jsdelivr.net/npm/layout-style-css@2.1.0/dist/integrations/ui-style-kit.css",
+  href: "https://cdn.jsdelivr.net/npm/layout-style-css@2.1.1/dist/integrations/ui-style-kit.css",
 } as const;
 const layoutLegacyCdn = {
   packageName: "layout-style-css",
-  href: "https://cdn.jsdelivr.net/npm/layout-style-css@2.1.0/dist/legacy.css",
+  href: "https://cdn.jsdelivr.net/npm/layout-style-css@2.1.1/dist/legacy.css",
 } as const;
 
 function cdnMarkup(links: readonly { readonly href: string }[]): string {
@@ -208,7 +208,7 @@ export const ADOPTION_PATHS = [
     deprecated: false,
     snippets: adoptionSnippets(
       "layout-only",
-      "npm install layout-style-css@2.1.0",
+      "npm install layout-style-css@2.1.1",
       ['@import "layout-style-css";'],
       [layoutCdn],
       "Install Layout Style CSS",
@@ -256,7 +256,7 @@ export const ADOPTION_PATHS = [
     deprecated: false,
     snippets: adoptionSnippets(
       "layout-ui",
-      "npm install ui-style-kit-css@2.1.0 layout-style-css@2.1.0",
+      "npm install ui-style-kit-css@2.1.0 layout-style-css@2.1.1",
       ['@import "ui-style-kit-css/visual.css";', '@import "layout-style-css";'],
       [uiVisualCdn, layoutCdn],
       "Install Layout and UI",
@@ -272,7 +272,7 @@ export const ADOPTION_PATHS = [
     deprecated: false,
     snippets: adoptionSnippets(
       "layout-interactive",
-      "npm install interactive-surface-css@1.5.0 layout-style-css@2.1.0",
+      "npm install interactive-surface-css@1.5.0 layout-style-css@2.1.1",
       [
         '@import "interactive-surface-css/standalone-preset.css";',
         '@import "layout-style-css";',

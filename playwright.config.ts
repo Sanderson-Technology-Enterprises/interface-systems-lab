@@ -37,7 +37,7 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: "npm run preview:prepare && serve .preview -l 4173 --no-clipboard",
+    command: "npm run preview:prepare && npm run preview:serve",
     url: "http://127.0.0.1:4173/interface-systems-lab/",
     reuseExistingServer: false,
     timeout: 120_000,

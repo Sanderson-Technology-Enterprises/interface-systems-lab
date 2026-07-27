@@ -399,58 +399,80 @@ export function LayoutLab() {
                 <span>Three</span>
               </article>
 
-              <article
-                className={`${cardClass} primitive-specimen ly-split ly-gap-3 ly-pad-4`}
-                data-layout-primitive="split"
+              <div
+                className="primitive-query-scope"
+                data-layout-query-scope="split"
               >
-                <span>
-                  <SpecimenLabel>Split</SpecimenLabel>
-                </span>
-                <span>Balanced peer</span>
-              </article>
-
-              <article
-                className={`${cardClass} primitive-specimen ly-panes ly-panes--2 ly-gap-3 ly-pad-4`}
-                data-layout-primitive="panes-2"
-              >
-                <span>
-                  <SpecimenLabel>Two panes</SpecimenLabel>
-                </span>
-                <span>Inspector</span>
-              </article>
-
-              <article
-                className={`${cardClass} primitive-specimen ly-panes ly-panes--3 ly-gap-3 ly-pad-4`}
-                data-layout-primitive="panes-3"
-              >
-                <span>
-                  <SpecimenLabel>Three panes</SpecimenLabel>
-                </span>
-                <span>Canvas</span>
-                <span>Inspector</span>
-              </article>
-
-              <article
-                className={`${cardClass} primitive-specimen ly-media ly-gap-3 ly-pad-4`}
-                data-layout-primitive="media"
-              >
-                <span
-                  className="media-field"
-                  data-ly-media="asset"
-                  aria-hidden="true"
+                <article
+                  className={`${cardClass} primitive-specimen ly-split ly-gap-3 ly-pad-4`}
+                  data-layout-primitive="split"
                 >
-                  4:3
-                </span>
-                <span data-ly-media="content">
-                  <SpecimenLabel>Media object</SpecimenLabel>
-                  <span>Content follows the asset.</span>
-                </span>
-                <span data-ly-media="actions">Open · Save</span>
-              </article>
+                  <span>
+                    <SpecimenLabel>Split</SpecimenLabel>
+                  </span>
+                  <span>Balanced peer</span>
+                </article>
+              </div>
+
+              <div
+                className="primitive-query-scope"
+                data-layout-query-scope="panes-2"
+              >
+                <article
+                  className={`${cardClass} primitive-specimen ly-panes ly-panes--2 ly-gap-3 ly-pad-4`}
+                  data-layout-primitive="panes-2"
+                >
+                  <span>
+                    <SpecimenLabel>Two panes</SpecimenLabel>
+                  </span>
+                  <span>Inspector</span>
+                </article>
+              </div>
+
+              <div
+                className="primitive-query-scope"
+                data-layout-query-scope="panes-3"
+              >
+                <article
+                  className={`${cardClass} primitive-specimen ly-panes ly-panes--3 ly-gap-3 ly-pad-4`}
+                  data-layout-primitive="panes-3"
+                >
+                  <span>
+                    <SpecimenLabel>Three panes</SpecimenLabel>
+                  </span>
+                  <span>Canvas</span>
+                  <span>Inspector</span>
+                </article>
+              </div>
+
+              <div
+                className="primitive-query-scope"
+                data-layout-query-scope="media"
+              >
+                <article
+                  className={`${cardClass} primitive-specimen ly-media ly-gap-3 ly-pad-4`}
+                  data-layout-primitive="media"
+                >
+                  <span
+                    className="media-field"
+                    data-ly-media="asset"
+                    aria-hidden="true"
+                  >
+                    4:3
+                  </span>
+                  <span data-ly-media="content">
+                    <SpecimenLabel>Media object</SpecimenLabel>
+                    <span>Content follows the asset.</span>
+                  </span>
+                  <span data-ly-media="actions">Open · Save</span>
+                </article>
+              </div>
 
               <article
                 className={`${cardClass} primitive-specimen ly-reel ly-gap-3 ly-pad-4`}
                 data-layout-primitive="reel"
+                aria-label="Scrollable Reel specimen"
+                tabIndex={0}
               >
                 {["Reel", "Second", "Third", "Fourth"].map((label, index) => (
                   <span className={`${surfaceClass} ly-pad-3`} key={label}>
