@@ -11,7 +11,7 @@
 
 | Layer     | Package                         | Repository                                                      | Wiki                                                           | npm                                                          | Demo                                                           |
 | --------- | ------------------------------- | --------------------------------------------------------------- | -------------------------------------------------------------- | ------------------------------------------------------------ | -------------------------------------------------------------- |
-| Structure | `layout-style-css@2.1.0`        | [Repository](https://github.com/Foscat/Layout-Style-CSS)        | [Wiki](https://github.com/Foscat/Layout-Style-CSS/wiki)        | [npm](https://www.npmjs.com/package/layout-style-css)        | [Live demo](https://foscat.github.io/Layout-Style-CSS/)        |
+| Structure | `layout-style-css@2.1.1`        | [Repository](https://github.com/Foscat/Layout-Style-CSS)        | [Wiki](https://github.com/Foscat/Layout-Style-CSS/wiki)        | [npm](https://www.npmjs.com/package/layout-style-css)        | [Live demo](https://foscat.github.io/Layout-Style-CSS/)        |
 | Identity  | `ui-style-kit-css@2.1.0`        | [Repository](https://github.com/Foscat/ui-style-kit-css)        | [Wiki](https://github.com/Foscat/ui-style-kit-css/wiki)        | [npm](https://www.npmjs.com/package/ui-style-kit-css)        | [Live demo](https://foscat.github.io/ui-style-kit-css/)        |
 | Behavior  | `interactive-surface-css@1.5.0` | [Repository](https://github.com/Foscat/Interactive-Surface-CSS) | [Wiki](https://github.com/Foscat/Interactive-Surface-CSS/wiki) | [npm](https://www.npmjs.com/package/interactive-surface-css) | [Live demo](https://foscat.github.io/Interactive-Surface-CSS/) |
 
@@ -37,7 +37,7 @@ layers without changing ownership boundaries.
 Install the exact aligned releases:
 
 ```bash
-npm install ui-style-kit-css@2.1.0 layout-style-css@2.1.0 interactive-surface-css@1.5.0
+npm install ui-style-kit-css@2.1.0 layout-style-css@2.1.1 interactive-surface-css@1.5.0
 ```
 
 Then load styles in ownership order. UI Style Kit establishes paint and theme
@@ -82,7 +82,7 @@ For static HTML consumers, keep this exact order in the document head:
 />
 <link
   rel="stylesheet"
-  href="https://cdn.jsdelivr.net/npm/layout-style-css@2.1.0/dist/layout-style-css.min.css"
+  href="https://cdn.jsdelivr.net/npm/layout-style-css@2.1.1/dist/layout-style-css.min.css"
 />
 ```
 

@@ -26,7 +26,7 @@ const defaultGeneratedRoot = path.join(
 
 export const EXPECTED_PACKAGE_VERSIONS = Object.freeze({
   "interactive-surface-css": "1.5.0",
-  "layout-style-css": "2.1.0",
+  "layout-style-css": "2.1.1",
   "ui-style-kit-css": "2.1.0",
 });
 
@@ -57,15 +57,15 @@ export const FIXTURE_ASSETS = Object.freeze({
   }),
   "layout-core": Object.freeze({
     export: "layout-style-css",
-    target: "assets/layout-style-css/2.1.0/layout-style-css.css",
+    target: "assets/layout-style-css/2.1.1/layout-style-css.css",
   }),
   "layout-ui-bridge": Object.freeze({
     export: "layout-style-css/integrations/ui-style-kit.css",
-    target: "assets/layout-style-css/2.1.0/integrations/ui-style-kit.css",
+    target: "assets/layout-style-css/2.1.1/integrations/ui-style-kit.css",
   }),
   "layout-legacy": Object.freeze({
     export: "layout-style-css/legacy.css",
-    target: "assets/layout-style-css/2.1.0/legacy.css",
+    target: "assets/layout-style-css/2.1.1/legacy.css",
   }),
 });
 

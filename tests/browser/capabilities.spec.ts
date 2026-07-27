@@ -1,4 +1,5 @@
 import { createRequire } from "node:module";
+import path from "node:path";
 
 import {
   expect,
@@ -69,6 +70,13 @@ const primitiveHooks = [
   ["frame", ".ly-frame"],
   ["scroll", ".ly-scroll"],
   ["breakout", ".ly-wrapper.ly-wrapper--breakout"],
+] as const;
+
+const containerResponsivePrimitives = [
+  "split",
+  "panes-2",
+  "panes-3",
+  "media",
 ] as const;
 
 const wrapperVariants = [
@@ -563,6 +571,14 @@ test("layout laboratory renders the complete recipe and primitive contracts", as
     ).toContainText(/\S/);
   }
 
+  for (const name of containerResponsivePrimitives) {
+    await expect(
+      page.locator(
+        `[data-layout-query-scope="${name}"] > [data-layout-primitive="${name}"]`,
+      ),
+    ).toHaveCount(1);
+  }
+
   await expect(
     page.locator('[data-layout-primitive="cover"] > [data-ly-cover-center]'),
   ).toHaveCount(1);
@@ -786,17 +802,28 @@ test("layout laboratory uses only the active UI prefix for pill actions", async 
   expect(prefixedPillClasses).toEqual(["rg-button-pill"]);
 });
 
-test("layout laboratory remains overflow-free with every disclosure open", async ({
+test("layout laboratory honors local responsive allocations while Reel remains scrollable", async ({
   page,
-}) => {
+}, testInfo) => {
+  const runtimeErrors: string[] = [];
+  page.on("console", (message) => {
+    if (message.type() === "error") runtimeErrors.push(message.text());
+  });
+  page.on("pageerror", (error) => runtimeErrors.push(error.message));
+
   for (const viewport of [
-    { width: 320, height: 568 },
     { width: 390, height: 844 },
     { width: 768, height: 1024 },
-    { width: 1440, height: 1000 },
+    { width: 900, height: 900 },
+    { width: 992, height: 900 },
+    { width: 1024, height: 900 },
+    { width: 1240, height: 900 },
+    { width: 1968, height: 1000 },
   ]) {
     await page.setViewportSize(viewport);
-    await page.goto("./");
+    await page.goto(
+      "./?layout=brutalism&ui=minimal-saas&theme=arctic-indigo&mode=contrast",
+    );
     await expect(page.locator("#layouts details")).toHaveCount(3);
     await expect(page.locator("#layouts [data-layout-recipe]")).toHaveCount(6);
     await openLayoutDetails(page);
@@ -807,26 +834,107 @@ test("layout laboratory remains overflow-free with every disclosure open", async
     }));
     expect(dimensions.scrollWidth).toBeLessThanOrEqual(dimensions.clientWidth);
 
-    const oversizedSpecimens = await page
-      .locator(
-        "#layouts [data-layout-recipe], #layouts [data-layout-primitive]",
-      )
-      .evaluateAll((elements) =>
-        elements
-          .map((element) => ({
-            name:
-              element.getAttribute("data-layout-recipe") ??
-              element.getAttribute("data-layout-primitive"),
-            right: element.getBoundingClientRect().right,
-            width: element.getBoundingClientRect().width,
-          }))
-          .filter(
-            ({ right, width }) =>
-              width > window.innerWidth + 1 || right > window.innerWidth + 1,
+    const containmentFailures = await page.evaluate((primitiveNames) => {
+      const roots = [
+        document.querySelector<HTMLElement>('[data-layout-recipe="app-shell"]'),
+        ...primitiveNames.map((name) =>
+          document.querySelector<HTMLElement>(
+            `[data-layout-primitive="${name}"]`,
           ),
-      );
-    expect(oversizedSpecimens).toEqual([]);
+        ),
+      ].filter((element): element is HTMLElement => element !== null);
+
+      return roots.flatMap((root) => {
+        const name =
+          root.getAttribute("data-layout-recipe") ??
+          root.getAttribute("data-layout-primitive") ??
+          "unknown";
+        const inspected = [root, ...Array.from(root.children)].filter(
+          (element): element is HTMLElement => element instanceof HTMLElement,
+        );
+        const trackWidths = [
+          ...getComputedStyle(root).gridTemplateColumns.matchAll(/([\d.]+)px/g),
+        ].map((match) => Number.parseFloat(match[1]));
+
+        return [
+          ...(root.scrollWidth - root.clientWidth > 1
+            ? [
+                {
+                  issue: "internal-overflow",
+                  name,
+                  value: root.scrollWidth - root.clientWidth,
+                },
+              ]
+            : []),
+          ...inspected
+            .filter((element) => element.getBoundingClientRect().width <= 1)
+            .map((element) => ({
+              issue: "zero-width-region",
+              name,
+              value:
+                element.getAttribute("data-ly-area") ??
+                element.getAttribute("data-ly-media") ??
+                element.tagName,
+            })),
+          ...trackWidths
+            .filter((width) => width <= 1)
+            .map((width) => ({
+              issue: "zero-width-track",
+              name,
+              value: width,
+            })),
+        ];
+      });
+    }, containerResponsivePrimitives);
+    expect(containmentFailures).toEqual([]);
+
+    const reel = await page
+      .locator('[data-layout-primitive="reel"]')
+      .evaluate((element) => {
+        const style = getComputedStyle(element);
+        return {
+          ariaLabel: element.getAttribute("aria-label"),
+          overflow: element.scrollWidth - element.clientWidth,
+          overflowX: style.overflowX,
+          tabIndex: (element as HTMLElement).tabIndex,
+        };
+      });
+    expect(reel.ariaLabel).toBe("Scrollable Reel specimen");
+    expect(["auto", "scroll"]).toContain(reel.overflowX);
+    expect(reel.overflow).toBeGreaterThan(1);
+    expect(reel.tabIndex).toBe(0);
+
+    if (viewport.width === 1968) {
+      const wideAreas = await page.evaluate(() => ({
+        dashboard: getComputedStyle(
+          document.querySelector<HTMLElement>(
+            '[data-layout-recipe="dashboard"]',
+          )!,
+        ).gridTemplateAreas,
+        docs: getComputedStyle(
+          document.querySelector<HTMLElement>('[data-layout-recipe="docs"]')!,
+        ).gridTemplateAreas,
+      }));
+      expect(wideAreas.dashboard).not.toBe(wideAreas.docs);
+    }
+
+    if ([390, 992, 1968].includes(viewport.width)) {
+      const screenshotName = `${viewport.width}px-brutalism-arctic-indigo-contrast.png`;
+      const screenshotDirectory = process.env.RESPONSIVE_SCREENSHOT_DIRECTORY;
+      const screenshot = screenshotDirectory
+        ? await page.locator("#layouts").screenshot({
+            path: path.join(screenshotDirectory, screenshotName),
+          })
+        : await page.locator("#layouts").screenshot();
+
+      await testInfo.attach(`brutalism-${viewport.width}px.png`, {
+        body: screenshot,
+        contentType: "image/png",
+      });
+    }
   }
+
+  expect(runtimeErrors).toEqual([]);
 });
 
 test("UI, native, and interaction laboratories stay overflow-free and error-free with every disclosure open", async ({

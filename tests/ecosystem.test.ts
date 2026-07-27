@@ -52,7 +52,7 @@ test("registry exposes every package and resource in ecosystem order", () => {
   );
   assert.deepEqual(
     ECOSYSTEM_PACKAGES.map(({ version }) => version),
-    ["2.1.0", "2.1.0", "1.5.0"],
+    ["2.1.1", "2.1.0", "1.5.0"],
   );
   assert.equal(
     ECOSYSTEM_PACKAGES.find(({ name }) => name === "layout-style-css")
@@ -76,7 +76,7 @@ test("registry exposes every package and resource in ecosystem order", () => {
 test("installation examples pin approved versions and cascade order", () => {
   assert.equal(
     NPM_INSTALL,
-    "npm install ui-style-kit-css@2.1.0 layout-style-css@2.1.0 interactive-surface-css@1.5.0",
+    "npm install ui-style-kit-css@2.1.0 layout-style-css@2.1.1 interactive-surface-css@1.5.0",
   );
   assert.deepEqual(BUNDLER_IMPORTS, [
     '@import "ui-style-kit-css/visual.css";',
@@ -99,7 +99,7 @@ test("installation examples pin approved versions and cascade order", () => {
     },
     {
       packageName: "layout-style-css",
-      href: "https://cdn.jsdelivr.net/npm/layout-style-css@2.1.0/dist/layout-style-css.min.css",
+      href: "https://cdn.jsdelivr.net/npm/layout-style-css@2.1.1/dist/layout-style-css.min.css",
     },
   ]);
   assert.equal(
@@ -145,16 +145,16 @@ test("adoption paths cover every standalone, pair, canonical, and legacy fixture
   const interactionLegacyCdn =
     '<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/interactive-surface-css@1.5.0/interactive-surface.css">';
   const layoutCdn =
-    '<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/layout-style-css@2.1.0/dist/layout-style-css.min.css">';
+    '<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/layout-style-css@2.1.1/dist/layout-style-css.min.css">';
   const layoutBridgeCdn =
-    '<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/layout-style-css@2.1.0/dist/integrations/ui-style-kit.css">';
+    '<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/layout-style-css@2.1.1/dist/integrations/ui-style-kit.css">';
   const layoutLegacyCdn =
-    '<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/layout-style-css@2.1.0/dist/legacy.css">';
+    '<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/layout-style-css@2.1.1/dist/legacy.css">';
   const expectedMatrix = {
     "layout-only": {
       packages: ["layout-style-css"],
       snippets: [
-        "npm install layout-style-css@2.1.0",
+        "npm install layout-style-css@2.1.1",
         '@import "layout-style-css";',
         layoutCdn,
       ],
@@ -178,7 +178,7 @@ test("adoption paths cover every standalone, pair, canonical, and legacy fixture
     "layout-ui": {
       packages: ["ui-style-kit-css", "layout-style-css"],
       snippets: [
-        "npm install ui-style-kit-css@2.1.0 layout-style-css@2.1.0",
+        "npm install ui-style-kit-css@2.1.0 layout-style-css@2.1.1",
         [
           '@import "ui-style-kit-css/visual.css";',
           '@import "layout-style-css";',
@@ -189,7 +189,7 @@ test("adoption paths cover every standalone, pair, canonical, and legacy fixture
     "layout-interactive": {
       packages: ["interactive-surface-css", "layout-style-css"],
       snippets: [
-        "npm install interactive-surface-css@1.5.0 layout-style-css@2.1.0",
+        "npm install interactive-surface-css@1.5.0 layout-style-css@2.1.1",
         [
           '@import "interactive-surface-css/standalone-preset.css";',
           '@import "layout-style-css";',
@@ -340,7 +340,7 @@ test("site consumes the CSS libraries as local dependencies", async () => {
     scripts: Record<string, string>;
   };
 
-  assert.equal(manifest.dependencies["layout-style-css"], "2.1.0");
+  assert.equal(manifest.dependencies["layout-style-css"], "2.1.1");
   assert.equal(manifest.dependencies["ui-style-kit-css"], "2.1.0");
   assert.equal(manifest.dependencies["interactive-surface-css"], "1.5.0");
   assert.match(

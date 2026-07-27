@@ -87,15 +87,15 @@ const expectedAssets = {
   },
   "layout-core": {
     export: "layout-style-css",
-    target: "assets/layout-style-css/2.1.0/layout-style-css.css",
+    target: "assets/layout-style-css/2.1.1/layout-style-css.css",
   },
   "layout-ui-bridge": {
     export: "layout-style-css/integrations/ui-style-kit.css",
-    target: "assets/layout-style-css/2.1.0/integrations/ui-style-kit.css",
+    target: "assets/layout-style-css/2.1.1/integrations/ui-style-kit.css",
   },
   "layout-legacy": {
     export: "layout-style-css/legacy.css",
-    target: "assets/layout-style-css/2.1.0/legacy.css",
+    target: "assets/layout-style-css/2.1.1/legacy.css",
   },
 };
 
@@ -420,7 +420,7 @@ test("copied package styles are byte-identical to their public exports", async (
   const expectedVersions = {
     "ui-style-kit-css": "2.1.0",
     "interactive-surface-css": "1.5.0",
-    "layout-style-css": "2.1.0",
+    "layout-style-css": "2.1.1",
   };
   for (const [packageName, expectedVersion] of Object.entries(
     expectedVersions,

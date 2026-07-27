@@ -198,7 +198,7 @@ test("home structured data separates corporate ownership from Lab entities", asy
         name: "layout-style-css",
         programmingLanguage: "CSS",
         url: "https://www.npmjs.com/package/layout-style-css",
-        version: "2.1.0",
+        version: "2.1.1",
       },
       {
         codeRepository: "https://github.com/Foscat/ui-style-kit-css",
@@ -422,7 +422,7 @@ test("the legacy artifact retains its local relative Layout core import", async 
     exportFixtureRoot,
     "assets",
     "layout-style-css",
-    "2.1.0",
+    "2.1.1",
     "legacy.css",
   );
   const legacy = await readFile(legacyPath, "utf8");
