@@ -1,6 +1,9 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import { access, readFile, readdir } from "node:fs/promises";
+import path from "node:path";
 import test from "node:test";
+import { fileURLToPath } from "node:url";
 
 import {
   ADOPTION_PATHS,
@@ -16,6 +19,21 @@ import {
   SITE,
   withBasePath,
 } from "../app/lib/site";
+
+const repositoryRoot = fileURLToPath(new URL("../", import.meta.url));
+
+test("UiIcon owns the typed custom-element and asset-base contract", () => {
+  const source = readFileSync(
+    path.join(repositoryRoot, "app", "components", "UiIcon.tsx"),
+    "utf8",
+  );
+
+  assert.match(source, /import "ui-style-kit-icons\/element"/);
+  assert.match(source, /React\.createElement\("usk-icon"/);
+  assert.match(source, /NEXT_PUBLIC_PAGES_BASE_PATH/);
+  assert.match(source, /decorative: true/);
+  assert.match(source, /label: string/);
+});
 
 async function readShippingSources(directory: URL): Promise<string[]> {
   const sources: string[] = [];

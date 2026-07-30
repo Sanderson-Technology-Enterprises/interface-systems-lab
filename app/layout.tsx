@@ -5,6 +5,7 @@ import "ui-style-kit-css/visual.css";
 import "ui-style-kit-css/interactive-surface-theme.css";
 import "interactive-surface-css/state-core.css";
 import "layout-style-css";
+import "ui-style-kit-icons/css.css";
 
 import {
   absoluteSiteAsset,

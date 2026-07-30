@@ -7,6 +7,9 @@ const nextConfig: NextConfig = {
   output: "export",
   basePath,
   assetPrefix: basePath || undefined,
+  env: {
+    NEXT_PUBLIC_PAGES_BASE_PATH: basePath,
+  },
   trailingSlash: true,
   images: { unoptimized: true },
   turbopack: { root: process.cwd() },
