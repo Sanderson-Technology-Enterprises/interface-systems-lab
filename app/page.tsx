@@ -6,6 +6,7 @@ import { InstallGuide } from "./components/InstallGuide";
 import { InterfaceObservatory } from "./components/InterfaceObservatory";
 import { LabControls } from "./components/LabControls";
 import { LabExperience } from "./components/LabExperience";
+import { IconLab } from "./components/labs/IconLab";
 import { InteractionLab } from "./components/labs/InteractionLab";
 import { IntegrationLab } from "./components/labs/IntegrationLab";
 import { LayoutLab } from "./components/labs/LayoutLab";
@@ -230,6 +231,7 @@ export default function Home() {
         <CombinedWorkbench />
         <LayoutLab />
         <UiNativeLab />
+        <IconLab />
         <InteractionLab />
         <IntegrationLab />
         <InstallGuide />

@@ -131,6 +131,14 @@
   }
 }
 
+@media (max-width: 42rem) {
+  .icon-lab-toolbar,
+  .icon-accessibility-proof {
+    align-items: stretch;
+    flex-direction: column;
+  }
+}
+
 @media (max-width: 38rem) {
   .primary-nav-cue {
     display: inline-flex;

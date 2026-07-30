@@ -543,3 +543,27 @@
 .collision-surface {
   min-inline-size: min(100%, 15rem);
 }
+
+.icon-lab-toolbar,
+.icon-accessibility-proof {
+  justify-content: space-between;
+}
+
+.icon-lab-toolbar label {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.icon-specimen-grid {
+  --ly-grid-min: min(100%, 10rem);
+}
+
+.icon-specimen {
+  min-inline-size: 0;
+  border: 1px solid rgb(var(--usk-border-rgb) / 0.72);
+  background: rgb(var(--usk-surface-rgb) / 0.72);
+}
+
+.icon-specimen usk-icon {
+  color: rgb(var(--usk-text-rgb));
+}

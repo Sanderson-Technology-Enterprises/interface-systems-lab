@@ -6,6 +6,7 @@ const navigationItems = [
   ["Workbench", "workbench"],
   ["Layout", "layouts"],
   ["UI + native", "ui-native"],
+  ["Icons", "icons"],
   ["Interactions", "interactions"],
   ["Integrate", "integrate"],
   ["Install", "install"],

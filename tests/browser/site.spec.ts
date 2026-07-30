@@ -38,6 +38,7 @@ const requiredSectionIds = [
   "workbench",
   "layouts",
   "ui-native",
+  "icons",
   "interactions",
   "integrate",
   "install",
@@ -142,6 +143,33 @@ async function readStoredConfiguration(page: Page) {
 
 test.beforeEach(async ({ page }) => {
   await page.goto("./");
+});
+
+test("icons follow the selected UI pack and expose frame variants", async ({
+  page,
+}) => {
+  await page.goto("./?ui=minimal-saas&theme=midnight-gold&mode=dark");
+
+  const lab = page.locator("[data-icon-lab]");
+  const firstIcon = lab.locator("usk-icon").first();
+  await expect(lab).toBeVisible();
+  await expect(lab.locator("[data-active-icon-pack]")).toHaveText(
+    /Minimal SaaS/i,
+  );
+  await expect(firstIcon).toHaveAttribute("data-pack", "minimal-saas");
+  await expect
+    .poll(() =>
+      firstIcon.evaluate((element) =>
+        Boolean(element.shadowRoot?.querySelector("svg")),
+      ),
+    )
+    .toBe(true);
+
+  await page.getByLabel("Visual style").selectOption("cyberpunk");
+  await expect(firstIcon).toHaveAttribute("data-pack", "cyberpunk");
+
+  await page.getByLabel("Icon frame").selectOption("none");
+  await expect(firstIcon).toHaveAttribute("frame", "none");
 });
 
 async function expectNoHorizontalOverflow(page: Page) {

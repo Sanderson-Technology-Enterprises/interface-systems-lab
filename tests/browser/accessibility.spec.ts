@@ -41,6 +41,9 @@ test(
     await expect(page.locator("#install")).toBeVisible();
     await expect(page.locator("#libraries")).toBeVisible();
     await expect(page.locator("#company")).toBeVisible();
+    await expect(
+      page.locator('[data-icon-lab] usk-icon[role="img"]'),
+    ).toHaveAttribute("aria-label", /.+/);
 
     const results = await new AxeBuilder({ page }).analyze();
     await expectNoAxeViolations(

@@ -71,6 +71,19 @@ test("UiIcon owns the typed custom-element and asset-base contract", () => {
   assert.match(source, /label: string/);
 });
 
+test("the Icon Lab follows UI and precedes interaction", () => {
+  const pageSource = readFileSync(
+    path.join(repositoryRoot, "app", "page.tsx"),
+    "utf8",
+  );
+  assert.ok(
+    pageSource.indexOf("<UiNativeLab") < pageSource.indexOf("<IconLab"),
+  );
+  assert.ok(
+    pageSource.indexOf("<IconLab") < pageSource.indexOf("<InteractionLab"),
+  );
+});
+
 async function readShippingSources(directory: URL): Promise<string[]> {
   const sources: string[] = [];
   const supportedExtensions =
