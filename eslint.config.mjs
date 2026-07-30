@@ -13,6 +13,7 @@ const eslintConfig = defineConfig([
     "build/**",
     // Browser QA outputs are generated artifacts, not project source.
     ".preview/**",
+    ".qa/**",
     "playwright-report/**",
     "test-results/**",
     "next-env.d.ts",

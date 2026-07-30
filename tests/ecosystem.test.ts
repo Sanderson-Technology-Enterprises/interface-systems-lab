@@ -58,13 +58,14 @@ test("authored runtime sources do not use removed Layout v2 selectors", () => {
   }
 });
 
-test("UiIcon owns the typed custom-element and asset-base contract", () => {
+test("UiIcon owns the typed deferred custom-element and asset-base contract", () => {
   const source = readFileSync(
     path.join(repositoryRoot, "app", "components", "UiIcon.tsx"),
     "utf8",
   );
 
-  assert.match(source, /import "ui-style-kit-icons\/element"/);
+  assert.doesNotMatch(source, /^import "ui-style-kit-icons\/element";$/mu);
+  assert.match(source, /import\("ui-style-kit-icons\/element"\)/);
   assert.match(source, /React\.createElement\("usk-icon"/);
   assert.match(source, /NEXT_PUBLIC_PAGES_BASE_PATH/);
   assert.match(source, /decorative: true/);
@@ -465,7 +466,8 @@ test("local README guidance separates global CSS from the icon runtime owner", a
   );
   assert.match(layoutSource, /import "ui-style-kit-icons\/css\.css";/);
   assert.doesNotMatch(layoutSource, /ui-style-kit-icons\/element/);
-  assert.match(iconSource, /import "ui-style-kit-icons\/element";/);
+  assert.doesNotMatch(iconSource, /^import "ui-style-kit-icons\/element";$/mu);
+  assert.match(iconSource, /import\("ui-style-kit-icons\/element"\)/);
 });
 
 test("page runtime emits only canonical Layout 3.0 attributes", async () => {
@@ -568,6 +570,7 @@ test("quality runs every source, fixture, export, and browser gate", async () =>
     "npm run typecheck",
     "npm run test:unit",
     "npm run test:fixtures",
+    "npm run test:dev-hydration",
     "npm run build:pages",
     "npm run test:export",
     "npm run test:browser",

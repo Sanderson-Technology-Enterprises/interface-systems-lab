@@ -1,6 +1,8 @@
 "use client";
 
-import { getPack, type IconFrame, type IconName } from "ui-style-kit-icons";
+import type { IconFrame, IconName } from "ui-style-kit-icons";
+// Read the data-only registry so rendering never registers the custom element.
+import iconRegistry from "ui-style-kit-icons/registry.json";
 import { useEffect, useRef, useState, type ChangeEvent } from "react";
 
 import { getUiPrefix } from "../../data/catalog";
@@ -33,7 +35,11 @@ export function IconLab() {
   const [frame, setFrame] = useState<IconFrame>("auto");
   const [errorMessage, setErrorMessage] = useState("");
   const sectionRef = useRef<HTMLElement | null>(null);
-  const pack = getPack(configuration.ui);
+  const packId = iconRegistry.styleAliases[configuration.ui];
+  const pack = iconRegistry.packs.find(({ id }) => id === packId);
+  if (!pack) {
+    throw new Error(`Missing icon pack metadata for ${configuration.ui}.`);
+  }
   const uiPrefix = getUiPrefix(configuration.ui);
 
   useEffect(() => {

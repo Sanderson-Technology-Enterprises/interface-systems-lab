@@ -195,9 +195,13 @@ test("fixture generation runs before every development and production build", as
     packageManifest.scripts["build:pages"],
     "cross-env PAGES_BASE_PATH=/interface-systems-lab next build",
   );
+  assert.equal(
+    packageManifest.scripts["test:dev-hydration"],
+    "node scripts/run-dev-hydration.mjs",
+  );
   assert.match(
     packageManifest.scripts.quality,
-    /npm run test:unit && npm run test:fixtures && npm run build:pages/,
+    /npm run test:unit && npm run test:fixtures && npm run test:dev-hydration && npm run build:pages/,
   );
 
   const gitignore = await readFile(

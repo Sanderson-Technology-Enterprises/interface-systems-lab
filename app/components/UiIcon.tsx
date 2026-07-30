@@ -1,10 +1,17 @@
 "use client";
 
 import React from "react";
-import "ui-style-kit-icons/element";
 import type { IconFrame, IconName } from "ui-style-kit-icons";
 
 import { withBasePath } from "../lib/site";
+
+let iconElementRegistration: Promise<unknown> | undefined;
+
+function registerIconElement(): Promise<unknown> {
+  // Defer registration until React hydrates so the element cannot mutate SSR attributes first.
+  iconElementRegistration ??= import("ui-style-kit-icons/element");
+  return iconElementRegistration;
+}
 
 const ICON_ASSET_BASE = withBasePath(
   "/assets/ui-style-kit-icons/1.0.0/",
@@ -39,6 +46,10 @@ export function UiIcon({
   size,
 }: UiIconProps) {
   const classes = ["usk-icon", className].filter(Boolean).join(" ");
+
+  React.useEffect(() => {
+    void registerIconElement();
+  }, []);
 
   return React.createElement("usk-icon", {
     "asset-base": ICON_ASSET_BASE,
