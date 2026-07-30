@@ -1,18 +1,5 @@
-import { ExternalLinkIcon } from "./Icons";
 import { SITE, withBasePath } from "../lib/site";
-
-const navigationItems = [
-  ["Home", "top"],
-  ["Workbench", "workbench"],
-  ["Layout", "layouts"],
-  ["UI + native", "ui-native"],
-  ["Icons", "icons"],
-  ["Interactions", "interactions"],
-  ["Integrate", "integrate"],
-  ["Install", "install"],
-  ["Libraries", "libraries"],
-  ["Company", "company"],
-] as const;
+import { ResponsiveNavigation } from "./ResponsiveNavigation";
 
 type SiteHeaderProps = {
   companyUrl: string;
@@ -21,7 +8,7 @@ type SiteHeaderProps = {
 export function SiteHeader({ companyUrl }: SiteHeaderProps) {
   return (
     <header className="site-header ly-header ly-header--sticky">
-      <div className="site-header-inner ly-wrapper ly-cluster ly-gap-4 ly-justify-between">
+      <div className="site-header-inner ly-wrapper">
         <a
           className="brand ly-cluster ly-gap-2"
           href="#top"
@@ -45,46 +32,10 @@ export function SiteHeader({ companyUrl }: SiteHeaderProps) {
           </span>
         </a>
 
-        <div className="header-links ly-cluster ly-gap-2">
-          <a
-            className="interactive-surface site-action"
-            data-surface-variant="accent"
-            data-surface-level="2"
-            href={companyUrl}
-            target="_blank"
-            rel="noreferrer noopener"
-          >
-            Discover STE
-            <ExternalLinkIcon />
-            <span className="ly-visually-hidden"> (opens in a new tab)</span>
-          </a>
-          <a
-            className="interactive-surface site-action"
-            data-surface-variant="subtle"
-            data-surface-level="1"
-            href={SITE.repository}
-            target="_blank"
-            rel="noreferrer noopener"
-          >
-            GitHub
-            <ExternalLinkIcon />
-            <span className="ly-visually-hidden"> (opens in a new tab)</span>
-          </a>
-        </div>
-
-        <nav
-          className="primary-nav ly-cluster ly-gap-4"
-          aria-label="Primary navigation"
-        >
-          {navigationItems.map(([label, id]) => (
-            <a href={`#${id}`} key={id}>
-              {label}
-            </a>
-          ))}
-        </nav>
-        <span className="primary-nav-cue" aria-hidden="true">
-          Scroll for more →
-        </span>
+        <ResponsiveNavigation
+          companyUrl={companyUrl}
+          repositoryUrl={SITE.repository}
+        />
       </div>
     </header>
   );

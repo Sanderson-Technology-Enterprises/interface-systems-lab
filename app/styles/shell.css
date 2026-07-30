@@ -69,14 +69,19 @@
 }
 
 .site-header-inner {
-  flex-wrap: nowrap;
+  position: relative;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: var(--ly-space-4);
   min-block-size: var(--ly-header-height);
   padding-block: 0.7rem;
 }
 
 .brand,
+.navigation-toggle,
 .primary-nav a,
-.header-links a,
+.navigation-actions a,
 .site-footer a,
 .section-label,
 .eyebrow,
@@ -133,33 +138,52 @@
   block-size: 4rem;
 }
 
+.site-navigation,
+.navigation-panel,
 .primary-nav,
-.header-links,
+.navigation-actions,
 .footer-package-links {
   min-inline-size: 0;
 }
 
+.site-navigation {
+  justify-self: end;
+  inline-size: 100%;
+}
+
+.navigation-toggle {
+  display: none;
+}
+
+.navigation-panel {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--ly-space-2);
+  min-block-size: 44px;
+}
+
 .primary-nav {
-  flex: 1 1 20rem;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--ly-space-1);
   flex-wrap: nowrap;
-  overflow-x: auto;
-  /* A themed scrollbar keeps off-screen navigation destinations discoverable. */
-  scrollbar-color: rgb(var(--usk-primary-rgb))
-    rgb(var(--usk-surface-rgb) / 0.36);
-  scrollbar-width: thin;
 }
 
-.primary-nav::-webkit-scrollbar {
-  block-size: 0.25rem;
+.navigation-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--ly-space-2);
+  flex: 0 0 auto;
 }
 
-.primary-nav::-webkit-scrollbar-track {
-  background: rgb(var(--usk-surface-rgb) / 0.36);
+.navigation-link {
+  padding-inline: clamp(0.25rem, 0.45vw, 0.5rem);
 }
 
-.primary-nav::-webkit-scrollbar-thumb {
-  border-radius: 999px;
-  background: rgb(var(--usk-primary-rgb));
+.navigation-actions .site-action {
+  padding-inline: clamp(0.45rem, 0.65vw, 0.75rem);
 }
 
 .primary-nav a,
@@ -172,10 +196,6 @@
   font-weight: 750;
   text-decoration: none;
   white-space: nowrap;
-}
-
-.primary-nav-cue {
-  display: none;
 }
 
 .hero {

@@ -442,6 +442,79 @@ test("shell scopes the complete experience and balances developer and company pa
   expect(runtimeErrors).toEqual([]);
 });
 
+test("compact header discloses every navigation destination without horizontal overflow", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 799, height: 700 });
+  await page.goto("./");
+
+  const menu = page.getByRole("button", { name: /navigation menu/i });
+  const navigation = page.getByRole("navigation", {
+    name: "Primary navigation",
+  });
+
+  await expect(menu).toBeVisible();
+  await expect(menu).toHaveAccessibleName("Open navigation menu");
+  await expect(menu).toHaveClass(/interactive-surface/);
+  await expect(menu).toHaveAttribute("aria-expanded", "false");
+  await expect(navigation).toBeHidden();
+  await expect(page.getByText(/Scroll for more/i)).toHaveCount(0);
+
+  await menu.click();
+
+  await expect(menu).toHaveAccessibleName("Close navigation menu");
+  await expect(menu).toHaveAttribute("aria-expanded", "true");
+  await expect(navigation).toBeVisible();
+  for (const label of [
+    "Home",
+    "Workbench",
+    "Layout",
+    "UI + native",
+    "Icons",
+    "Interactions",
+    "Integrate",
+    "Install",
+    "Libraries",
+    "Company",
+  ]) {
+    await expect(navigation.getByRole("link", { name: label })).toBeVisible();
+  }
+  await expect(
+    page
+      .locator("#primary-navigation-panel")
+      .getByRole("link", { name: /Discover STE/i }),
+  ).toBeVisible();
+  await expect(
+    page
+      .locator("#primary-navigation-panel")
+      .getByRole("link", { name: /GitHub/i }),
+  ).toBeVisible();
+  await expect(
+    page.locator("#primary-navigation-panel a.interactive-surface.site-action"),
+  ).toHaveCount(12);
+
+  const widthContract = await page.evaluate(() => {
+    const primaryNavigation =
+      document.querySelector<HTMLElement>(".primary-nav");
+    if (primaryNavigation === null) {
+      throw new Error("Primary navigation is missing.");
+    }
+
+    return {
+      clientWidth: document.documentElement.clientWidth,
+      navigationClientWidth: primaryNavigation.clientWidth,
+      navigationOverflowX: getComputedStyle(primaryNavigation).overflowX,
+      navigationScrollWidth: primaryNavigation.scrollWidth,
+      scrollWidth: document.documentElement.scrollWidth,
+    };
+  });
+  expect(widthContract.scrollWidth).toBe(widthContract.clientWidth);
+  expect(widthContract.navigationScrollWidth).toBeLessThanOrEqual(
+    widthContract.navigationClientWidth,
+  );
+  expect(["auto", "scroll"]).not.toContain(widthContract.navigationOverflowX);
+});
+
 test("shell keeps observatory controls clear of the interface core", async ({
   page,
 }) => {
@@ -624,6 +697,11 @@ test("shell keeps anchored content clear of persistent regions", async ({
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto("./");
   await page.evaluate(() => document.fonts.ready.then(() => true));
+  const menu = page.getByRole("button", { name: /navigation menu/i });
+  const navigation = page.getByRole("navigation", {
+    name: "Primary navigation",
+  });
+  await menu.click();
   await page
     .getByRole("navigation", { name: "Primary navigation" })
     .getByRole("link", { name: "Workbench" })
@@ -631,6 +709,9 @@ test("shell keeps anchored content clear of persistent regions", async ({
   await expect
     .poll(() => page.evaluate(() => window.location.hash))
     .toBe("#workbench");
+  await expect(menu).toHaveAttribute("aria-expanded", "false");
+  await expect(navigation).toBeHidden();
+
   const mobileGeometry = await page.evaluate(() => {
     const header = document.querySelector<HTMLElement>(".site-header");
     const console = document.querySelector<HTMLElement>(
@@ -642,9 +723,8 @@ test("shell keeps anchored content clear of persistent regions", async ({
     const heading = document.querySelector<HTMLElement>("#workbench-title");
     const brandOwner = document.querySelector<HTMLElement>(".brand-owner");
     const brandTitle = document.querySelector<HTMLElement>(".brand-title");
-    const navigation = document.querySelector<HTMLElement>(".primary-nav");
-    const navigationCue =
-      document.querySelector<HTMLElement>(".primary-nav-cue");
+    const menuButton =
+      document.querySelector<HTMLButtonElement>(".navigation-toggle");
     if (
       header === null ||
       console === null ||
@@ -652,24 +732,13 @@ test("shell keeps anchored content clear of persistent regions", async ({
       heading === null ||
       brandOwner === null ||
       brandTitle === null ||
-      navigation === null
+      menuButton === null
     ) {
       throw new Error("Expected shell landmarks are missing.");
     }
 
     const headerBounds = header.getBoundingClientRect();
     const headingBounds = heading.getBoundingClientRect();
-    const navigationBounds = navigation.getBoundingClientRect();
-    const navigationLinkBounds = Array.from(
-      navigation?.querySelectorAll("a") ?? [],
-      (link) => link.getBoundingClientRect(),
-    );
-    const navigationLinkTextFits = Array.from(
-      navigation?.querySelectorAll<HTMLElement>("a") ?? [],
-    ).every((link) => link.clientWidth >= link.scrollWidth);
-    const headerActions = Array.from(
-      document.querySelectorAll<HTMLElement>(".header-links a"),
-    );
     const brandOwnerStyle = getComputedStyle(brandOwner);
     return {
       brandOwnerFullyVisible:
@@ -682,45 +751,22 @@ test("shell keeps anchored content clear of persistent regions", async ({
       ),
       consolePosition: getComputedStyle(console).position,
       consoleShellPosition: getComputedStyle(consoleShell).position,
-      headerActionsVisible:
-        headerActions.length === 2 &&
-        headerActions.every((action) => {
-          const bounds = action.getBoundingClientRect();
-          return bounds.width > 0 && bounds.height >= 44;
-        }),
       headerHeight: headerBounds.height,
       headerBottom: headerBounds.bottom,
       headerPosition: getComputedStyle(header).position,
       headingTop: headingBounds.top,
-      navigationHeight: navigationBounds.height,
-      navigationLinksSeparated: navigationLinkBounds.every(
-        (bounds, index) =>
-          index === 0 ||
-          (navigationLinkBounds[index - 1]?.right ?? bounds.left) <=
-            bounds.left,
-      ),
-      navigationLinkTextFits,
-      navigationCueText: navigationCue?.textContent?.trim() ?? "",
-      navigationCueVisible:
-        navigationCue !== null &&
-        navigationCue.getBoundingClientRect().width > 0 &&
-        navigationCue.getBoundingClientRect().height > 0,
-      navigationScrollable: navigation.scrollWidth > navigation.clientWidth,
-      navigationScrollbarWidth: getComputedStyle(navigation).scrollbarWidth,
+      menuHeight: menuButton.getBoundingClientRect().height,
+      pageHasNoInlineOverflow:
+        document.documentElement.scrollWidth <=
+        document.documentElement.clientWidth,
     };
   });
 
-  expect(mobileGeometry.headerActionsVisible).toBe(true);
   expect(mobileGeometry.brandOwnerFullyVisible).toBe(true);
   expect(mobileGeometry.brandTitleFontSize).toBeGreaterThanOrEqual(12);
-  expect(mobileGeometry.headerHeight).toBeLessThanOrEqual(150);
-  expect(mobileGeometry.navigationHeight).toBeLessThanOrEqual(48);
-  expect(mobileGeometry.navigationLinkTextFits).toBe(true);
-  expect(mobileGeometry.navigationLinksSeparated).toBe(true);
-  expect(mobileGeometry.navigationCueText).toBe("Scroll for more →");
-  expect(mobileGeometry.navigationCueVisible).toBe(true);
-  expect(mobileGeometry.navigationScrollable).toBe(true);
-  expect(mobileGeometry.navigationScrollbarWidth).toBe("thin");
+  expect(mobileGeometry.headerHeight).toBeLessThanOrEqual(80);
+  expect(mobileGeometry.menuHeight).toBeGreaterThanOrEqual(44);
+  expect(mobileGeometry.pageHasNoInlineOverflow).toBe(true);
   expect(["fixed", "sticky"]).not.toContain(mobileGeometry.consolePosition);
   expect(mobileGeometry.consoleShellPosition).toBe("static");
   expect(mobileGeometry.headerPosition).toBe("static");
@@ -803,6 +849,20 @@ test("primary navigation keeps anchored sections below the sticky header @cross-
         anchorContract.headerHeight + 16,
       );
 
+      const menu = page.getByRole("button", { name: /navigation menu/i });
+      const navigation = page.getByRole("navigation", {
+        name: "Primary navigation",
+      });
+      if (width <= 1248) {
+        await expect(menu).toBeVisible();
+        await expect(navigation).toBeHidden();
+        await menu.click();
+        await expect(navigation).toBeVisible();
+      } else {
+        await expect(menu).toBeHidden();
+        await expect(navigation).toBeVisible();
+      }
+
       await page
         .getByRole("navigation", { name: "Primary navigation" })
         .getByRole("link", { name: "Interactions" })
@@ -810,6 +870,10 @@ test("primary navigation keeps anchored sections below the sticky header @cross-
       await expect
         .poll(() => page.evaluate(() => window.location.hash))
         .toBe("#interactions");
+      if (width <= 1248) {
+        await expect(menu).toHaveAttribute("aria-expanded", "false");
+        await expect(navigation).toBeHidden();
+      }
 
       const geometry = await page.evaluate(() => {
         const header = document.querySelector<HTMLElement>(".site-header");
@@ -848,115 +912,142 @@ test("primary navigation keeps anchored sections below the sticky header @cross-
   }
 });
 
-test("mobile header tab order follows its visual rows", async ({ page }) => {
+test("compact header tab order follows the disclosed navigation", async ({
+  page,
+}) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto("./");
 
   const header = page.locator(".site-header");
-  const visualContract = await header.evaluate((element) => {
+  const menu = header.getByRole("button", { name: /navigation menu/i });
+  const navigation = header.getByRole("navigation", {
+    name: "Primary navigation",
+  });
+  const geometry = await header.evaluate((element) => {
     const brand = element.querySelector<HTMLElement>(".brand");
-    const actions = element.querySelector<HTMLElement>(".header-links");
-    const navigation = element.querySelector<HTMLElement>(".primary-nav");
-    const actionLinks = Array.from(
-      actions?.querySelectorAll<HTMLElement>("a") ?? [],
-    );
-    const navigationLinks = Array.from(
-      navigation?.querySelectorAll<HTMLElement>("a") ?? [],
-    );
-    if (brand === null || actions === null || navigation === null) {
+    const menuButton =
+      element.querySelector<HTMLButtonElement>(".navigation-toggle");
+    if (brand === null || menuButton === null) {
       throw new Error("Expected header regions are missing.");
     }
 
-    const signature = (focusable: HTMLElement) =>
-      [
-        focusable.tagName,
-        focusable.getAttribute("aria-label") ??
-          focusable.textContent?.trim().replace(/\s+/g, " ") ??
-          "",
-        focusable.getAttribute("href") ?? "",
-      ].join("|");
     const brandBounds = brand.getBoundingClientRect();
-    const actionBounds = actions.getBoundingClientRect();
-    const navigationBounds = navigation.getBoundingClientRect();
-    const navigationLinkBounds = navigationLinks.map((link) =>
-      link.getBoundingClientRect(),
-    );
-    const focusables = [brand, ...actionLinks, ...navigationLinks];
-    const visualOrder = focusables
-      .map((focusable) => ({
-        bounds: focusable.getBoundingClientRect(),
-        focusable,
-      }))
-      .sort((first, second) => {
-        const firstRow =
-          first.bounds.bottom <= navigationBounds.top + 1 ? 0 : 1;
-        const secondRow =
-          second.bounds.bottom <= navigationBounds.top + 1 ? 0 : 1;
-        return firstRow - secondRow || first.bounds.left - second.bounds.left;
-      })
-      .map(({ focusable }) => signature(focusable));
+    const menuBounds = menuButton.getBoundingClientRect();
 
     return {
-      actionTargetsValid:
-        actionLinks.length === 2 &&
-        actionLinks.every((link) => {
-          const bounds = link.getBoundingClientRect();
-          return bounds.width > 0 && bounds.height >= 44;
-        }),
       headerHeight: element.getBoundingClientRect().height,
-      navigationIsOneRow: navigationLinkBounds.every(
-        (bounds) => Math.abs(bounds.top - navigationLinkBounds[0]!.top) <= 1,
-      ),
-      navigationScrollable: navigation.scrollWidth > navigation.clientWidth,
+      menuFollowsBrand: menuBounds.left >= brandBounds.right,
+      menuTargetValid: menuBounds.width > 0 && menuBounds.height >= 44,
       pageHasNoInlineOverflow:
         document.documentElement.scrollWidth <=
         document.documentElement.clientWidth,
-      topRowIsLeftToRight:
-        actionLinks.length === 2 &&
-        brandBounds.left <= actionLinks[0]!.getBoundingClientRect().left &&
-        actionLinks[0]!.getBoundingClientRect().right <=
-          actionLinks[1]!.getBoundingClientRect().left,
-      navigationFollowsTopRow:
-        navigationBounds.top >=
-        Math.max(brandBounds.bottom, actionBounds.bottom),
-      visualOrder,
     };
   });
+
+  expect(geometry).toMatchObject({
+    menuFollowsBrand: true,
+    menuTargetValid: true,
+    pageHasNoInlineOverflow: true,
+  });
+  expect(geometry.headerHeight).toBeLessThanOrEqual(80);
 
   // Starting on the brand isolates header traversal from the independent skip-link contract.
   await header
     .getByRole("link", { name: "Interface Systems Lab home" })
     .focus();
+  await page.keyboard.press("Tab");
+  await expect(menu).toBeFocused();
+  await page.keyboard.press("Enter");
+  await expect(navigation).toBeVisible();
+
   const tabOrder: string[] = [];
-  for (let index = 0; index < visualContract.visualOrder.length; index += 1) {
+  for (let index = 0; index < 12; index += 1) {
+    await page.keyboard.press("Tab");
     tabOrder.push(
-      await page.evaluate(() => {
-        const active = document.activeElement;
-        if (!(active instanceof HTMLElement)) return "";
-        return [
-          active.tagName,
-          active.getAttribute("aria-label") ??
-            active.textContent?.trim().replace(/\s+/g, " ") ??
-            "",
-          active.getAttribute("href") ?? "",
-        ].join("|");
-      }),
+      await page.evaluate(
+        () => document.activeElement?.getAttribute("href") ?? "",
+      ),
     );
-    if (index < visualContract.visualOrder.length - 1) {
-      await page.keyboard.press("Tab");
-    }
   }
 
-  expect(tabOrder).toEqual(visualContract.visualOrder);
-  expect(visualContract).toMatchObject({
-    actionTargetsValid: true,
-    navigationFollowsTopRow: true,
-    navigationIsOneRow: true,
-    navigationScrollable: true,
-    pageHasNoInlineOverflow: true,
-    topRowIsLeftToRight: true,
+  expect(tabOrder).toEqual([
+    "#top",
+    "#workbench",
+    "#layouts",
+    "#ui-native",
+    "#icons",
+    "#interactions",
+    "#integrate",
+    "#install",
+    "#libraries",
+    "#company",
+    companyUrl,
+    repositoryUrl,
+  ]);
+
+  const targetContract = await page
+    .locator("#primary-navigation-panel a")
+    .evaluateAll((links) =>
+      links.map((link) => {
+        const bounds = link.getBoundingClientRect();
+        return {
+          height: bounds.height,
+          textFits: link.clientWidth >= link.scrollWidth,
+          width: bounds.width,
+        };
+      }),
+    );
+  expect(targetContract).toHaveLength(12);
+  expect(
+    targetContract.every(
+      ({ height, textFits, width }) => height >= 44 && textFits && width > 0,
+    ),
+  ).toBe(true);
+});
+
+test("compact navigation dismisses predictably from keyboard, outside pointer, link, and resize", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 799, height: 700 });
+  await page.goto("./");
+
+  const menu = page.locator(".navigation-toggle");
+  const navigation = page.getByRole("navigation", {
+    name: "Primary navigation",
   });
-  expect(visualContract.headerHeight).toBeLessThanOrEqual(150);
+
+  await menu.click();
+  await navigation.getByRole("link", { name: "Home" }).focus();
+  await page.keyboard.press("Escape");
+  await expect(menu).toHaveAttribute("aria-expanded", "false");
+  await expect(menu).toBeFocused();
+  await expect(navigation).toBeHidden();
+
+  await menu.click();
+  await navigation.getByRole("link", { name: "Home" }).focus();
+  await page.getByRole("link", { name: "Interface Systems Lab home" }).click();
+  await expect(menu).toHaveAttribute("aria-expanded", "false");
+  await expect(menu).not.toBeFocused();
+  await expect(navigation).toBeHidden();
+
+  await menu.click();
+  await navigation.getByRole("link", { name: "Install" }).click();
+  await expect
+    .poll(() => page.evaluate(() => window.location.hash))
+    .toBe("#install");
+  await expect(menu).toHaveAttribute("aria-expanded", "false");
+  await expect(navigation).toBeHidden();
+
+  await menu.click();
+  await page.setViewportSize({ width: 1440, height: 1000 });
+  await expect(menu).toHaveAttribute("aria-expanded", "false");
+  await expect(menu).toBeHidden();
+  await expect(navigation).toBeVisible();
+
+  await page.setViewportSize({ width: 799, height: 700 });
+  await expect(menu).toBeVisible();
+  await expect(menu).toHaveAttribute("aria-expanded", "false");
+  await expect(navigation).toBeHidden();
 });
 
 test("renders the production metadata and complete resource directory", async ({
@@ -1883,7 +1974,10 @@ test("stays responsive across mobile portrait, mobile landscape, tablet, and des
     { width: 390, height: 844 },
     { width: 844, height: 390 },
     { width: 768, height: 1024 },
+    { width: 799, height: 700 },
     { width: 1024, height: 768 },
+    { width: 1248, height: 800 },
+    { width: 1249, height: 800 },
     { width: 1440, height: 1000 },
   ];
 
@@ -1893,9 +1987,59 @@ test("stays responsive across mobile portrait, mobile landscape, tablet, and des
 
     await expectNoHorizontalOverflow(page);
 
-    await expect(
-      page.getByRole("navigation", { name: "Primary navigation" }),
-    ).toBeVisible();
+    const menu = page.getByRole("button", { name: /navigation menu/i });
+    const navigation = page.getByRole("navigation", {
+      name: "Primary navigation",
+    });
+    if (viewport.width <= 1248) {
+      await expect(menu).toBeVisible();
+      await expect(menu).toHaveAttribute("aria-expanded", "false");
+      await expect(navigation).toBeHidden();
+      await menu.click();
+      await expect(navigation).toBeVisible();
+
+      const panel = page.locator("#primary-navigation-panel");
+      const panelGeometry = await panel.evaluate((element) => {
+        const bounds = element.getBoundingClientRect();
+        return {
+          bottom: bounds.bottom,
+          canScrollVertically: element.scrollHeight > element.clientHeight,
+          left: bounds.left,
+          right: bounds.right,
+          top: bounds.top,
+          viewportHeight: window.innerHeight,
+          viewportWidth: window.innerWidth,
+        };
+      });
+      expect(panelGeometry.left).toBeGreaterThanOrEqual(0);
+      expect(panelGeometry.right).toBeLessThanOrEqual(
+        panelGeometry.viewportWidth,
+      );
+      expect(panelGeometry.top).toBeGreaterThanOrEqual(0);
+      expect(panelGeometry.bottom).toBeLessThanOrEqual(
+        panelGeometry.viewportHeight,
+      );
+      if (viewport.height === 390) {
+        expect(panelGeometry.canScrollVertically).toBe(true);
+      }
+
+      await page
+        .locator("#primary-navigation-panel")
+        .getByRole("link", { name: /GitHub/i })
+        .scrollIntoViewIfNeeded();
+      await expect(
+        page
+          .locator("#primary-navigation-panel")
+          .getByRole("link", { name: /GitHub/i }),
+      ).toBeVisible();
+      await page.keyboard.press("Escape");
+      await expect(navigation).toBeHidden();
+    } else {
+      await expect(menu).toBeHidden();
+      await expect(navigation).toBeVisible();
+    }
+
+    await expectNoHorizontalOverflow(page);
     await expect(
       page.getByRole("heading", { name: /Layout laboratory/i }),
     ).toBeVisible();
