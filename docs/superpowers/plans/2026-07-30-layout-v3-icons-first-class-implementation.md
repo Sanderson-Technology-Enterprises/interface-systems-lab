@@ -20,6 +20,9 @@
 - Add professional comments only where they explain a non-obvious contract, safety boundary, or browser behavior.
 - Keep formatting, linting, type checking, all tests, static export verification, accessibility, and rendered QA green.
 - Do not deploy, publish, tag, or push as part of this plan.
+- Execute tasks in dependency order `1, 2, 3, 5, 6, 7, 4, 8`. The Layout v3
+  package pin belongs to Task 7, after Task 6 removes fixture imports that v3
+  no longer exports.
 
 ---
 
@@ -259,10 +262,13 @@ Expected: FAIL because `scripts/build-icon-assets.mjs` does not exist.
 Run:
 
 ```powershell
-npm.cmd install --save-exact layout-style-css@3.0.0 ui-style-kit-icons@1.0.0
+npm.cmd install --save-exact ui-style-kit-icons@1.0.0
 ```
 
-Expected: `package.json` and `package-lock.json` record the exact versions without changing the pinned UI Style Kit or Interactive Surface versions.
+Expected: `package.json` and `package-lock.json` record the exact icon version
+without changing the currently installed Layout, UI Style Kit, or Interactive
+Surface versions. Task 7 pins Layout v3 after the legacy fixture imports are
+removed.
 
 - [ ] **Step 4: Implement the safe asset builder**
 
@@ -1314,11 +1320,14 @@ In `scripts/build-fixtures.mjs`:
 ```js
 export const EXPECTED_PACKAGE_VERSIONS = Object.freeze({
   "interactive-surface-css": "1.5.0",
-  "layout-style-css": "3.0.0",
+  "layout-style-css": "2.1.0",
   "ui-style-kit-css": "2.1.0",
   "ui-style-kit-icons": "1.0.0",
 });
 ```
+
+Task 7 updates the temporary Layout expectation to `3.0.0` when it pins the
+new package version.
 
 Remove `layout-ui-bridge` and `layout-legacy`. Add:
 
@@ -1403,6 +1412,8 @@ git commit -m "feat: prove icon integration fixtures"
 
 **Files:**
 
+- Modify: `package.json`
+- Modify: `package-lock.json`
 - Modify: `app/**/*.tsx`
 - Modify: `app/styles/shell.css`
 - Modify: `app/styles/observatory.css`
@@ -1480,6 +1491,16 @@ Expected: FAIL and list current uses of `ly-grid--auto`, `ly-panes--2`,
 `ly-panes--3`, responsive column utilities, and odd spacing utilities.
 
 - [ ] **Step 3: Replace removed primitive aliases**
+
+Before changing selectors, pin the published Layout v3 package and update the
+fixture version contract:
+
+```powershell
+npm.cmd install --save-exact layout-style-css@3.0.0
+```
+
+Set `EXPECTED_PACKAGE_VERSIONS["layout-style-css"]` to `"3.0.0"` in
+`scripts/build-fixtures.mjs`.
 
 Apply these exact mappings in authored markup and generated fixtures:
 
@@ -1603,7 +1624,7 @@ allocations have no horizontal overflow.
 Run:
 
 ```powershell
-git add app scripts/build-fixtures.mjs tests README.md
+git add package.json package-lock.json app scripts/build-fixtures.mjs tests README.md
 git status --short
 git commit -m "refactor: migrate showcase to layout v3"
 ```
