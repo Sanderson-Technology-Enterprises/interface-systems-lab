@@ -152,11 +152,8 @@ test("icons follow the selected UI pack and expose frame variants", async ({
 
   const lab = page.locator("[data-icon-lab]");
   const firstIcon = lab.locator("usk-icon").first();
+  const meaningfulIcon = lab.locator('usk-icon[role="img"]');
   await expect(lab).toBeVisible();
-  await expect(lab.locator("[data-active-icon-pack]")).toHaveText(
-    /Minimal SaaS/i,
-  );
-  await expect(firstIcon).toHaveAttribute("data-pack", "minimal-saas");
   await expect
     .poll(() =>
       firstIcon.evaluate((element) =>
@@ -165,11 +162,66 @@ test("icons follow the selected UI pack and expose frame variants", async ({
     )
     .toBe(true);
 
-  await page.getByLabel("Visual style").selectOption("cyberpunk");
-  await expect(firstIcon).toHaveAttribute("data-pack", "cyberpunk");
+  for (const [ui, pack, label] of [
+    ["minimal-saas", "minimal-saas", "Minimal SaaS"],
+    ["cyberpunk", "cyberpunk", "Cyberpunk"],
+    ["retrofuturism", "synthwave", "Synthwave"],
+    ["bauhaus", "system", "System"],
+  ] as const) {
+    await page.getByLabel("Visual style").selectOption(ui);
+    await expect(lab.locator("[data-active-icon-pack]")).toHaveText(label);
+    await expect(firstIcon).toHaveAttribute("data-pack", pack);
+  }
 
-  await page.getByLabel("Icon frame").selectOption("none");
-  await expect(firstIcon).toHaveAttribute("frame", "none");
+  const initialMeaning = await meaningfulIcon.getAttribute("name");
+  const initialPaint = await meaningfulIcon.evaluate(
+    (element) => getComputedStyle(element).color,
+  );
+  await page.getByLabel(/03.*Palette/).selectOption("arctic-indigo");
+  await page.getByRole("radio", { name: "High contrast" }).check();
+  await expect(meaningfulIcon).toHaveAttribute("name", initialMeaning ?? "");
+  await expect
+    .poll(() =>
+      meaningfulIcon.evaluate((element) => getComputedStyle(element).color),
+    )
+    .not.toBe(initialPaint);
+
+  for (const [option, frame] of [
+    ["auto", "auto"],
+    ["soft", "soft"],
+    ["none", "none"],
+  ] as const) {
+    await page.getByLabel("Icon frame").selectOption(option);
+    await expect(firstIcon).toHaveAttribute("frame", frame);
+  }
+});
+
+test("an icon asset failure reports once without disabling labeled actions", async ({
+  page,
+}) => {
+  const runtimeErrors: string[] = [];
+  page.on("pageerror", (error) => runtimeErrors.push(error.message));
+  await page.route("**/icons/dashboard.svg", (route) => route.abort());
+  await page.reload();
+
+  const failedIcon = page.locator('[data-icon-specimen="dashboard"] usk-icon');
+  await expect(failedIcon).toHaveAttribute("data-error", "");
+  await expect(
+    page.getByText(
+      "One or more icon assets could not load. Text labels remain available.",
+    ),
+  ).toBeAttached();
+  await expect(
+    page
+      .locator('[data-icon-specimen="dashboard"]')
+      .getByText("Dashboard", { exact: true }),
+  ).toBeVisible();
+
+  const copy = page.getByRole("button", { name: "Copy configuration" });
+  await expect(copy).toBeEnabled();
+  await copy.click();
+  await expect(copy).toHaveText(/Copied|Select markup/);
+  expect(runtimeErrors).toEqual([]);
 });
 
 async function expectNoHorizontalOverflow(page: Page) {
@@ -323,7 +375,7 @@ test("shell scopes the complete experience and balances developer and company pa
   expect(actionGeometry[0]!.color).toBe(actionGeometry[1]!.color);
 
   for (const [scope, accessibleName] of [
-    [".site-header", /Sanderson/i],
+    [".site-header", /Discover STE/i],
     [".hero", /Visit Sanderson Technology Enterprises/i],
     ["#company", /Work with Sanderson Technology Enterprises/i],
     [".site-footer", /Sanderson Technology Enterprises/i],
@@ -364,6 +416,10 @@ test("shell scopes the complete experience and balances developer and company pa
 test("shell keeps observatory controls clear of the interface core", async ({
   page,
 }) => {
+  await expect(page.locator("#observatory-caption")).toContainText(
+    /structure, identity, iconography, or behavior/i,
+  );
+
   for (const viewport of [
     { width: 320, height: 568 },
     { width: 390, height: 844 },
@@ -384,35 +440,114 @@ test("shell keeps observatory controls clear of the interface core", async ({
 
         const stageBounds = stage.getBoundingClientRect();
         const coreBounds = core.getBoundingClientRect();
-        return controls.map((control) => {
-          const bounds = control.getBoundingClientRect();
-          const overlapsCore =
-            bounds.left < coreBounds.right &&
-            bounds.right > coreBounds.left &&
-            bounds.top < coreBounds.bottom &&
-            bounds.bottom > coreBounds.top;
+        return {
+          controls: controls.map((control) => {
+            const bounds = control.getBoundingClientRect();
+            const overlapsCore =
+              bounds.left < coreBounds.right &&
+              bounds.right > coreBounds.left &&
+              bounds.top < coreBounds.bottom &&
+              bounds.bottom > coreBounds.top;
 
-          return {
-            label: control.textContent?.trim() ?? "",
-            overlapsCore,
-            withinStage:
-              bounds.left >= stageBounds.left &&
-              bounds.right <= stageBounds.right &&
-              bounds.top >= stageBounds.top &&
-              bounds.bottom <= stageBounds.bottom,
-          };
-        });
+            return {
+              label: control.textContent?.trim() ?? "",
+              overlapsCore,
+              variant: control.dataset.surfaceVariant ?? "",
+              withinStage:
+                bounds.left >= stageBounds.left &&
+                bounds.right <= stageBounds.right &&
+                bounds.top >= stageBounds.top &&
+                bounds.bottom <= stageBounds.bottom,
+            };
+          }),
+          stage: {
+            height: stageBounds.height,
+            width: stageBounds.width,
+          },
+        };
       });
 
-    expect({ geometry, width: viewport.width }).toEqual({
-      geometry: [
-        { label: "Structure", overlapsCore: false, withinStage: true },
-        { label: "Identity", overlapsCore: false, withinStage: true },
-        { label: "Behavior", overlapsCore: false, withinStage: true },
-      ],
-      width: viewport.width,
-    });
+    expect(geometry.controls).toEqual([
+      {
+        label: "Structure",
+        overlapsCore: false,
+        variant: "primary",
+        withinStage: true,
+      },
+      {
+        label: "Identity",
+        overlapsCore: false,
+        variant: "accent",
+        withinStage: true,
+      },
+      {
+        label: "Iconography",
+        overlapsCore: false,
+        variant: "secondary",
+        withinStage: true,
+      },
+      {
+        label: "Behavior",
+        overlapsCore: false,
+        variant: "subtle",
+        withinStage: true,
+      },
+    ]);
+    expect(geometry.stage.height).toBeCloseTo(geometry.stage.width, 0);
+    expect(geometry.stage.height).toBeLessThanOrEqual(
+      Math.min(viewport.width, 480),
+    );
   }
+});
+
+test("workbench keeps the Layout v3 app-shell bounded on mobile", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("./");
+  await expect(page.locator("#workbench-title")).toHaveText(
+    "One workspace. Four proven layers.",
+  );
+
+  const geometry = await page
+    .locator(".client-workspace")
+    .evaluate((workspace) => {
+      const workspaceBounds = workspace.getBoundingClientRect();
+      const children = Array.from(workspace.children);
+      const main = workspace.querySelector<HTMLElement>(
+        '[data-ly-area="main"]',
+      );
+      if (main === null) throw new Error("Workbench main area is missing.");
+
+      return {
+        areas: children.map((child) => child.getAttribute("data-ly-area")),
+        gridColumnCount: getComputedStyle(workspace)
+          .gridTemplateColumns.split(/\s+/)
+          .filter(Boolean).length,
+        height: workspaceBounds.height,
+        mainHeight: main.getBoundingClientRect().height,
+        width: workspaceBounds.width,
+      };
+    });
+
+  expect(geometry.areas).toEqual([
+    "header",
+    "sidebar",
+    "main",
+    "aside",
+    "footer",
+  ]);
+  expect(geometry.gridColumnCount).toBe(1);
+  expect(geometry.height).toBeLessThan(3_000);
+  expect(geometry.mainHeight).toBeLessThan(1_800);
+});
+
+test("footer closes with the complete four-layer ecosystem", async ({
+  page,
+}) => {
+  await expect(page.locator(".site-footer")).toContainText(
+    "One semantic interface. Four focused ecosystem layers.",
+  );
 });
 
 test("shell keeps anchored content clear of persistent regions", async ({
@@ -1013,10 +1148,29 @@ test(
       },
     ];
 
-    for (const configuration of configurations) {
-      const query = new URLSearchParams(configuration).toString();
-      await page.goto(`./?${query}`);
+    for (const [index, configuration] of configurations.entries()) {
+      // The shared setup already loads the default configuration. Reuse it so
+      // WebKit does not abort icon fetches with an immediate second navigation.
+      if (index > 0) {
+        const query = new URLSearchParams(configuration).toString();
+        await page.goto(`./?${query}`);
+      }
       await expectRootConfiguration(page, configuration);
+      await expect
+        .poll(() =>
+          page
+            .locator("[data-icon-lab] usk-icon")
+            .evaluateAll(
+              (elements) =>
+                elements.length > 0 &&
+                elements.every(
+                  (element) =>
+                    !element.hasAttribute("data-error") &&
+                    Boolean(element.shadowRoot?.querySelector("svg")),
+                ),
+            ),
+        )
+        .toBe(true);
       await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
         "href",
         canonicalUrl,
@@ -1026,6 +1180,7 @@ test(
         "#workbench",
         "#layouts",
         "#ui-native",
+        "#icons",
         "#interactions",
         "#integrate",
         "#install",
@@ -1094,16 +1249,48 @@ test("integration fixtures stage icon assets without legacy paths", async ({
   await expect(
     integrationLab.locator('[data-integration-fixture="all-legacy"]'),
   ).toHaveCount(0);
+  await integrationLab.locator("details").evaluateAll((details) => {
+    for (const detail of details) (detail as HTMLDetailsElement).open = true;
+  });
 
   const iconFixture = integrationLab.locator(
     '[data-integration-fixture="icon-only"]',
   );
-  await expect(iconFixture).toBeVisible();
-  await expect(
-    page
-      .frameLocator('[data-integration-fixture="icon-only"]')
-      .locator("usk-icon"),
-  ).toHaveCount(2);
+  const uiIconsFixture = integrationLab.locator(
+    '[data-integration-fixture="ui-icons"]',
+  );
+  const completeFixture = integrationLab.locator(
+    '[data-integration-fixture="all-canonical"]',
+  );
+  for (const fixture of [iconFixture, uiIconsFixture, completeFixture]) {
+    await expect(fixture).toBeVisible();
+  }
+  for (const fixtureId of ["icon-only", "ui-icons", "all-canonical"]) {
+    await test.step(`${fixtureId} upgrades rendered icons`, async () => {
+      const fixture = integrationLab.locator(
+        `[data-integration-fixture="${fixtureId}"]`,
+      );
+      await fixture.scrollIntoViewIfNeeded();
+      const icons = page
+        .frameLocator(`[data-integration-fixture="${fixtureId}"]`)
+        .locator("usk-icon");
+      await expect(icons).toHaveCount(2);
+      await expect
+        .poll(
+          () =>
+            icons
+              .first()
+              .evaluate((element) =>
+                Boolean(element.shadowRoot?.querySelector("svg")),
+              ),
+          {
+            message: `${fixtureId} should render its staged SVG`,
+            timeout: 10_000,
+          },
+        )
+        .toBe(true);
+    });
+  }
 
   for (const asset of [
     "assets/ui-style-kit-icons/1.0.0/ui-style-kit-icons.js",

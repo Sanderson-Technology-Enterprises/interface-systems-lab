@@ -44,6 +44,8 @@ export function IconLab() {
       );
     };
     section.addEventListener("usk-icon-error", handleError);
+    // Custom elements may upgrade before React effects subscribe to their events.
+    if (section.querySelector("usk-icon[data-error]")) handleError();
     return () => {
       section.removeEventListener("usk-icon-error", handleError);
     };

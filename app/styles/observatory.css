@@ -50,6 +50,11 @@
   color: rgb(var(--usk-link-rgb));
 }
 
+.orbit-ring-iconography {
+  inset: 26%;
+  color: rgb(var(--usk-secondary-rgb));
+}
+
 .orbit-ring-behavior {
   inset: 34%;
   color: rgb(var(--usk-success-rgb));
@@ -71,6 +76,11 @@
   inset-block-end: 18%;
 }
 
+.observatory-orbit-iconography {
+  inset-block-start: 8%;
+  inset-inline-end: 8%;
+}
+
 .observatory-orbit-behavior {
   inset-block-start: 42%;
   inset-inline-start: 0;
@@ -89,7 +99,12 @@
   animation-duration: 18s;
 }
 
+.orbit-ring-iconography .orbit-runner {
+  animation-duration: 15s;
+}
+
 .orbit-ring-behavior .orbit-runner {
+  animation-direction: reverse;
   animation-duration: 12s;
 }
 
@@ -135,7 +150,7 @@
 
 .observatory-legend {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 0.75rem;
   margin: 0;
   padding: 0;

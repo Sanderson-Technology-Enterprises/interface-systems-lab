@@ -119,11 +119,23 @@ const integrationFixtures = [
   "all-canonical",
 ] as const;
 
-const integrationDomOrder = [
+const integrationFixtureDomOrder = [
   "all-canonical",
   "layout-only",
   "ui-only",
   "icon-only",
+  "interactive-only",
+  "layout-ui",
+  "ui-icons",
+  "layout-interactive",
+  "ui-interactive",
+] as const;
+
+const adoptionDomOrder = [
+  "all-canonical",
+  "layout-only",
+  "ui-only",
+  "icons-only",
   "interactive-only",
   "layout-ui",
   "ui-icons",
@@ -204,7 +216,7 @@ const interactionStates = [
 ] as const;
 
 const recipeAreas: Partial<Record<(typeof layoutRecipes)[number], string[]>> = {
-  "app-shell": ["header", "nav", "main", "aside", "footer"],
+  "app-shell": ["header", "sidebar", "main", "aside", "footer"],
   dashboard: ["header", "nav", "main", "aside", "footer"],
   docs: ["header", "nav", "main", "aside", "footer"],
   "list-detail": ["primary", "secondary", "actions"],
@@ -548,7 +560,9 @@ test("layout laboratory renders the complete recipe and primitive contracts", as
   await expect(
     page.locator('[data-layout-recipe="app-shell"] > [data-ly-area="main"]'),
   ).toHaveJSProperty("tagName", "SECTION");
-  await expect(page.locator('[data-ly-area="sidebar"]')).toHaveCount(0);
+  await expect(
+    page.locator('[data-layout-recipe="app-shell"] > [data-ly-area="sidebar"]'),
+  ).toHaveJSProperty("tagName", "NAV");
 
   for (const [name, selector] of primitiveHooks) {
     const specimen = page.locator(
@@ -1955,24 +1969,16 @@ test("integration laboratory progressively discloses exactly nine isolated fixtu
 }) => {
   await expect(page.locator("#integrate")).toHaveCount(1);
   await expect(page.locator("#integrate")).toContainText(/fixed baseline/i);
-  await expect(page.locator("#integrate details > summary")).toHaveCount(3);
+  await expect(page.locator("#integrate details > summary")).toHaveCount(2);
   await expect(
     page.locator('[data-integration-fixture="all-canonical"]'),
   ).toBeVisible();
   await expect(
     page.locator('[data-integration-group="one"] [data-integration-fixture]'),
-  ).toHaveCount(3);
+  ).toHaveCount(4);
   await expect(
     page.locator('[data-integration-group="pair"] [data-integration-fixture]'),
-  ).toHaveCount(3);
-  await expect(
-    page.locator(
-      '[data-integration-group="legacy"] [data-integration-fixture]',
-    ),
-  ).toHaveCount(1);
-  await expect(
-    page.locator('[data-integration-group="legacy"]'),
-  ).not.toHaveAttribute("open");
+  ).toHaveCount(4);
 
   const frames = page.locator("#integrate iframe[data-integration-fixture]");
   await expect(frames).toHaveCount(integrationFixtures.length);
@@ -1986,7 +1992,7 @@ test("integration laboratory progressively discloses exactly nine isolated fixtu
       })),
     ),
   ).toEqual(
-    integrationDomOrder.map((id) => ({
+    integrationFixtureDomOrder.map((id) => ({
       id,
       loading: "lazy",
       src: `/interface-systems-lab/fixtures/generated/${id}.html`,
@@ -2151,7 +2157,7 @@ test("canonical integration preserves geometry and paint through real hover and 
   expect(await readPaintSignature(paint)).toBe(basePaint);
 });
 
-test("installation guidance renders all adoption paths with legacy isolated", async ({
+test("installation guidance renders all current adoption paths", async ({
   page,
 }) => {
   const paths = page.locator("#install [data-adoption-path]");
@@ -2160,21 +2166,20 @@ test("installation guidance renders all adoption paths with legacy isolated", as
     await paths.evaluateAll((elements) =>
       elements.map((element) => element.getAttribute("data-adoption-path")),
     ),
-  ).toEqual(integrationDomOrder);
-  await expect(page.locator("#install details > summary")).toHaveCount(3);
+  ).toEqual(adoptionDomOrder);
+  await expect(page.locator("#install details > summary")).toHaveCount(2);
   await expect(
     page.locator('#install [data-adoption-group="one"]'),
   ).toHaveCount(1);
   await expect(
     page.locator('#install [data-adoption-group="pair"]'),
   ).toHaveCount(1);
-  const legacy = page.locator('#install [data-adoption-group="legacy"]');
-  await expect(legacy).toHaveCount(1);
-  await expect(legacy).not.toHaveAttribute("open");
-  await expect(legacy).toContainText(/deprecated|migration-only/i);
+  await expect(
+    page.locator('#install [data-adoption-group="legacy"]'),
+  ).toHaveCount(0);
   await expect(
     page.locator('[data-adoption-path="all-canonical"]'),
-  ).toContainText("Install all three");
+  ).toContainText("Install all four");
 
   // The repeated snippet titles remain distinguishable when every supported
   // path is visible to assistive technology at the same time.
@@ -2199,6 +2204,7 @@ test("integration fixtures load locally without errors or overflow", async ({
   const pageErrors: string[] = [];
   const failedStylesheets: string[] = [];
   const remoteFixtureStylesheets: string[] = [];
+  const fixtureOrigin = new URL(page.url()).origin;
   page.on("console", (message) => {
     if (message.type() === "error") consoleErrors.push(message.text());
   });
@@ -2223,7 +2229,7 @@ test("integration fixtures load locally without errors or overflow", async ({
     if (
       request.resourceType() === "stylesheet" &&
       request.frame().url().includes("/fixtures/generated/") &&
-      new URL(request.url()).origin !== "http://127.0.0.1:4173"
+      new URL(request.url()).origin !== fixtureOrigin
     ) {
       remoteFixtureStylesheets.push(request.url());
     }

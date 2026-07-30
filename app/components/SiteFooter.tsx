@@ -26,7 +26,9 @@ export function SiteFooter({ companyUrl }: SiteFooterProps) {
           <p className="ly-stack ly-gap-2">
             <strong>{SITE.name}</strong>
             <small>{SITE.productLine}</small>
-            <small>One semantic interface. Three focused CSS layers.</small>
+            <small>
+              One semantic interface. Four focused ecosystem layers.
+            </small>
           </p>
         </div>
 

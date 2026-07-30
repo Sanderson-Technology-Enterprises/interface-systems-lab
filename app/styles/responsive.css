@@ -14,6 +14,7 @@
 @media (max-width: 78rem) {
   .site-header-inner {
     align-items: flex-start;
+    flex-wrap: wrap;
   }
 
   .primary-nav {
@@ -111,6 +112,8 @@
 
   .observatory-stage {
     inline-size: min(100%, 21rem);
+    /* Preserve the square orbit field if a surrounding layout supplies height. */
+    max-block-size: 21rem;
   }
 
   .workbench-toolbar > *,

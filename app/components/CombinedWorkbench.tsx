@@ -67,7 +67,7 @@ export function CombinedWorkbench() {
         <div className="section-heading ly-split ly-gap-6 ly-items-end">
           <div className="ly-stack ly-gap-2">
             <p className="section-label">Live client outcome</p>
-            <h2 id="workbench-title">One workspace. Three proven layers.</h2>
+            <h2 id="workbench-title">One workspace. Four proven layers.</h2>
           </div>
           <p>
             A realistic delivery workspace doubles as a developer proof: the
@@ -106,7 +106,7 @@ export function CombinedWorkbench() {
 
             <nav
               className={`${panelClass} workbench-region ly-pad-4`}
-              data-ly-area="nav"
+              data-ly-area="sidebar"
               aria-label="Northstar workspace"
             >
               <p className="workbench-kicker">Atelier One</p>

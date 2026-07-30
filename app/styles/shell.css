@@ -69,6 +69,7 @@
 }
 
 .site-header-inner {
+  flex-wrap: nowrap;
   min-block-size: var(--ly-header-height);
   padding-block: 0.7rem;
 }
@@ -139,6 +140,8 @@
 }
 
 .primary-nav {
+  flex: 1 1 20rem;
+  flex-wrap: nowrap;
   overflow-x: auto;
   /* A themed scrollbar keeps off-screen navigation destinations discoverable. */
   scrollbar-color: rgb(var(--usk-primary-rgb))

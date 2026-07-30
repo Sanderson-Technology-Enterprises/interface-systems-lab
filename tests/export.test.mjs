@@ -16,6 +16,7 @@ const repositoryRoot = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
   "..",
 );
+const outRoot = path.join(repositoryRoot, "out");
 const canonicalUrl =
   "https://sanderson-technology-enterprises.github.io/interface-systems-lab/";
 const corporateUrl = "https://sandersontechnologyenterprises.com";
@@ -441,4 +442,49 @@ test("the Pages artifact stages the pinned Layout v3 core", async () => {
   const layoutCore = await readFile(layoutCorePath, "utf8");
   assert.match(layoutCore, /\.ly-grid\s*\{/);
   assert.match(layoutCore, /--ly-pane-min/);
+});
+
+test("the Pages artifact stages versioned icon assets without private or retired paths", async () => {
+  const [index, runtime, cyberpunkDashboard] = await Promise.all([
+    readFile(path.join(outRoot, "index.html"), "utf8"),
+    stat(
+      path.join(
+        outRoot,
+        "assets",
+        "ui-style-kit-icons",
+        "1.0.0",
+        "ui-style-kit-icons.js",
+      ),
+    ),
+    stat(
+      path.join(
+        outRoot,
+        "assets",
+        "ui-style-kit-icons",
+        "1.0.0",
+        "packs",
+        "cyberpunk",
+        "icons",
+        "dashboard.svg",
+      ),
+    ),
+  ]);
+  const exportedFixtureHtml = await Promise.all(
+    fixtureIds.map((id) =>
+      readFile(path.join(exportFixtureRoot, `${id}.html`), "utf8"),
+    ),
+  );
+  const exportedHtml = [index, ...exportedFixtureHtml].join("\n");
+
+  assert.equal(runtime.isFile(), true);
+  assert.equal(cyberpunkDashboard.isFile(), true);
+  assert.match(
+    index,
+    /asset-base="\/interface-systems-lab\/assets\/ui-style-kit-icons\/1\.0\.0\/"/,
+  );
+  assert.doesNotMatch(exportedHtml, /node_modules/);
+  assert.doesNotMatch(
+    exportedHtml,
+    /layout-style-css\/(?:legacy\.css|integrations\/ui-style-kit\.css)/,
+  );
 });
