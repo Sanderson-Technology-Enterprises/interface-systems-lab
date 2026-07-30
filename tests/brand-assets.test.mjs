@@ -59,6 +59,10 @@ const legacyHashes = new Map([
     "public/mstile-150x150.png",
     "03e7f7a9cf8355e3b092d1d7d0e36e55cf1f042f89bb3b45b2921d0936a3c1f4",
   ],
+  [
+    "public/interface-systems-lab-social-card.png",
+    "7c088b8f919d68b55e60248ad61c688a3b2aa6b86e630d6bd430628c2a8b9f59",
+  ],
 ]);
 
 const pngDimensions = new Map([
@@ -73,6 +77,11 @@ const pngDimensions = new Map([
   ["public/android-chrome-512x512.png", [512, 512]],
   ["public/maskable-icon-512x512.png", [512, 512]],
   ["public/mstile-150x150.png", [150, 150]],
+  ["public/interface-systems-lab-social-card.png", [1200, 630]],
+  [
+    "assets/brand/interface-systems-lab-social-card-background.png",
+    [1200, 630],
+  ],
 ]);
 
 function sha256(buffer) {

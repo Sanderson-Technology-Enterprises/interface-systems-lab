@@ -8,6 +8,16 @@ const repositoryRoot = path.resolve(
   "..",
 );
 const publicRoot = path.join(repositoryRoot, "public");
+const socialCardBackground = path.join(
+  repositoryRoot,
+  "assets",
+  "brand",
+  "interface-systems-lab-social-card-background.png",
+);
+const socialCardOutput = path.join(
+  publicRoot,
+  "interface-systems-lab-social-card.png",
+);
 
 const transparentOutputs = new Map([
   ["favicon-16x16.png", 16],
@@ -177,9 +187,79 @@ export async function buildLogoFamily({
   return { masterBuffer };
 }
 
+function socialTypographySvg() {
+  // All social-card copy stays in a deterministic overlay so generated
+  // background artwork can never introduce misspelled or stale brand claims.
+  return Buffer.from(`
+    <svg width="1200" height="630" viewBox="0 0 1200 630"
+         xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+          <feDropShadow dx="0" dy="4" stdDeviation="3"
+                        flood-color="#071525" flood-opacity=".45"/>
+        </filter>
+      </defs>
+      <g font-family="Arial, Helvetica, sans-serif" filter="url(#shadow)">
+        <text x="555" y="208" fill="#f7f7f4" font-size="84"
+              font-weight="800" letter-spacing="3">INTERFACE</text>
+        <text x="555" y="296" fill="#f7f7f4" font-size="84"
+              font-weight="800" letter-spacing="3">SYSTEMS</text>
+        <text x="989" y="296" fill="#08bff2" font-size="84"
+              font-weight="800" letter-spacing="3">LAB</text>
+      </g>
+      <g fill="#ffc63d" font-family="Arial, Helvetica, sans-serif"
+         font-size="39" font-weight="600">
+        <text x="556" y="357">4 libraries.</text>
+        <text x="556" y="402">1 interface.</text>
+        <text x="556" y="447">5,280 possibilities.</text>
+      </g>
+      <line x1="556" y1="478" x2="1110" y2="478"
+            stroke="#62d7ff" stroke-opacity=".42"/>
+      <g font-family="Arial, Helvetica, sans-serif"
+         font-size="23" font-weight="600">
+        <text x="556" y="524" fill="#ffc63d">Layout</text>
+        <text x="635" y="524" fill="#62d7ff">·</text>
+        <text x="659" y="524" fill="#f7f7f4">Identity</text>
+        <text x="753" y="524" fill="#62d7ff">·</text>
+        <text x="777" y="524" fill="#ffc63d">Iconography</text>
+        <text x="928" y="524" fill="#62d7ff">·</text>
+        <text x="952" y="524" fill="#f7f7f4">Interaction</text>
+      </g>
+    </svg>
+  `);
+}
+
+export async function buildSocialCard({
+  backgroundPath = socialCardBackground,
+  logoPath = path.join(publicRoot, "logo-master.png"),
+  outputPath = socialCardOutput,
+} = {}) {
+  const background = await sharp(backgroundPath)
+    .resize(1200, 630, { fit: "fill" })
+    .png()
+    .toBuffer();
+  const logo = await sharp(logoPath)
+    .resize(405, 405, {
+      fit: "contain",
+      kernel: sharp.kernel.lanczos3,
+    })
+    .png()
+    .toBuffer();
+
+  const output = await sharp(background)
+    .composite([
+      { input: logo, left: 78, top: 92 },
+      { input: socialTypographySvg(), left: 0, top: 0 },
+    ])
+    .png({ palette: true, colours: 256, dither: 0.85 })
+    .toBuffer();
+  await writeFile(outputPath, output);
+}
+
 const requestedMaster = readOption("--master");
 await buildLogoFamily({
   sourceMaster: requestedMaster
     ? path.resolve(requestedMaster)
     : path.join(publicRoot, "logo-master.png"),
 });
+await buildSocialCard();
