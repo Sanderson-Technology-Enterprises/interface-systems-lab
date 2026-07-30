@@ -57,8 +57,9 @@ import "ui-style-kit-icons/element";
 
 ## Use the libraries locally
 
-The site itself installs the libraries as direct dependencies and imports them
-from `app/layout.tsx` in this order:
+The site itself installs the libraries as direct dependencies. Global CSS entry
+points load from `app/layout.tsx`, while `app/components/UiIcon.tsx` registers
+the UI Style Kit Icons custom-element runtime.
 
 ```ts
 import "ui-style-kit-css/visual.css";
@@ -66,6 +67,9 @@ import "ui-style-kit-css/interactive-surface-theme.css";
 import "interactive-surface-css/state-core.css";
 import "layout-style-css";
 import "ui-style-kit-icons/css.css";
+```
+
+```ts
 import "ui-style-kit-icons/element";
 ```
 

@@ -403,6 +403,22 @@ test("site consumes the CSS libraries as local dependencies", async () => {
   assert.match(manifest.scripts.quality, /npm run test:browser/);
 });
 
+test("local README guidance separates global CSS from the icon runtime owner", async () => {
+  const [readme, layoutSource, iconSource] = await Promise.all([
+    readFile(new URL("../README.md", import.meta.url), "utf8"),
+    readFile(new URL("../app/layout.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/components/UiIcon.tsx", import.meta.url), "utf8"),
+  ]);
+
+  assert.match(
+    readme,
+    /Global CSS entry\s+points load from `app\/layout\.tsx`, while `app\/components\/UiIcon\.tsx` registers\s+the UI Style Kit Icons custom-element runtime\./,
+  );
+  assert.match(layoutSource, /import "ui-style-kit-icons\/css\.css";/);
+  assert.doesNotMatch(layoutSource, /ui-style-kit-icons\/element/);
+  assert.match(iconSource, /import "ui-style-kit-icons\/element";/);
+});
+
 test("page runtime emits only canonical Layout 2.1 attributes", async () => {
   const [pageSource, experienceSource, configurationSource] = await Promise.all(
     [
