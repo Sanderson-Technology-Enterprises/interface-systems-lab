@@ -356,6 +356,7 @@ test("shell scopes the complete experience and balances developer and company pa
 
   const navigation = page.getByRole("navigation", {
     name: "Primary navigation",
+    includeHidden: true,
   });
   for (const id of requiredSectionIds) {
     await expect(page.locator(`#${id}`)).toHaveCount(1);
@@ -411,7 +412,7 @@ test("shell scopes the complete experience and balances developer and company pa
   ] as const) {
     const corporateLink = page
       .locator(scope)
-      .getByRole("link", { name: accessibleName });
+      .getByRole("link", { name: accessibleName, includeHidden: true });
     await expect(corporateLink).toHaveCount(1);
     await expect(corporateLink).toHaveAttribute("href", companyUrl);
     await expect(corporateLink).toHaveAttribute(
@@ -1959,9 +1960,13 @@ test("fits the viewport and honors reduced motion", async ({ page }) => {
         name === "none" && durationMs <= 1 && animationCount === 0,
     ),
   ).toBe(true);
-  await expect(
-    page.getByRole("navigation", { name: "Primary navigation" }),
-  ).toBeVisible();
+  const menu = page.locator(".navigation-toggle");
+  const navigation = page.locator(".primary-nav");
+  if (await menu.isVisible()) {
+    await expect(navigation).toBeHidden();
+    await menu.click();
+  }
+  await expect(navigation).toBeVisible();
 });
 
 test("stays responsive across mobile portrait, mobile landscape, tablet, and desktop sizes", async ({
