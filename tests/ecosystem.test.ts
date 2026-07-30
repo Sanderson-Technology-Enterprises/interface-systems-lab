@@ -60,6 +60,7 @@ async function readShippingSources(directory: URL): Promise<string[]> {
 const expectedNames = [
   "layout-style-css",
   "ui-style-kit-css",
+  "ui-style-kit-icons",
   "interactive-surface-css",
 ];
 
@@ -70,8 +71,10 @@ test("registry exposes every package and resource in ecosystem order", () => {
   );
   assert.deepEqual(
     ECOSYSTEM_PACKAGES.map(({ version }) => version),
-    ["2.1.0", "2.1.0", "1.5.0"],
+    ["3.0.0", "2.1.0", "1.0.0", "1.5.0"],
   );
+  assert.equal(ECOSYSTEM_PACKAGES[0]?.version, "3.0.0");
+  assert.equal(ECOSYSTEM_PACKAGES[2]?.version, "1.0.0");
   assert.equal(
     ECOSYSTEM_PACKAGES.find(({ name }) => name === "layout-style-css")
       ?.attribute,
@@ -94,86 +97,119 @@ test("registry exposes every package and resource in ecosystem order", () => {
 test("installation examples pin approved versions and cascade order", () => {
   assert.equal(
     NPM_INSTALL,
-    "npm install ui-style-kit-css@2.1.0 layout-style-css@2.1.0 interactive-surface-css@1.5.0",
+    "npm install ui-style-kit-css@2.1.0 ui-style-kit-icons@1.0.0 layout-style-css@3.0.0 interactive-surface-css@1.5.0",
   );
+  assert.match(NPM_INSTALL, /ui-style-kit-icons@1\.0\.0/);
   assert.deepEqual(BUNDLER_IMPORTS, [
-    '@import "ui-style-kit-css/visual.css";',
-    '@import "ui-style-kit-css/interactive-surface-theme.css";',
-    '@import "interactive-surface-css/state-core.css";',
-    '@import "layout-style-css";',
+    'import "ui-style-kit-css/visual.css";',
+    'import "ui-style-kit-css/interactive-surface-theme.css";',
+    'import "interactive-surface-css/state-core.css";',
+    'import "layout-style-css";',
+    'import "ui-style-kit-icons/css.css";',
+    'import "ui-style-kit-icons/element";',
   ]);
   assert.deepEqual(CDN_LINKS, [
     {
       packageName: "ui-style-kit-css",
+      kind: "style",
       href: "https://cdn.jsdelivr.net/npm/ui-style-kit-css@2.1.0/dist/ui-style-kit.visual.min.css",
     },
     {
       packageName: "ui-style-kit-css",
+      kind: "style",
       href: "https://cdn.jsdelivr.net/npm/ui-style-kit-css@2.1.0/styles/interactive-surface-theme.css",
     },
     {
       packageName: "interactive-surface-css",
+      kind: "style",
       href: "https://cdn.jsdelivr.net/npm/interactive-surface-css@1.5.0/state-core.css",
     },
     {
       packageName: "layout-style-css",
-      href: "https://cdn.jsdelivr.net/npm/layout-style-css@2.1.0/dist/layout-style-css.min.css",
+      kind: "style",
+      href: "https://cdn.jsdelivr.net/npm/layout-style-css@3.0.0/dist/layout-style-css.min.css",
+    },
+    {
+      packageName: "ui-style-kit-icons",
+      kind: "style",
+      href: "https://cdn.jsdelivr.net/npm/ui-style-kit-icons@1.0.0/dist/ui-style-kit-icons.css",
+    },
+    {
+      packageName: "ui-style-kit-icons",
+      kind: "module",
+      href: "https://cdn.jsdelivr.net/npm/ui-style-kit-icons@1.0.0/dist/ui-style-kit-icons.js",
     },
   ]);
   assert.equal(
     CDN_MARKUP,
-    CDN_LINKS.map(({ href }) => `<link rel="stylesheet" href="${href}">`).join(
-      "\n",
-    ),
+    [
+      '<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ui-style-kit-css@2.1.0/dist/ui-style-kit.visual.min.css">',
+      '<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ui-style-kit-css@2.1.0/styles/interactive-surface-theme.css">',
+      '<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/interactive-surface-css@1.5.0/state-core.css">',
+      '<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/layout-style-css@3.0.0/dist/layout-style-css.min.css">',
+      '<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ui-style-kit-icons@1.0.0/dist/ui-style-kit-icons.css">',
+      '<script type="module" src="https://cdn.jsdelivr.net/npm/ui-style-kit-icons@1.0.0/dist/ui-style-kit-icons.js"></script>',
+    ].join("\n"),
+  );
+  assert.match(
+    CDN_MARKUP,
+    /<script type="module" src="[^\"]+ui-style-kit-icons\.js"><\/script>/,
+  );
+  assert.doesNotMatch(
+    CDN_MARKUP,
+    /stylesheet" href="[^\"]+ui-style-kit-icons\.js/,
   );
 });
 
-test("adoption paths cover every standalone, pair, canonical, and legacy fixture", () => {
+test("adoption paths cover every standalone, pair, and complete-stack fixture", () => {
   assert.deepEqual(
     ADOPTION_PATHS.map(({ id }) => id),
     [
       "layout-only",
       "ui-only",
+      "icons-only",
       "interactive-only",
       "layout-ui",
+      "ui-icons",
       "layout-interactive",
       "ui-interactive",
       "all-canonical",
-      "all-legacy",
     ],
+  );
+  assert.equal(
+    (ADOPTION_PATHS as readonly { id: string }[]).some(
+      ({ id }) => id === "all-legacy",
+    ),
+    false,
   );
   assert.deepEqual(
     ADOPTION_PATHS.reduce<Record<string, number>>((counts, path) => {
       counts[path.scope] = (counts[path.scope] ?? 0) + 1;
       return counts;
     }, {}),
-    { one: 3, pair: 3, all: 1, legacy: 1 },
+    { one: 4, pair: 4, all: 1 },
   );
 
   const uiVisualCdn =
     '<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ui-style-kit-css@2.1.0/dist/ui-style-kit.visual.min.css">';
   const uiThemeCdn =
     '<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ui-style-kit-css@2.1.0/styles/interactive-surface-theme.css">';
-  const uiLegacyCdn =
-    '<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ui-style-kit-css@2.1.0/dist/ui-style-kit.with-bridge.min.css">';
   const interactionCoreCdn =
     '<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/interactive-surface-css@1.5.0/state-core.css">';
   const interactionStandaloneCdn =
     '<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/interactive-surface-css@1.5.0/standalone-preset.css">';
-  const interactionLegacyCdn =
-    '<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/interactive-surface-css@1.5.0/interactive-surface.css">';
   const layoutCdn =
-    '<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/layout-style-css@2.1.0/dist/layout-style-css.min.css">';
-  const layoutBridgeCdn =
-    '<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/layout-style-css@2.1.0/dist/integrations/ui-style-kit.css">';
-  const layoutLegacyCdn =
-    '<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/layout-style-css@2.1.0/dist/legacy.css">';
+    '<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/layout-style-css@3.0.0/dist/layout-style-css.min.css">';
+  const iconCssCdn =
+    '<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ui-style-kit-icons@1.0.0/dist/ui-style-kit-icons.css">';
+  const iconRuntimeCdn =
+    '<script type="module" src="https://cdn.jsdelivr.net/npm/ui-style-kit-icons@1.0.0/dist/ui-style-kit-icons.js"></script>';
   const expectedMatrix = {
     "layout-only": {
       packages: ["layout-style-css"],
       snippets: [
-        "npm install layout-style-css@2.1.0",
-        '@import "layout-style-css";',
+        "npm install layout-style-css@3.0.0",
+        'import "layout-style-css";',
         layoutCdn,
       ],
     },
@@ -181,36 +217,59 @@ test("adoption paths cover every standalone, pair, canonical, and legacy fixture
       packages: ["ui-style-kit-css"],
       snippets: [
         "npm install ui-style-kit-css@2.1.0",
-        '@import "ui-style-kit-css/visual.css";',
+        'import "ui-style-kit-css/visual.css";',
         uiVisualCdn,
+      ],
+    },
+    "icons-only": {
+      packages: ["ui-style-kit-icons"],
+      snippets: [
+        "npm install ui-style-kit-icons@1.0.0",
+        [
+          'import "ui-style-kit-icons/css.css";',
+          'import "ui-style-kit-icons/element";',
+        ].join("\n"),
+        [iconCssCdn, iconRuntimeCdn].join("\n"),
       ],
     },
     "interactive-only": {
       packages: ["interactive-surface-css"],
       snippets: [
         "npm install interactive-surface-css@1.5.0",
-        '@import "interactive-surface-css/standalone-preset.css";',
+        'import "interactive-surface-css/standalone-preset.css";',
         interactionStandaloneCdn,
       ],
     },
     "layout-ui": {
-      packages: ["ui-style-kit-css", "layout-style-css"],
+      packages: ["layout-style-css", "ui-style-kit-css"],
       snippets: [
-        "npm install ui-style-kit-css@2.1.0 layout-style-css@2.1.0",
+        "npm install layout-style-css@3.0.0 ui-style-kit-css@2.1.0",
         [
-          '@import "ui-style-kit-css/visual.css";',
-          '@import "layout-style-css";',
+          'import "ui-style-kit-css/visual.css";',
+          'import "layout-style-css";',
         ].join("\n"),
         [uiVisualCdn, layoutCdn].join("\n"),
       ],
     },
-    "layout-interactive": {
-      packages: ["interactive-surface-css", "layout-style-css"],
+    "ui-icons": {
+      packages: ["ui-style-kit-css", "ui-style-kit-icons"],
       snippets: [
-        "npm install interactive-surface-css@1.5.0 layout-style-css@2.1.0",
+        "npm install ui-style-kit-css@2.1.0 ui-style-kit-icons@1.0.0",
         [
-          '@import "interactive-surface-css/standalone-preset.css";',
-          '@import "layout-style-css";',
+          'import "ui-style-kit-css/visual.css";',
+          'import "ui-style-kit-icons/css.css";',
+          'import "ui-style-kit-icons/element";',
+        ].join("\n"),
+        [uiVisualCdn, iconCssCdn, iconRuntimeCdn].join("\n"),
+      ],
+    },
+    "layout-interactive": {
+      packages: ["layout-style-css", "interactive-surface-css"],
+      snippets: [
+        "npm install layout-style-css@3.0.0 interactive-surface-css@1.5.0",
+        [
+          'import "interactive-surface-css/standalone-preset.css";',
+          'import "layout-style-css";',
         ].join("\n"),
         [interactionStandaloneCdn, layoutCdn].join("\n"),
       ],
@@ -220,42 +279,21 @@ test("adoption paths cover every standalone, pair, canonical, and legacy fixture
       snippets: [
         "npm install ui-style-kit-css@2.1.0 interactive-surface-css@1.5.0",
         [
-          '@import "ui-style-kit-css/visual.css";',
-          '@import "ui-style-kit-css/interactive-surface-theme.css";',
-          '@import "interactive-surface-css/state-core.css";',
+          'import "ui-style-kit-css/visual.css";',
+          'import "ui-style-kit-css/interactive-surface-theme.css";',
+          'import "interactive-surface-css/state-core.css";',
         ].join("\n"),
         [uiVisualCdn, uiThemeCdn, interactionCoreCdn].join("\n"),
       ],
     },
     "all-canonical": {
       packages: [
-        "ui-style-kit-css",
-        "interactive-surface-css",
         "layout-style-css",
+        "ui-style-kit-css",
+        "ui-style-kit-icons",
+        "interactive-surface-css",
       ],
       snippets: [NPM_INSTALL, BUNDLER_IMPORTS.join("\n"), CDN_MARKUP],
-    },
-    "all-legacy": {
-      packages: [
-        "ui-style-kit-css",
-        "interactive-surface-css",
-        "layout-style-css",
-      ],
-      snippets: [
-        NPM_INSTALL,
-        [
-          '@import "ui-style-kit-css/with-bridge.css";',
-          '@import "interactive-surface-css/interactive-surface.css";',
-          '@import "layout-style-css/integrations/ui-style-kit.css";',
-          '@import "layout-style-css/legacy.css";',
-        ].join("\n"),
-        [
-          uiLegacyCdn,
-          interactionLegacyCdn,
-          layoutBridgeCdn,
-          layoutLegacyCdn,
-        ].join("\n"),
-      ],
     },
   } as const;
 
@@ -288,37 +326,24 @@ test("adoption paths cover every standalone, pair, canonical, and legacy fixture
   }
 });
 
-test("canonical adoption preserves ownership while legacy imports stay quarantined", () => {
+test("canonical adoption preserves each package's ownership boundary", () => {
   const canonical = ADOPTION_PATHS.find(({ id }) => id === "all-canonical");
-  const legacy = ADOPTION_PATHS.find(({ id }) => id === "all-legacy");
   assert.ok(canonical);
-  assert.ok(legacy);
 
   assert.equal(canonical.deprecated, false);
-  assert.equal(legacy.deprecated, true);
-  assert.equal(canonical.snippets[0].title, "Install all three");
+  assert.equal(canonical.snippets[0].title, "Install all four");
   assert.equal(canonical.snippets[1].code, BUNDLER_IMPORTS.join("\n"));
   assert.equal(canonical.snippets[2].code, CDN_MARKUP);
 
-  const deprecatedImports =
+  const supersededImports =
     /with-bridge|interactive-surface\.css|integrations\/ui-style-kit|legacy\.css|data-layout/;
-  for (const path of ADOPTION_PATHS.filter(({ deprecated }) => !deprecated)) {
+  for (const path of ADOPTION_PATHS) {
     assert.doesNotMatch(
       path.snippets.map(({ code }) => code).join("\n"),
-      deprecatedImports,
+      supersededImports,
       path.id,
     );
   }
-  assert.match(legacy.snippets[1].code, /ui-style-kit-css\/with-bridge\.css/);
-  assert.match(
-    legacy.snippets[1].code,
-    /interactive-surface-css\/interactive-surface\.css/,
-  );
-  assert.match(
-    legacy.snippets[1].code,
-    /layout-style-css\/integrations\/ui-style-kit\.css/,
-  );
-  assert.match(legacy.snippets[1].code, /layout-style-css\/legacy\.css/);
 });
 
 test("package directory exposes independent entrypoints and fixture anchors", () => {
@@ -338,6 +363,11 @@ test("package directory exposes independent entrypoints and fixture anchors", ()
         fixture: "ui-only",
         name: "ui-style-kit-css",
         recommendedEntryPoint: "ui-style-kit-css/visual.css",
+      },
+      {
+        fixture: "icon-only",
+        name: "ui-style-kit-icons",
+        recommendedEntryPoint: "ui-style-kit-icons/element",
       },
       {
         fixture: "interactive-only",
@@ -726,7 +756,7 @@ test("site identity targets the transferred organization", () => {
   );
   assert.equal(
     site.socialImageAlt,
-    "Interface Systems Lab graphic showing 3 libraries, 1 interface, and 5,280 possibilities across layout, identity, and interaction.",
+    "Interface Systems Lab social card with the text \u201c3 libraries, 1 interface, and 5,280 possibilities\u201d over layout, identity, and interaction.",
   );
   assert.equal(site.brandLogoPath, "android-chrome-512x512.png");
   assert.equal(
@@ -923,7 +953,7 @@ test("page components expose approved observatory and resource landmarks", async
 
   assert.match(observatory, /Interface Observatory/);
   assert.doesNotMatch(observatory, /signal-bars/);
-  assert.match(installGuide, /Install all three/);
+  assert.match(installGuide, /Install all four/);
   assert.match(directory, /Library resources/);
   assert.match(layoutLab, /Layout laboratory/);
   assert.match(layoutLab, /data-ly-recipe="dashboard"/);

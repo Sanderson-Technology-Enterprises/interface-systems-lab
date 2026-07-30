@@ -30,7 +30,7 @@ export function LibraryDirectory() {
             <h2 id="libraries-title">One job per package</h2>
           </div>
           <p>
-            Adopt one layer or all three. Every package remains independently
+            Adopt one layer or all four. Every package remains independently
             useful, documented, and versioned.
           </p>
         </div>

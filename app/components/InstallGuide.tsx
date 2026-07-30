@@ -183,7 +183,7 @@ export function InstallGuide() {
 
   const canonical = ADOPTION_PATHS.find((path) => path.id === "all-canonical");
   if (canonical === undefined) {
-    throw new Error("The canonical all-three adoption path is missing.");
+    throw new Error("The canonical all-four adoption path is missing.");
   }
 
   const pathsFor = (scope: AdoptionScope) =>
@@ -199,11 +199,11 @@ export function InstallGuide() {
         <div className="section-heading ly-split ly-gap-6 ly-items-end">
           <div>
             <p className="section-label">Install</p>
-            <h2 id="install-title">Install all three, or adopt by layer.</h2>
+            <h2 id="install-title">Install all four, or adopt by layer.</h2>
           </div>
           <p>
-            Every path pins the aligned releases and preserves the cascade
-            boundary: identity, behavior, then structure.
+            Every path pins the aligned releases and preserves ownership across
+            identity, iconography, behavior, and structure.
           </p>
         </div>
 
@@ -232,14 +232,6 @@ export function InstallGuide() {
             paths={pathsFor("pair")}
             prefix={prefix}
             scope="pair"
-          />
-          <AdoptionGroup
-            copyLabels={copyLabels}
-            label="Deprecated migration-only compatibility"
-            onCopy={copySnippet}
-            paths={pathsFor("legacy")}
-            prefix={prefix}
-            scope="legacy"
           />
         </div>
       </div>

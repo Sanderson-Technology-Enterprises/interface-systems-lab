@@ -9,6 +9,10 @@ const resourceUrls = [
   "https://github.com/Foscat/ui-style-kit-css/wiki",
   "https://www.npmjs.com/package/ui-style-kit-css",
   "https://foscat.github.io/ui-style-kit-css/",
+  "https://github.com/Foscat/ui-style-kit-icons",
+  "https://github.com/Foscat/ui-style-kit-icons/wiki",
+  "https://www.npmjs.com/package/ui-style-kit-icons",
+  "https://foscat.github.io/ui-style-kit-icons/",
   "https://github.com/Foscat/Interactive-Surface-CSS",
   "https://github.com/Foscat/Interactive-Surface-CSS/wiki",
   "https://www.npmjs.com/package/interactive-surface-css",
@@ -24,7 +28,7 @@ const repositoryUrl =
   "https://github.com/Sanderson-Technology-Enterprises/interface-systems-lab";
 const socialImageUrl = `${canonicalUrl}interface-systems-lab-social-card.png`;
 const socialImageAlt =
-  "Interface Systems Lab graphic showing 3 libraries, 1 interface, and 5,280 possibilities across layout, identity, and interaction.";
+  "Interface Systems Lab social card with the text \u201c3 libraries, 1 interface, and 5,280 possibilities\u201d over layout, identity, and interaction.";
 const websiteId = `${canonicalUrl}#website`;
 const webpageId = `${canonicalUrl}#webpage`;
 const applicationId = `${canonicalUrl}#application`;
@@ -903,7 +907,7 @@ test("renders the production metadata and complete resource directory", async ({
           name: "layout-style-css",
           programmingLanguage: "CSS",
           url: "https://www.npmjs.com/package/layout-style-css",
-          version: "2.1.0",
+          version: "3.0.0",
         },
       },
       {
@@ -917,6 +921,15 @@ test("renders the production metadata and complete resource directory", async ({
       },
       {
         item: {
+          codeRepository: "https://github.com/Foscat/ui-style-kit-icons",
+          name: "ui-style-kit-icons",
+          programmingLanguage: "JavaScript, SVG",
+          url: "https://www.npmjs.com/package/ui-style-kit-icons",
+          version: "1.0.0",
+        },
+      },
+      {
+        item: {
           codeRepository: "https://github.com/Foscat/Interactive-Surface-CSS",
           name: "interactive-surface-css",
           programmingLanguage: "CSS",
@@ -925,12 +938,13 @@ test("renders the production metadata and complete resource directory", async ({
         },
       },
     ],
-    numberOfItems: 3,
+    numberOfItems: 4,
   });
 
   for (const [name, version] of [
-    ["layout-style-css", "2.1.0"],
+    ["layout-style-css", "3.0.0"],
     ["ui-style-kit-css", "2.1.0"],
+    ["ui-style-kit-icons", "1.0.0"],
     ["interactive-surface-css", "1.5.0"],
   ]) {
     const packageEntry = page.locator(`[data-package="${name}"]`);
@@ -1103,11 +1117,11 @@ test("one atomic polite region announces configuration, observatory, and install
 
   await page
     .getByRole("button", {
-      name: "Copy Install all three code for The canonical all-three stack",
+      name: "Copy Install all four code for The canonical all-four stack",
     })
     .click();
   await expect(liveRegion).toHaveText(
-    "Install all three code for The canonical all-three stack copied to the clipboard.",
+    "Install all four code for The canonical all-four stack copied to the clipboard.",
   );
 });
 
@@ -1151,11 +1165,11 @@ test("install copy feedback restarts its timer", async ({ page, context }) => {
 
   await page
     .getByRole("button", {
-      name: "Copy Install all three code for The canonical all-three stack",
+      name: "Copy Install all four code for The canonical all-four stack",
     })
     .click();
   let copyButton = page.getByRole("button", {
-    name: "Copied Install all three code for The canonical all-three stack",
+    name: "Copied Install all four code for The canonical all-four stack",
   });
   await expect(copyButton).toBeVisible();
 
@@ -1163,14 +1177,14 @@ test("install copy feedback restarts its timer", async ({ page, context }) => {
   await copyButton.click();
   await page.waitForTimeout(1_000);
   copyButton = page.getByRole("button", {
-    name: "Copied Install all three code for The canonical all-three stack",
+    name: "Copied Install all four code for The canonical all-four stack",
   });
   await expect(copyButton).toBeVisible();
 
   await page.waitForTimeout(900);
   await expect(
     page.getByRole("button", {
-      name: "Copy Install all three code for The canonical all-three stack",
+      name: "Copy Install all four code for The canonical all-four stack",
     }),
   ).toBeVisible();
 });
@@ -1192,18 +1206,18 @@ test("install clipboard failure uses the shared feedback region", async ({
 
   await page
     .getByRole("button", {
-      name: "Copy Install all three code for The canonical all-three stack",
+      name: "Copy Install all four code for The canonical all-four stack",
     })
     .click();
   const retryCopy = page.getByRole("button", {
-    name: "Retry copy Install all three code for The canonical all-three stack",
+    name: "Retry copy Install all four code for The canonical all-four stack",
   });
   await expect(retryCopy).toHaveText("Retry copy");
   await expect(retryCopy).toHaveAccessibleName(
-    "Retry copy Install all three code for The canonical all-three stack",
+    "Retry copy Install all four code for The canonical all-four stack",
   );
   await expect(page.locator(".configuration-status")).toHaveText(
-    "Clipboard access failed. Copy the visible Install all three code for The canonical all-three stack manually.",
+    "Clipboard access failed. Copy the visible Install all four code for The canonical all-four stack manually.",
   );
 });
 

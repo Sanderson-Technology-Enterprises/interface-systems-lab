@@ -24,7 +24,7 @@ const repositoryUrl =
   "https://github.com/Sanderson-Technology-Enterprises/interface-systems-lab";
 const socialImageUrl = `${canonicalUrl}interface-systems-lab-social-card.png`;
 const socialImageAlt =
-  "Interface Systems Lab graphic showing 3 libraries, 1 interface, and 5,280 possibilities across layout, identity, and interaction.";
+  "Interface Systems Lab social card with the text \u201c3 libraries, 1 interface, and 5,280 possibilities\u201d over layout, identity, and interaction.";
 const websiteId = `${canonicalUrl}#website`;
 const webpageId = `${canonicalUrl}#webpage`;
 const applicationId = `${canonicalUrl}#application`;
@@ -183,7 +183,7 @@ test("home structured data separates corporate ownership from Lab entities", asy
   const packages = nodesOfType(nodes, "ItemList")[0];
   assert.equal(packages["@id"], packagesId);
   assert.equal(packages.url, canonicalUrl);
-  assert.equal(packages.numberOfItems, 3);
+  assert.equal(packages.numberOfItems, 4);
   assert.deepEqual(
     packages.itemListElement.map((entry) => ({
       codeRepository: entry.item.codeRepository,
@@ -198,7 +198,7 @@ test("home structured data separates corporate ownership from Lab entities", asy
         name: "layout-style-css",
         programmingLanguage: "CSS",
         url: "https://www.npmjs.com/package/layout-style-css",
-        version: "2.1.0",
+        version: "3.0.0",
       },
       {
         codeRepository: "https://github.com/Foscat/ui-style-kit-css",
@@ -206,6 +206,13 @@ test("home structured data separates corporate ownership from Lab entities", asy
         programmingLanguage: "CSS",
         url: "https://www.npmjs.com/package/ui-style-kit-css",
         version: "2.1.0",
+      },
+      {
+        codeRepository: "https://github.com/Foscat/ui-style-kit-icons",
+        name: "ui-style-kit-icons",
+        programmingLanguage: "JavaScript, SVG",
+        url: "https://www.npmjs.com/package/ui-style-kit-icons",
+        version: "1.0.0",
       },
       {
         codeRepository: "https://github.com/Foscat/Interactive-Surface-CSS",

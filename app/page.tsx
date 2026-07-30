@@ -98,7 +98,7 @@ const homeStructuredData = {
     {
       "@type": "ItemList",
       "@id": `${SITE.url}#packages`,
-      name: "Interface Systems Lab CSS packages",
+      name: "Interface Systems Lab packages",
       url: SITE.url,
       numberOfItems: ECOSYSTEM_PACKAGES.length,
       itemListElement: ECOSYSTEM_PACKAGES.map((pkg, index) => ({
@@ -111,7 +111,8 @@ const homeStructuredData = {
           version: pkg.version,
           codeRepository: pkg.links.repository,
           url: pkg.links.npm,
-          programmingLanguage: "CSS",
+          programmingLanguage:
+            pkg.name === "ui-style-kit-icons" ? "JavaScript, SVG" : "CSS",
         },
       })),
     },
