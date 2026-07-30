@@ -199,9 +199,17 @@ test("fixture generation runs before every development and production build", as
     packageManifest.scripts["test:dev-hydration"],
     "node scripts/run-dev-hydration.mjs",
   );
+  assert.equal(
+    packageManifest.scripts["assets:brand"],
+    "node scripts/build-brand-assets.mjs",
+  );
+  assert.equal(
+    packageManifest.scripts["test:brand"],
+    "node --test tests/brand-assets.test.mjs",
+  );
   assert.match(
     packageManifest.scripts.quality,
-    /npm run test:unit && npm run test:fixtures && npm run test:dev-hydration && npm run build:pages/,
+    /npm run test:fixtures && npm run test:brand && npm run test:dev-hydration/,
   );
 
   const gitignore = await readFile(

@@ -21,13 +21,15 @@
     "test:unit": "node --import tsx --test tests/*.test.ts",
     "fixtures:build": "node scripts/build-fixtures.mjs",
     "assets:build": "node scripts/build-icon-assets.mjs && npm run fixtures:build",
+    "assets:brand": "node scripts/build-brand-assets.mjs",
     "test:fixtures": "node --test tests/fixtures.test.mjs tests/icon-assets.test.mjs",
+    "test:brand": "node --test tests/brand-assets.test.mjs",
     "test:export": "node --test tests/export.test.mjs",
     "test:browser": "playwright test",
     "test:dev-hydration": "node scripts/run-dev-hydration.mjs",
     "verify:export": "node scripts/verify-export.mjs",
     "typecheck": "tsc --noEmit",
-    "quality": "npm run format:check && npm run lint && npm run typecheck && npm run test:unit && npm run test:fixtures && npm run test:dev-hydration && npm run build:pages && npm run test:export && npm run test:browser"
+    "quality": "npm run format:check && npm run lint && npm run typecheck && npm run test:unit && npm run test:fixtures && npm run test:brand && npm run test:dev-hydration && npm run build:pages && npm run test:export && npm run test:browser"
   },
   "dependencies": {
     "interactive-surface-css": "1.5.0",
@@ -52,6 +54,7 @@
     "eslint-config-next": "16.2.12",
     "prettier": "3.9.5",
     "serve": "14.2.6",
+    "sharp": "0.34.5",
     "tsx": "4.23.1",
     "typescript": "5.9.3"
   },
