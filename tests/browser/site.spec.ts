@@ -196,6 +196,35 @@ test("icons follow the selected UI pack and expose frame variants", async ({
   }
 });
 
+test("the Icon Lab action restores the authored frame without naming its icon", async ({
+  page,
+}) => {
+  const lab = page.locator("[data-icon-lab]");
+  const frameControl = page.getByLabel("Icon frame");
+  const specimenIcon = lab.locator("[data-icon-specimen] usk-icon").first();
+  const action = lab.getByRole("button", {
+    name: "Restore authored frame",
+  });
+
+  await frameControl.selectOption("none");
+  await expect(specimenIcon).toHaveAttribute("frame", "none");
+  await expect(action).toBeVisible();
+  await expect(action.locator("usk-icon")).toHaveAttribute(
+    "aria-hidden",
+    "true",
+  );
+
+  await action.click();
+  await expect(frameControl).toHaveValue("auto");
+  await expect
+    .poll(() =>
+      specimenIcon.evaluate(
+        (element) => (element as HTMLElement & { frame: string }).frame,
+      ),
+    )
+    .toBe("auto");
+});
+
 test("an icon asset failure reports once without disabling labeled actions", async ({
   page,
 }) => {

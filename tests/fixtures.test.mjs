@@ -18,6 +18,8 @@ import { fileURLToPath } from "node:url";
 import path from "node:path";
 import { before, test } from "node:test";
 
+import { BUNDLER_IMPORTS } from "../app/data/ecosystem.ts";
+
 const execFileAsync = promisify(execFile);
 const repositoryRoot = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
@@ -95,13 +97,16 @@ const expectedStyles = {
   "ui-icons": ["ui-visual", "icon-css"],
   "layout-interactive": ["interaction-standalone", "layout-core"],
   "ui-interactive": ["ui-visual", "ui-theme", "interaction-core"],
-  "all-canonical": [
-    "ui-visual",
-    "icon-css",
-    "ui-theme",
-    "interaction-core",
-    "layout-core",
-  ],
+  "all-canonical": BUNDLER_IMPORTS.filter(
+    (statement) => !statement.includes("ui-style-kit-icons/element"),
+  ).map((statement) => {
+    const packageExport = statement.match(/^import "([^"]+)";$/)?.[1];
+    const asset = Object.entries(expectedAssets).find(
+      ([, candidate]) => candidate.export === packageExport,
+    );
+    assert.ok(asset, `Missing fixture asset for ${packageExport}`);
+    return asset[0];
+  }),
 };
 
 function stylesheetLinks(html) {

@@ -47,6 +47,14 @@ test(
     await expect(
       page.locator("[data-icon-lab] [data-icon-specimen] usk-icon").first(),
     ).toHaveAttribute("aria-hidden", "true");
+    const iconAction = page
+      .locator("[data-icon-lab]")
+      .getByRole("button", { name: "Restore authored frame" });
+    await expect(iconAction).toBeVisible();
+    await expect(iconAction.locator("usk-icon")).toHaveAttribute(
+      "aria-hidden",
+      "true",
+    );
 
     const results = await new AxeBuilder({ page }).analyze();
     await expectNoAxeViolations(

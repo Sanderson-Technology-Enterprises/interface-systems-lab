@@ -84,10 +84,10 @@
     ],
     "styles": [
       "ui-visual",
-      "icon-css",
       "ui-theme",
       "interaction-core",
-      "layout-core"
+      "layout-core",
+      "icon-css"
     ],
     "deprecated": false
   }

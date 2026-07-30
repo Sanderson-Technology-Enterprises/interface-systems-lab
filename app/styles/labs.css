@@ -560,10 +560,8 @@
 
 .icon-specimen {
   min-inline-size: 0;
-  border: 1px solid rgb(var(--usk-border-rgb) / 0.72);
-  background: rgb(var(--usk-surface-rgb) / 0.72);
 }
 
-.icon-specimen usk-icon {
-  color: rgb(var(--usk-text-rgb));
+.icon-frame-action usk-icon {
+  flex: none;
 }

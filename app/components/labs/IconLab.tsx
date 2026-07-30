@@ -3,6 +3,7 @@
 import { getPack, type IconFrame, type IconName } from "ui-style-kit-icons";
 import { useEffect, useRef, useState, type ChangeEvent } from "react";
 
+import { getUiPrefix } from "../../data/catalog";
 import { UiIcon } from "../UiIcon";
 import { useLabConfiguration } from "../LabExperience";
 
@@ -33,6 +34,7 @@ export function IconLab() {
   const [errorMessage, setErrorMessage] = useState("");
   const sectionRef = useRef<HTMLElement | null>(null);
   const pack = getPack(configuration.ui);
+  const uiPrefix = getUiPrefix(configuration.ui);
 
   useEffect(() => {
     const section = sectionRef.current;
@@ -94,12 +96,20 @@ export function IconLab() {
               ))}
             </select>
           </label>
+          <button
+            className={`${uiPrefix}-button icon-frame-action`}
+            type="button"
+            onClick={() => setFrame("auto")}
+          >
+            <UiIcon decorative frame={frame} name="palette" size="1.25em" />
+            Restore authored frame
+          </button>
         </div>
 
         <div className="icon-specimen-grid ly-grid ly-gap-4">
           {ICON_SPECIMENS.map(([name, label]) => (
             <article
-              className="icon-specimen ly-stack ly-gap-2 ly-pad-4"
+              className={`icon-specimen ${uiPrefix}-card ly-stack ly-gap-2 ly-pad-4`}
               data-icon-specimen={name}
               key={name}
             >
