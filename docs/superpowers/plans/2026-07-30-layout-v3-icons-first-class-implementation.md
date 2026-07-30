@@ -1652,6 +1652,7 @@ remains as a preserved worktree change.
 - Modify: `tests/export.test.mjs`
 - Modify: `tests/browser/site.spec.ts`
 - Modify: `tests/browser/accessibility.spec.ts`
+- Modify: `playwright.config.ts`
 - Create: `.qa/layout-v3-icons/final-desktop.png`
 - Create: `.qa/layout-v3-icons/final-mobile.png`
 - Create: `.qa/layout-v3-icons/fidelity-ledger.md`
@@ -1718,6 +1719,17 @@ the `finally` block restores the exact file.
 
 - [ ] **Step 3: Build and run the full automated gate**
 
+Make the existing Playwright server port configurable so unrelated local
+listeners do not need to be stopped:
+
+```ts
+const browserPort = process.env.PLAYWRIGHT_TEST_PORT?.trim() || "4173";
+const browserBaseUrl = `http://127.0.0.1:${browserPort}/interface-systems-lab/`;
+```
+
+Use `browserBaseUrl` for both `use.baseURL` and `webServer.url`, and interpolate
+`browserPort` into the existing preview command.
+
 Run:
 
 ```powershell
@@ -1728,8 +1740,10 @@ npm.cmd run test:unit
 npm.cmd run test:fixtures
 npm.cmd run build:pages
 npm.cmd run test:export
+$env:PLAYWRIGHT_TEST_PORT = "4175"
 npm.cmd run test:browser
 npm.cmd run quality
+Remove-Item Env:PLAYWRIGHT_TEST_PORT
 npm.cmd audit --audit-level=moderate
 git diff --check
 ```
