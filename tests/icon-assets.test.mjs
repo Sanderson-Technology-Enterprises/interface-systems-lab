@@ -7,6 +7,7 @@ import test from "node:test";
 import {
   EXPECTED_ICON_CONTRACT,
   EXPECTED_ICON_COUNT,
+  EXPECTED_ICON_PACK_COUNT,
   EXPECTED_ICON_VERSION,
   assertSafeIconAssetPath,
   buildIconAssets,
@@ -73,6 +74,7 @@ test("the icon builder stages runtime modules and SVG packs", async () => {
 
     assert.equal(result.version, EXPECTED_ICON_VERSION);
     assert.equal(result.requiredIconCount, EXPECTED_ICON_COUNT);
+    assert.equal(result.packCount, EXPECTED_ICON_PACK_COUNT);
     await stat(path.join(output, "ui-style-kit-icons.js"));
     await stat(path.join(output, "ui-style-kit-icons.css"));
     await stat(path.join(output, "registry.js"));

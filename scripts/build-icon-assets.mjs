@@ -5,6 +5,7 @@ import path from "node:path";
 export const EXPECTED_ICON_VERSION = "1.0.0";
 export const EXPECTED_ICON_CONTRACT = "1.0.0";
 export const EXPECTED_ICON_COUNT = 64;
+export const EXPECTED_ICON_PACK_COUNT = 12;
 
 const modulePath = fileURLToPath(import.meta.url);
 const defaultRepositoryRoot = path.resolve(path.dirname(modulePath), "..");
@@ -111,8 +112,9 @@ export async function buildIconAssets(options = {}) {
   validateIconContract(contract);
   if (
     registry.requiredIconCount !== EXPECTED_ICON_COUNT ||
+    registry.packCount !== EXPECTED_ICON_PACK_COUNT ||
     !Array.isArray(registry.packs) ||
-    registry.packs.length !== registry.packCount
+    registry.packs.length !== EXPECTED_ICON_PACK_COUNT
   ) {
     throw new Error("The published icon registry is incomplete.");
   }
