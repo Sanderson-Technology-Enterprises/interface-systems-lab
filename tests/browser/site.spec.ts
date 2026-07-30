@@ -1049,6 +1049,44 @@ test(
   },
 );
 
+test("integration fixtures stage icon assets without legacy paths", async ({
+  page,
+}) => {
+  await page.goto("./");
+
+  const integrationLab = page.locator("#integrate");
+  await expect(
+    integrationLab.getByRole("heading", {
+      name: "Complete four-package stack",
+    }),
+  ).toBeVisible();
+  await expect(
+    integrationLab.locator('[data-integration-group="legacy"]'),
+  ).toHaveCount(0);
+  await expect(
+    integrationLab.locator('[data-integration-fixture="all-legacy"]'),
+  ).toHaveCount(0);
+
+  const iconFixture = integrationLab.locator(
+    '[data-integration-fixture="icon-only"]',
+  );
+  await expect(iconFixture).toBeVisible();
+  await expect(
+    page
+      .frameLocator('[data-integration-fixture="icon-only"]')
+      .locator("usk-icon"),
+  ).toHaveCount(2);
+
+  for (const asset of [
+    "assets/ui-style-kit-icons/1.0.0/ui-style-kit-icons.js",
+    "assets/ui-style-kit-icons/1.0.0/icons/dashboard.svg",
+  ]) {
+    // Exercise the deployed repository base instead of a root-hosted local URL.
+    const response = await page.request.get(`/interface-systems-lab/${asset}`);
+    expect(response.status(), asset).toBe(200);
+  }
+});
+
 test("keeps workbench controls, state, and copy affordances functional", async ({
   page,
   context,

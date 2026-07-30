@@ -3,7 +3,7 @@
     "id": "layout-only",
     "title": "Layout Style CSS standalone",
     "group": "one",
-    "summary": "Structural wrappers and adaptive grid geometry without companion paint or state mechanics.",
+    "summary": "Intrinsic layout primitives and adaptive grid geometry without companion paint or state mechanics.",
     "packages": ["layout-style-css"],
     "styles": ["layout-core"],
     "deprecated": false
@@ -15,6 +15,15 @@
     "summary": "Theme paint, native controls, and component identity without structural or interaction dependencies.",
     "packages": ["ui-style-kit-css"],
     "styles": ["ui-visual"],
+    "deprecated": false
+  },
+  {
+    "id": "icon-only",
+    "title": "UI Style Kit Icons standalone",
+    "group": "one",
+    "summary": "Semantic SVG artwork with readable fallback paint and no required visual-theme dependency.",
+    "packages": ["ui-style-kit-icons"],
+    "styles": ["icon-css"],
     "deprecated": false
   },
   {
@@ -30,16 +39,25 @@
     "id": "layout-ui",
     "title": "Layout plus UI",
     "group": "pair",
-    "summary": "Layout geometry and visual identity remain complementary without richer surface mechanics.",
+    "summary": "Intrinsic layout geometry and visual identity remain complementary without richer surface mechanics.",
     "packages": ["ui-style-kit-css", "layout-style-css"],
     "styles": ["ui-visual", "layout-core"],
+    "deprecated": false
+  },
+  {
+    "id": "ui-icons",
+    "title": "UI plus icons",
+    "group": "pair",
+    "summary": "The selected UI preset supplies icon artwork while palette and mode supply coordinated paint.",
+    "packages": ["ui-style-kit-css", "ui-style-kit-icons"],
+    "styles": ["ui-visual", "icon-css"],
     "deprecated": false
   },
   {
     "id": "layout-interactive",
     "title": "Layout plus interaction",
     "group": "pair",
-    "summary": "Responsive composition combines with the neutral standalone interaction presentation.",
+    "summary": "Intrinsic responsive composition combines with the neutral standalone interaction presentation.",
     "packages": ["interactive-surface-css", "layout-style-css"],
     "styles": ["interaction-standalone", "layout-core"],
     "deprecated": false
@@ -48,40 +66,29 @@
     "id": "ui-interactive",
     "title": "UI plus interaction",
     "group": "pair",
-    "summary": "UI paint and public bridge tokens feed one canonical interaction-state engine.",
+    "summary": "UI paint feeds one canonical interaction-state engine.",
     "packages": ["ui-style-kit-css", "interactive-surface-css"],
     "styles": ["ui-visual", "ui-theme", "interaction-core"],
     "deprecated": false
   },
   {
     "id": "all-canonical",
-    "title": "Canonical all-three stack",
+    "title": "Complete four-package stack",
     "group": "all",
-    "summary": "Paint, state mechanics, and structure compose in the documented ownership order.",
+    "summary": "Paint, iconography, state mechanics, and intrinsic structure compose in the documented ownership order.",
     "packages": [
       "ui-style-kit-css",
-      "interactive-surface-css",
-      "layout-style-css"
-    ],
-    "styles": ["ui-visual", "ui-theme", "interaction-core", "layout-core"],
-    "deprecated": false
-  },
-  {
-    "id": "all-legacy",
-    "title": "Legacy compatibility stack",
-    "group": "legacy",
-    "summary": "Frozen v2 compatibility paths remain available for staged migrations, not new adoption.",
-    "packages": [
-      "ui-style-kit-css",
+      "ui-style-kit-icons",
       "interactive-surface-css",
       "layout-style-css"
     ],
     "styles": [
-      "ui-with-bridge",
-      "interaction-complete",
-      "layout-ui-bridge",
-      "layout-legacy"
+      "ui-visual",
+      "icon-css",
+      "ui-theme",
+      "interaction-core",
+      "layout-core"
     ],
-    "deprecated": true
+    "deprecated": false
   }
 ]

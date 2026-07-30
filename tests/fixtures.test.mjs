@@ -33,28 +33,27 @@ const generatedRoot = path.join(
 const expectedFixtures = [
   "layout-only",
   "ui-only",
+  "icon-only",
   "interactive-only",
   "layout-ui",
+  "ui-icons",
   "layout-interactive",
   "ui-interactive",
   "all-canonical",
-  "all-legacy",
 ];
 
 const expectedPackages = {
   "layout-only": ["layout-style-css"],
   "ui-only": ["ui-style-kit-css"],
+  "icon-only": ["ui-style-kit-icons"],
   "interactive-only": ["interactive-surface-css"],
   "layout-ui": ["ui-style-kit-css", "layout-style-css"],
+  "ui-icons": ["ui-style-kit-css", "ui-style-kit-icons"],
   "layout-interactive": ["interactive-surface-css", "layout-style-css"],
   "ui-interactive": ["ui-style-kit-css", "interactive-surface-css"],
   "all-canonical": [
     "ui-style-kit-css",
-    "interactive-surface-css",
-    "layout-style-css",
-  ],
-  "all-legacy": [
-    "ui-style-kit-css",
+    "ui-style-kit-icons",
     "interactive-surface-css",
     "layout-style-css",
   ],
@@ -69,9 +68,9 @@ const expectedAssets = {
     export: "ui-style-kit-css/interactive-surface-theme.css",
     target: "assets/ui-style-kit-css/2.1.0/interactive-surface-theme.css",
   },
-  "ui-with-bridge": {
-    export: "ui-style-kit-css/with-bridge.css",
-    target: "assets/ui-style-kit-css/2.1.0/ui-style-kit.with-bridge.css",
+  "icon-css": {
+    export: "ui-style-kit-icons/css.css",
+    target: "assets/ui-style-kit-icons/1.0.0/ui-style-kit-icons.css",
   },
   "interaction-core": {
     export: "interactive-surface-css/state-core.css",
@@ -81,37 +80,27 @@ const expectedAssets = {
     export: "interactive-surface-css/standalone-preset.css",
     target: "assets/interactive-surface-css/1.5.0/standalone-preset.css",
   },
-  "interaction-complete": {
-    export: "interactive-surface-css/interactive-surface.css",
-    target: "assets/interactive-surface-css/1.5.0/interactive-surface.css",
-  },
   "layout-core": {
     export: "layout-style-css",
     target: "assets/layout-style-css/2.1.0/layout-style-css.css",
-  },
-  "layout-ui-bridge": {
-    export: "layout-style-css/integrations/ui-style-kit.css",
-    target: "assets/layout-style-css/2.1.0/integrations/ui-style-kit.css",
-  },
-  "layout-legacy": {
-    export: "layout-style-css/legacy.css",
-    target: "assets/layout-style-css/2.1.0/legacy.css",
   },
 };
 
 const expectedStyles = {
   "layout-only": ["layout-core"],
   "ui-only": ["ui-visual"],
+  "icon-only": ["icon-css"],
   "interactive-only": ["interaction-standalone"],
   "layout-ui": ["ui-visual", "layout-core"],
+  "ui-icons": ["ui-visual", "icon-css"],
   "layout-interactive": ["interaction-standalone", "layout-core"],
   "ui-interactive": ["ui-visual", "ui-theme", "interaction-core"],
-  "all-canonical": ["ui-visual", "ui-theme", "interaction-core", "layout-core"],
-  "all-legacy": [
-    "ui-with-bridge",
-    "interaction-complete",
-    "layout-ui-bridge",
-    "layout-legacy",
+  "all-canonical": [
+    "ui-visual",
+    "icon-css",
+    "ui-theme",
+    "interaction-core",
+    "layout-core",
   ],
 };
 
@@ -163,6 +152,14 @@ test("the fixture catalog declares the exact package combinations", async () => 
     expectedFixtures,
   );
   assert.equal(new Set(catalog.map(({ id }) => id)).size, catalog.length);
+  assert.equal(
+    catalog.some(({ id }) => id === "all-legacy"),
+    false,
+  );
+  assert.deepEqual(
+    catalog.find(({ id }) => id === "all-canonical")?.packages,
+    expectedPackages["all-canonical"],
+  );
   for (const fixture of catalog) {
     assert.deepEqual(fixture.packages, expectedPackages[fixture.id]);
     assert.deepEqual(fixture.styles, expectedStyles[fixture.id]);
@@ -210,7 +207,7 @@ test("fixture generation runs before every development and production build", as
   );
 });
 
-test("the generator writes exactly eight deterministic documents", async () => {
+test("the generator writes exactly nine deterministic documents", async () => {
   const generatedStat = await lstat(generatedRoot);
   assert.equal(generatedStat.isSymbolicLink(), false);
 
@@ -419,6 +416,7 @@ test("copied package styles are byte-identical to their public exports", async (
 
   const expectedVersions = {
     "ui-style-kit-css": "2.1.0",
+    "ui-style-kit-icons": "1.0.0",
     "interactive-surface-css": "1.5.0",
     "layout-style-css": "2.1.0",
   };
@@ -460,7 +458,18 @@ test("each fixture uses only its ordered local styles and semantic proof hooks",
     }
     assert.doesNotMatch(html, /<style(?:\s|>)/i);
     assert.doesNotMatch(html, /\sstyle=/i);
-    assert.doesNotMatch(html, /<script(?:\s|>)/i);
+    const usesIcons = ["icon-only", "ui-icons", "all-canonical"].includes(id);
+    if (usesIcons) {
+      assert.match(html, /<usk-icon\b/);
+      assert.match(html, /ui-style-kit-icons\.js/);
+      assert.match(
+        html,
+        /asset-base="\.\.\/\.\.\/assets\/ui-style-kit-icons\/1\.0\.0\/"/,
+      );
+    } else {
+      assert.doesNotMatch(html, /<usk-icon\b/);
+      assert.doesNotMatch(html, /ui-style-kit-icons\.js/);
+    }
     assert.doesNotMatch(html, /https?:\/\//i);
     assert.doesNotMatch(html, /(?:href|src)="\//i);
     assert.doesNotMatch(
@@ -488,24 +497,8 @@ test("each fixture uses only its ordered local styles and semantic proof hooks",
     assert.match(pressed, /aria-pressed="true"/);
     assert.notEqual(uiControl, interaction);
 
-    if (id === "all-legacy") {
-      assert.match(html, /\bdata-layout="bento"/);
-      assert.doesNotMatch(html, /\bdata-ly-layout=/);
-      assert.match(html, /\bdata-proof-legacy-layout\b/);
-    } else {
-      assert.match(html, /\bdata-ly-layout="bento"/);
-      assert.doesNotMatch(html, /\bdata-layout=/);
-      assert.doesNotMatch(html, /\bdata-proof-legacy-layout\b/);
-    }
+    assert.match(html, /\bdata-ly-layout="bento"/);
+    assert.doesNotMatch(html, /\bdata-layout=/);
+    assert.doesNotMatch(html, /\bdata-proof-legacy-layout\b/);
   }
-});
-
-test("Layout legacy keeps its relative core import resolvable", async () => {
-  const legacyPath = path.join(
-    generatedRoot,
-    expectedAssets["layout-legacy"].target,
-  );
-  const legacy = await readFile(legacyPath, "utf8");
-  assert.match(legacy, /@import url\("\.\/layout-style-css\.css"\);/);
-  await access(path.join(path.dirname(legacyPath), "layout-style-css.css"));
 });

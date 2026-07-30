@@ -12,9 +12,7 @@ function FixtureCard({ fixture }: { fixture: FixtureDefinition }) {
     >
       <header className="ly-stack ly-gap-2">
         <div className="ly-cluster ly-gap-2">
-          <p className="section-label">
-            {fixture.deprecated ? "Deprecated" : "Isolated proof"}
-          </p>
+          <p className="section-label">Isolated proof</p>
           <code>{fixture.packages.join(" + ")}</code>
         </div>
         <h3>{fixture.title}</h3>
@@ -37,7 +35,7 @@ function FixtureGroup({
   label,
   fixtures,
 }: {
-  group: "one" | "pair" | "legacy";
+  group: "one" | "pair";
   label: string;
   fixtures: FixtureDefinition[];
 }) {
@@ -98,11 +96,6 @@ export function IntegrationLab() {
             fixtures={fixturesFor("pair")}
             group="pair"
             label="Compose two independent layers"
-          />
-          <FixtureGroup
-            fixtures={fixturesFor("legacy")}
-            group="legacy"
-            label="Deprecated migration-only compatibility"
           />
         </div>
 
