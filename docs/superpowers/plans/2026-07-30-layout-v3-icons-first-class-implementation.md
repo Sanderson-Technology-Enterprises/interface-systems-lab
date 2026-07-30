@@ -230,6 +230,7 @@ test("the icon builder stages runtime modules and SVG packs", async () => {
     assert.equal(result.version, EXPECTED_ICON_VERSION);
     assert.equal(result.requiredIconCount, EXPECTED_ICON_COUNT);
     await stat(path.join(output, "ui-style-kit-icons.js"));
+    await stat(path.join(output, "ui-style-kit-icons.css"));
     await stat(path.join(output, "registry.js"));
     await stat(path.join(output, "icons", "dashboard.svg"));
     await stat(
@@ -384,9 +385,9 @@ export async function buildIconAssets(options = {}) {
       `ui-style-kit-icons version must be ${EXPECTED_ICON_VERSION}; found ${manifest.version}.`,
     );
   }
-  if (manifest.contractVersion !== EXPECTED_ICON_CONTRACT) {
+  if (registry.contractVersion !== EXPECTED_ICON_CONTRACT) {
     throw new Error(
-      `ui-style-kit-icons contract must be ${EXPECTED_ICON_CONTRACT}; found ${manifest.contractVersion}.`,
+      `ui-style-kit-icons contract must be ${EXPECTED_ICON_CONTRACT}; found ${registry.contractVersion}.`,
     );
   }
   validateIconContract(contract);
@@ -415,13 +416,16 @@ export async function buildIconAssets(options = {}) {
   }
 
   const runtimeSource = path.join(packageRoot, "dist", "ui-style-kit-icons.js");
+  const cssSource = path.join(packageRoot, "dist", "ui-style-kit-icons.css");
   const registrySource = path.join(packageRoot, "dist", "registry.js");
   await assertRegularFile(runtimeSource, "Icon runtime");
+  await assertRegularFile(cssSource, "Icon stylesheet");
   await assertRegularFile(registrySource, "Icon runtime registry");
 
   await rm(output, { force: true, recursive: true });
   await mkdir(output, { recursive: true });
   await cp(runtimeSource, path.join(output, "ui-style-kit-icons.js"));
+  await cp(cssSource, path.join(output, "ui-style-kit-icons.css"));
   await cp(registrySource, path.join(output, "registry.js"));
   await cp(path.join(packageRoot, "icons"), path.join(output, "icons"), {
     recursive: true,
@@ -443,6 +447,7 @@ The staged mapping is:
 
 ```text
 dist/ui-style-kit-icons.js -> ui-style-kit-icons.js
+dist/ui-style-kit-icons.css -> ui-style-kit-icons.css
 dist/registry.js            -> registry.js
 icons/                      -> icons/
 packs/                      -> packs/
