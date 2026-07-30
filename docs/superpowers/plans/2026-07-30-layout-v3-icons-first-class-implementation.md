@@ -1020,9 +1020,11 @@ Expected: the commit intentionally includes the user's preserved `Discover STE` 
 - Modify: `app/data/ecosystem.ts`
 - Modify: `app/components/InstallGuide.tsx`
 - Modify: `app/components/LibraryDirectory.tsx`
+- Modify: `app/lib/site.ts`
 - Modify: `app/page.tsx`
 - Modify: `README.md`
 - Modify: `tests/ecosystem.test.ts`
+- Modify: `tests/export.test.mjs`
 - Modify: `tests/browser/site.spec.ts`
 
 **Interfaces:**
@@ -1192,6 +1194,9 @@ structured data in `app/page.tsx` so:
 - package counts derive from `ECOSYSTEM_PACKAGES.length`
 - `ui-style-kit-icons` structured data identifies JavaScript/SVG rather than
   claiming it is CSS-only
+- `SITE.description` names all four packages
+- social-card alternative text accurately describes the existing image
+  without presenting its embedded legacy package count as current metadata
 
 - [ ] **Step 7: Run ecosystem verification**
 
