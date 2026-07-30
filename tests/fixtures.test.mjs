@@ -179,13 +179,13 @@ test("fixture generation runs before every development and production build", as
   );
   assert.equal(
     packageManifest.scripts["test:fixtures"],
-    "node --test tests/fixtures.test.mjs",
+    "node --test tests/fixtures.test.mjs tests/icon-assets.test.mjs",
   );
-  assert.equal(packageManifest.scripts.predev, "npm run fixtures:build");
-  assert.equal(packageManifest.scripts.prebuild, "npm run fixtures:build");
+  assert.equal(packageManifest.scripts.predev, "npm run assets:build");
+  assert.equal(packageManifest.scripts.prebuild, "npm run assets:build");
   assert.equal(
     packageManifest.scripts["prebuild:pages"],
-    "npm run fixtures:build",
+    "npm run assets:build",
   );
   assert.equal(packageManifest.scripts.dev, "next dev");
   assert.equal(packageManifest.scripts.build, "next build");
