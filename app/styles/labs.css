@@ -19,6 +19,10 @@
   margin-block-end: var(--ly-space-6);
 }
 
+.control-deck {
+  --ly-grid-columns: 1;
+}
+
 .control-deck label,
 .control-deck fieldset {
   display: grid;
@@ -223,6 +227,14 @@
 
 .primitive-cover {
   --ly-cover-min: 16rem;
+}
+
+[data-pane-count="2"] {
+  --ly-pane-min: min(100%, 12rem);
+}
+
+[data-pane-count="3"] {
+  --ly-pane-min: min(100%, 9rem);
 }
 
 .primitive-scroll {

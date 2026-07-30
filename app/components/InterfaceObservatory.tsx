@@ -84,7 +84,7 @@ export function InterfaceObservatory() {
       >
         {ECOSYSTEM_PACKAGES.map((pkg, index) => (
           <li
-            className={`${prefix}-surface ly-surface ly-cluster ly-gap-3 ly-items-start ly-pad-3`}
+            className={`${prefix}-surface ly-surface ly-cluster ly-gap-4 ly-items-start ly-pad-4`}
             key={pkg.name}
             data-active={selectedIndex === index}
           >
@@ -100,7 +100,7 @@ export function InterfaceObservatory() {
       </ol>
 
       <article
-        className={`observatory-detail ${prefix}-card ly-surface ly-pad-4 ly-stack ly-gap-3`}
+        className={`observatory-detail ${prefix}-card ly-surface ly-pad-4 ly-stack ly-gap-4`}
         id="observatory-active-package"
       >
         <p className="section-label">Selected layer</p>

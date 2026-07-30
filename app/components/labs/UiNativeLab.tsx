@@ -248,7 +248,7 @@ function VisualInventory({ prefix, preset }: VisualInventoryProps) {
   return (
     <div className="ui-inventory ly-stack ly-gap-8">
       <section
-        className="ly-stack ly-gap-3"
+        className="ly-stack ly-gap-4"
         data-ui-category="typography"
         data-specimen="ui-typography"
         aria-labelledby="ui-typography-title"
@@ -602,7 +602,7 @@ function VisualInventory({ prefix, preset }: VisualInventoryProps) {
         <summary>Progress, loading, and directional tooltips</summary>
         <div className="ly-stack ly-gap-8">
           <section
-            className="ly-stack ly-gap-3"
+            className="ly-stack ly-gap-4"
             data-ui-category="progress"
             data-specimen="ui-progress"
             aria-label="Custom progress"
@@ -770,7 +770,7 @@ function VisualInventory({ prefix, preset }: VisualInventoryProps) {
       <details>
         <summary>Navigation, toolbar, and table</summary>
         <section
-          className="ui-data-board ly-stack ly-gap-5"
+          className="ui-data-board ly-stack ly-gap-6"
           data-ui-category="data"
           data-specimen="ui-data"
           aria-label="Navigation and data components"
@@ -879,7 +879,7 @@ function VisualInventory({ prefix, preset }: VisualInventoryProps) {
       <details>
         <summary>Current preset extras</summary>
         <section
-          className="preset-extra-board ly-stack ly-gap-3"
+          className="preset-extra-board ly-stack ly-gap-4"
           data-ui-category="preset-extra"
           data-specimen="ui-preset-extras"
           aria-label={`${titleCase(preset)} preset extras`}
@@ -904,7 +904,7 @@ function NativeSupportDisclosure() {
     <details className="native-support-details">
       <summary>Native support classifications and public tokens</summary>
       <section
-        className="native-support-disclosure ly-stack ly-gap-5"
+        className="native-support-disclosure ly-stack ly-gap-6"
         data-ui-category="native-support"
         data-specimen="native-support"
         aria-label="Native support contract"
@@ -962,10 +962,10 @@ function NativeInventory() {
   return (
     <div className="native-inventory ly-stack ly-gap-8">
       <section
-        className="ly-stack ly-gap-3"
+        className="ly-stack ly-gap-4"
         aria-labelledby="native-inputs-title"
       >
-        <div className="specimen-heading ly-stack ly-gap-1">
+        <div className="specimen-heading ly-stack ly-gap-2">
           <h4 id="native-inputs-title">Input type atlas</h4>
           <p>
             Every control below is classless. The active root configuration
@@ -1017,7 +1017,7 @@ function NativeInventory() {
         </p>
 
         <section
-          className="ly-stack ly-gap-3"
+          className="ly-stack ly-gap-4"
           aria-labelledby="native-file-states-title"
         >
           <h5 id="native-file-states-title">File selector states</h5>

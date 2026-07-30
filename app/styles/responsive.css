@@ -1,3 +1,16 @@
+@container ly-scope (min-width: 44rem) {
+  .control-deck {
+    --ly-grid-columns: 2;
+  }
+}
+
+@container ly-scope (min-width: 64rem) {
+  .control-deck,
+  .library-list > li {
+    --ly-grid-columns: 4;
+  }
+}
+
 @media (max-width: 78rem) {
   .site-header-inner {
     align-items: flex-start;

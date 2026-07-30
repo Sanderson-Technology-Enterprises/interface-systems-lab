@@ -138,7 +138,7 @@ export function LabControls() {
       aria-label="Configuration console"
     >
       <form
-        className="control-deck ly-grid ly-cols-1 ly-md-cols-2 ly-lg-cols-4 ly-gap-4"
+        className="control-deck ly-grid ly-grid--fixed ly-gap-4"
         aria-label="Interface configuration"
         onSubmit={(event) => event.preventDefault()}
       >

@@ -38,7 +38,7 @@ export function SiteHeader({ companyUrl }: SiteHeaderProps) {
             decoding="async"
             fetchPriority="high"
           />
-          <span className="brand-copy ly-stack ly-gap-1">
+          <span className="brand-copy ly-stack ly-gap-2">
             <span className="brand-title">{SITE.name}</span>
             <span className="brand-owner">{SITE.productLine}</span>
           </span>
@@ -53,7 +53,7 @@ export function SiteHeader({ companyUrl }: SiteHeaderProps) {
             target="_blank"
             rel="noreferrer noopener"
           >
-            Sanderson
+            Discover STE
             <ExternalLinkIcon />
             <span className="ly-visually-hidden"> (opens in a new tab)</span>
           </a>

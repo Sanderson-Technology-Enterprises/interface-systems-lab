@@ -371,12 +371,13 @@ const exportFixtureRoot = path.join(
 const fixtureIds = [
   "layout-only",
   "ui-only",
+  "icon-only",
   "interactive-only",
   "layout-ui",
+  "ui-icons",
   "layout-interactive",
   "ui-interactive",
   "all-canonical",
-  "all-legacy",
 ];
 
 test("the Pages artifact contains every isolated integration fixture", async () => {
@@ -414,7 +415,12 @@ test("the package directory links to Pages-prefixed standalone fixtures", async 
     "utf8",
   );
 
-  for (const id of ["layout-only", "ui-only", "interactive-only"]) {
+  for (const id of [
+    "layout-only",
+    "ui-only",
+    "icon-only",
+    "interactive-only",
+  ]) {
     assert.match(
       page,
       new RegExp(
@@ -424,15 +430,15 @@ test("the package directory links to Pages-prefixed standalone fixtures", async 
   }
 });
 
-test("the legacy artifact retains its local relative Layout core import", async () => {
-  const legacyPath = path.join(
+test("the Pages artifact stages the pinned Layout v3 core", async () => {
+  const layoutCorePath = path.join(
     exportFixtureRoot,
     "assets",
     "layout-style-css",
-    "2.1.0",
-    "legacy.css",
+    "3.0.0",
+    "layout-style-css.css",
   );
-  const legacy = await readFile(legacyPath, "utf8");
-  assert.match(legacy, /@import url\("\.\/layout-style-css\.css"\);/);
-  await access(path.join(path.dirname(legacyPath), "layout-style-css.css"));
+  const layoutCore = await readFile(layoutCorePath, "utf8");
+  assert.match(layoutCore, /\.ly-grid\s*\{/);
+  assert.match(layoutCore, /--ly-pane-min/);
 });

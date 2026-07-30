@@ -45,6 +45,9 @@ npm install ui-style-kit-css@2.1.0 ui-style-kit-icons@1.0.0 layout-style-css@3.0
 Then load the package entry points in ownership order. UI Style Kit establishes
 paint and theme tokens, UI Style Kit Icons supplies semantic SVG artwork,
 Interactive Surface adds state mechanics, and Layout Style owns final geometry.
+Layout Style CSS 3.0.0 is a clean-break structural release: use its intrinsic
+grid and pane primitives, canonical recipe and area attributes, and
+application-owned container queries for product-specific topology.
 
 ```ts
 import "ui-style-kit-css/visual.css";

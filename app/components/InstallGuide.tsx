@@ -49,17 +49,17 @@ function AdoptionCard({ path, prefix, copyLabels, onCopy }: AdoptionCardProps) {
           return (
             <li
               key={snippet.id}
-              className="install-step ly-grid ly-cols-1 ly-md-cols-2 ly-gap-5 ly-py-6"
+              className="install-step ly-grid ly-gap-6 site-pad-block-6"
             >
-              <header className="ly-cluster ly-gap-3 ly-items-start">
+              <header className="ly-cluster ly-gap-4 ly-items-start">
                 <span>{String(index + 1).padStart(2, "0")}</span>
-                <div className="ly-stack ly-gap-1">
+                <div className="ly-stack ly-gap-2">
                   <small className="eyebrow">{snippet.label}</small>
                   <h4>{snippet.title}</h4>
                 </div>
               </header>
               <div
-                className={`snippet-shell ${prefix}-surface ly-surface ly-pad-4 ly-stack ly-gap-3`}
+                className={`snippet-shell ${prefix}-surface ly-surface ly-pad-4 ly-stack ly-gap-4`}
               >
                 <pre tabIndex={0}>
                   <code>{snippet.code}</code>
@@ -104,7 +104,7 @@ function AdoptionGroup({
   return (
     <details className="adoption-disclosure" data-adoption-group={scope}>
       <summary>{label}</summary>
-      <div className="adoption-grid ly-grid ly-grid--auto ly-gap-6">
+      <div className="adoption-grid ly-grid ly-gap-6">
         {paths.map((path) => (
           <AdoptionCard
             copyLabels={copyLabels}
@@ -195,7 +195,7 @@ export function InstallGuide() {
       id="install"
       aria-labelledby="install-title"
     >
-      <div className="ly-wrapper ly-stack ly-gap-7">
+      <div className="ly-wrapper ly-stack ly-gap-8">
         <div className="section-heading ly-split ly-gap-6 ly-items-end">
           <div>
             <p className="section-label">Install</p>

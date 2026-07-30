@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { readFileSync, readdirSync } from "node:fs";
 import { access, readFile, readdir } from "node:fs/promises";
 import path from "node:path";
 import test from "node:test";
@@ -21,6 +21,42 @@ import {
 } from "../app/lib/site";
 
 const repositoryRoot = fileURLToPath(new URL("../", import.meta.url));
+
+function collectSourceFiles(roots: readonly string[]): string[] {
+  const extensions = new Set([".css", ".js", ".mjs", ".ts", ".tsx"]);
+  const files: string[] = [];
+
+  const visit = (candidate: string) => {
+    for (const entry of readdirSync(candidate, { withFileTypes: true })) {
+      const entryPath = path.join(candidate, entry.name);
+      if (entry.isDirectory()) {
+        visit(entryPath);
+      } else if (entry.isFile() && extensions.has(path.extname(entry.name))) {
+        files.push(entryPath);
+      }
+    }
+  };
+
+  roots.forEach(visit);
+  return files;
+}
+
+test("authored runtime sources do not use removed Layout v2 selectors", () => {
+  const sourceFiles = collectSourceFiles([
+    path.join(repositoryRoot, "app"),
+    path.join(repositoryRoot, "scripts"),
+  ]);
+  const removed =
+    /\bly-(?:grid--auto|panes--[23]|(?:md|lg)-[a-z0-9-]+|order-[a-z0-9-]+|(?:gap|pad)-(?:1|3|5|7|9)|(?:px|py)-(?:4|6|8)|bleed)\b/u;
+
+  for (const file of sourceFiles) {
+    assert.doesNotMatch(
+      readFileSync(file, "utf8"),
+      removed,
+      `${path.relative(repositoryRoot, file)} uses a removed Layout v2 selector`,
+    );
+  }
+});
 
 test("UiIcon owns the typed custom-element and asset-base contract", () => {
   const source = readFileSync(
@@ -388,7 +424,7 @@ test("site consumes the CSS libraries as local dependencies", async () => {
     scripts: Record<string, string>;
   };
 
-  assert.equal(manifest.dependencies["layout-style-css"], "2.1.0");
+  assert.equal(manifest.dependencies["layout-style-css"], "3.0.0");
   assert.equal(manifest.dependencies["ui-style-kit-css"], "2.1.0");
   assert.equal(manifest.dependencies["interactive-surface-css"], "1.5.0");
   assert.match(
@@ -419,7 +455,7 @@ test("local README guidance separates global CSS from the icon runtime owner", a
   assert.match(iconSource, /import "ui-style-kit-icons\/element";/);
 });
 
-test("page runtime emits only canonical Layout 2.1 attributes", async () => {
+test("page runtime emits only canonical Layout 3.0 attributes", async () => {
   const [pageSource, experienceSource, configurationSource] = await Promise.all(
     [
       readFile(new URL("../app/page.tsx", import.meta.url), "utf8"),

@@ -9,8 +9,8 @@ type SiteFooterProps = {
 export function SiteFooter({ companyUrl }: SiteFooterProps) {
   return (
     <footer className="site-footer">
-      <div className="site-footer-inner ly-wrapper ly-stack ly-gap-5">
-        <div className="footer-brand ly-cluster ly-gap-3">
+      <div className="site-footer-inner ly-wrapper ly-stack ly-gap-6">
+        <div className="footer-brand ly-cluster ly-gap-4">
           {/* The explicit helper keeps this rendered asset correct in local and Pages builds. */}
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
@@ -23,14 +23,14 @@ export function SiteFooter({ companyUrl }: SiteFooterProps) {
             loading="lazy"
             decoding="async"
           />
-          <p className="ly-stack ly-gap-1">
+          <p className="ly-stack ly-gap-2">
             <strong>{SITE.name}</strong>
             <small>{SITE.productLine}</small>
             <small>One semantic interface. Three focused CSS layers.</small>
           </p>
         </div>
 
-        <div className="ly-cluster ly-gap-3 ly-items-start">
+        <div className="ly-cluster ly-gap-4 ly-items-start">
           <a href={companyUrl} target="_blank" rel="noreferrer noopener">
             Sanderson Technology Enterprises
             <ExternalLinkIcon />
@@ -44,7 +44,7 @@ export function SiteFooter({ companyUrl }: SiteFooterProps) {
         </div>
 
         <nav
-          className="footer-package-links ly-cluster ly-gap-3"
+          className="footer-package-links ly-cluster ly-gap-4"
           aria-label="Package links"
         >
           {ECOSYSTEM_PACKAGES.map((pkg) => (

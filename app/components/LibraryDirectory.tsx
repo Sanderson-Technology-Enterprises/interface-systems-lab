@@ -38,7 +38,7 @@ export function LibraryDirectory() {
         <ol className="library-list ly-stack ly-gap-0">
           {ECOSYSTEM_PACKAGES.map((pkg, index) => (
             <li
-              className="ly-grid ly-cols-1 ly-md-cols-4 ly-gap-4 ly-py-6"
+              className="ly-grid ly-grid--fixed ly-gap-4 site-pad-block-6"
               data-package={pkg.name}
               key={pkg.name}
             >
@@ -55,7 +55,7 @@ export function LibraryDirectory() {
                 <small>Recommended entry point</small>
                 <code>{pkg.recommendedEntryPoint}</code>
               </div>
-              <div className="ly-stack ly-gap-3">
+              <div className="ly-stack ly-gap-4">
                 <nav
                   className="ly-cluster ly-gap-2"
                   aria-label={`${pkg.displayName} resources`}
@@ -101,7 +101,7 @@ export function LibraryDirectory() {
         </ol>
 
         <nav
-          className="library-next-steps ly-split ly-gap-4 ly-py-6"
+          className="library-next-steps ly-split ly-gap-4 site-pad-block-6"
           aria-label="Library adoption next steps"
         >
           <a

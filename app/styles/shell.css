@@ -38,6 +38,14 @@
   text-align: center;
 }
 
+.site-pad-block-6 {
+  padding-block: 1.5rem;
+}
+
+.site-pad-inline-6 {
+  padding-inline: 1.5rem;
+}
+
 .skip-link {
   position: fixed;
   z-index: 100;
@@ -257,6 +265,10 @@
 .library-list > li {
   min-inline-size: 0;
   border-block-start: 1px solid var(--lab-rule-soft);
+}
+
+.library-list > li {
+  --ly-grid-columns: 1;
 }
 
 .install-step header,

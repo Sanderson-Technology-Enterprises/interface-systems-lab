@@ -82,7 +82,7 @@ const expectedAssets = {
   },
   "layout-core": {
     export: "layout-style-css",
-    target: "assets/layout-style-css/2.1.0/layout-style-css.css",
+    target: "assets/layout-style-css/3.0.0/layout-style-css.css",
   },
 };
 
@@ -418,7 +418,7 @@ test("copied package styles are byte-identical to their public exports", async (
     "ui-style-kit-css": "2.1.0",
     "ui-style-kit-icons": "1.0.0",
     "interactive-surface-css": "1.5.0",
-    "layout-style-css": "2.1.0",
+    "layout-style-css": "3.0.0",
   };
   for (const [packageName, expectedVersion] of Object.entries(
     expectedVersions,

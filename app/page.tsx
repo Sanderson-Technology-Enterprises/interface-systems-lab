@@ -132,7 +132,7 @@ function CompanySection() {
       aria-labelledby="company-title"
     >
       <div className="ly-wrapper">
-        <div className="section-heading ly-stack ly-gap-3">
+        <div className="section-heading ly-stack ly-gap-4">
           <p className="section-label">Two paths forward</p>
           <h2 id="company-title">Build with the system or with its studio.</h2>
           <p>
@@ -207,7 +207,7 @@ export default function Home() {
           className="hero ly-wrapper ly-section ly-split ly-gap-8 ly-items-center"
           id="top"
         >
-          <div className="hero-copy ly-stack ly-gap-5">
+          <div className="hero-copy ly-stack ly-gap-6">
             <h1>
               Design every layer.
               <br />

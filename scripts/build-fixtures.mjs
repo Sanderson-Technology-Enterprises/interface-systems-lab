@@ -26,7 +26,7 @@ const defaultGeneratedRoot = path.join(
 
 export const EXPECTED_PACKAGE_VERSIONS = Object.freeze({
   "interactive-surface-css": "1.5.0",
-  "layout-style-css": "2.1.0",
+  "layout-style-css": "3.0.0",
   "ui-style-kit-css": "2.1.0",
   "ui-style-kit-icons": "1.0.0",
 });
@@ -54,7 +54,7 @@ export const FIXTURE_ASSETS = Object.freeze({
   }),
   "layout-core": Object.freeze({
     export: "layout-style-css",
-    target: "assets/layout-style-css/2.1.0/layout-style-css.css",
+    target: "assets/layout-style-css/3.0.0/layout-style-css.css",
   }),
 });
 
@@ -276,14 +276,14 @@ ${iconModuleMarkup}
     data-fixture-id="${escapeHtml(fixture.id)}"
     data-fixture-root
   >
-    <main class="ly-wrapper ly-section ly-stack ly-gap-5">
+    <main class="ly-wrapper ly-section ly-stack ly-gap-6">
       <header class="ly-stack ly-gap-2">
         <p>Isolated package proof</p>
         <h1>${escapeHtml(fixture.title)}</h1>
         <p>${escapeHtml(fixture.summary)}</p>
       </header>
-      <section class="ly-grid ly-grid--auto" data-proof-layout aria-label="Layout proof">
-        <article class="saas-card ly-stack ly-gap-3" data-proof-paint>
+      <section class="ly-grid" data-proof-layout aria-label="Layout proof">
+        <article class="saas-card ly-stack ly-gap-4" data-proof-paint>
           <h2 class="saas-heading">Shared semantic specimen</h2>
           <label class="saas-field" for="fixture-field">
             <span class="saas-label">Project name</span>
@@ -293,9 +293,9 @@ ${iconModuleMarkup}
             UI-owned control
           </button>
         </article>
-        <article class="ly-stack ly-gap-3">
+        <article class="ly-stack ly-gap-4">
           <h2>Interaction mechanics</h2>
-          <div class="ly-cluster ly-gap-3">
+          <div class="ly-cluster ly-gap-4">
             <button
               class="interactive-surface"
               type="button"

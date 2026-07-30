@@ -16,7 +16,7 @@ const corporateGithub = "https://github.com/Sanderson-Technology-Enterprises";
 const repositoryUrl = `${corporateGithub}/interface-systems-lab`;
 const socialImageUrl = `${siteUrl}interface-systems-lab-social-card.png`;
 const socialImageAlt =
-  "Interface Systems Lab graphic showing 3 libraries, 1 interface, and 5,280 possibilities across layout, identity, and interaction.";
+  "Interface Systems Lab social card with the text \u201c3 libraries, 1 interface, and 5,280 possibilities\u201d over layout, identity, and interaction.";
 const labLogoUrl = `${siteUrl}android-chrome-512x512.png`;
 const websiteId = `${siteUrl}#website`;
 const webpageId = `${siteUrl}#webpage`;
@@ -322,7 +322,7 @@ function validateStructuredData(index, notFound, issues) {
   if (packages) {
     requireExact(packages["@id"], packagesId, "ItemList @id", issues);
     requireExact(packages.url, siteUrl, "ItemList URL", issues);
-    requireExact(packages.numberOfItems, 3, "ItemList count", issues);
+    requireExact(packages.numberOfItems, 4, "ItemList count", issues);
     const packageContracts = (packages.itemListElement ?? []).map((entry) => ({
       codeRepository: entry.item?.codeRepository,
       name: entry.item?.name,
@@ -338,7 +338,7 @@ function validateStructuredData(index, notFound, issues) {
           name: "layout-style-css",
           programmingLanguage: "CSS",
           url: "https://www.npmjs.com/package/layout-style-css",
-          version: "2.1.0",
+          version: "3.0.0",
         },
         {
           codeRepository: "https://github.com/Foscat/ui-style-kit-css",
@@ -346,6 +346,13 @@ function validateStructuredData(index, notFound, issues) {
           programmingLanguage: "CSS",
           url: "https://www.npmjs.com/package/ui-style-kit-css",
           version: "2.1.0",
+        },
+        {
+          codeRepository: "https://github.com/Foscat/ui-style-kit-icons",
+          name: "ui-style-kit-icons",
+          programmingLanguage: "JavaScript, SVG",
+          url: "https://www.npmjs.com/package/ui-style-kit-icons",
+          version: "1.0.0",
         },
         {
           codeRepository: "https://github.com/Foscat/Interactive-Surface-CSS",

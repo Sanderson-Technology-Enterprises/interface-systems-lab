@@ -18,8 +18,8 @@ export function FeatureShowcase() {
         </div>
 
         <div className="proof-grid">
-          <article className="proof-card ly-surface ly-pad-5 ly-stack ly-gap-4">
-            <header className="ly-stack ly-gap-1">
+          <article className="proof-card ly-surface ly-pad-6 ly-stack ly-gap-4">
+            <header className="ly-stack ly-gap-2">
               <small className="eyebrow">layout-style-css</small>
               <h3>Structure proof</h3>
               <code>ly-stack + ly-cluster + ly-frame</code>
@@ -29,21 +29,21 @@ export function FeatureShowcase() {
                 <strong>4:3 frame</strong>
               </div>
               <div className="ly-stack ly-gap-2">
-                <span className="ly-surface ly-pad-3">Wrapper</span>
-                <span className="ly-surface ly-pad-3">Stack</span>
-                <span className="ly-surface ly-pad-3">Cluster</span>
+                <span className="ly-surface ly-pad-4">Wrapper</span>
+                <span className="ly-surface ly-pad-4">Stack</span>
+                <span className="ly-surface ly-pad-4">Cluster</span>
               </div>
             </div>
           </article>
 
-          <article className="proof-card ly-surface ly-pad-5 ly-stack ly-gap-4">
-            <header className="ly-stack ly-gap-1">
+          <article className="proof-card ly-surface ly-pad-6 ly-stack ly-gap-4">
+            <header className="ly-stack ly-gap-2">
               <small className="eyebrow">ui-style-kit-css</small>
               <h3>Identity proof</h3>
               <code>forms + table + native progress</code>
             </header>
             <form
-              className="proof-form ly-stack ly-gap-3"
+              className="proof-form ly-stack ly-gap-4"
               aria-label="Identity proof sample"
               onSubmit={(event) => event.preventDefault()}
             >
@@ -71,8 +71,8 @@ export function FeatureShowcase() {
             </form>
           </article>
 
-          <article className="proof-card ly-surface ly-pad-5 ly-stack ly-gap-4">
-            <header className="ly-stack ly-gap-1">
+          <article className="proof-card ly-surface ly-pad-6 ly-stack ly-gap-4">
+            <header className="ly-stack ly-gap-2">
               <small className="eyebrow">interactive-surface-css</small>
               <h3>Behavior proof</h3>
               <code>hover + focus + pressed + disabled</code>
