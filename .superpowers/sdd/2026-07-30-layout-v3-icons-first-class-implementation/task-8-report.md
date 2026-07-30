@@ -37,7 +37,7 @@ The only non-green command is `npm audit --audit-level=moderate`: npm reports 13
 | `npm.cmd run quality` | Pass, including its then-current 124/124 matrix; final changed surfaces were reverified by all constituent gates and the expanded 128-test matrix |
 | `git diff --check` | Pass |
 
-Browser projects covered desktop Chromium, desktop Firefox, desktop WebKit, mobile Chromium, and the configured Edge channel.
+Browser projects covered exactly four configured projects: desktop Chromium, mobile Chromium, desktop Firefox, and desktop WebKit.
 
 ## Audit analysis
 
@@ -57,7 +57,7 @@ No incompatible override and no `audit fix --force` were applied. Next, eslint-c
 
 ## Rendered QA
 
-Browser classification: in-app Browser connector unavailable; approved repository Playwright fallback used at `http://127.0.0.1:4175/interface-systems-lab/`.
+Browser classification and fallback basis: Task 1 recorded `Browser is not available: iab`. The user requested QA and approved the specification and plan, so the repository's approved Playwright workflow was used as the fallback at `http://127.0.0.1:4175/interface-systems-lab/`. The in-app Browser-specific pass was not performed because the connector was unavailable; Playwright evidence is fallback evidence and is not represented as an in-app Browser run.
 
 - Viewports: 1440x1000 desktop, 390x844 mobile, 844x390 short landscape.
 - Visual styles: Minimal SaaS, Cyberpunk, Retrofuturism to Synthwave, and Bauhaus to System.
@@ -80,3 +80,9 @@ Ignored evidence lives in `.qa/layout-v3-icons/`, including baseline/final scree
 5. Four-package catalog/adoption consistency: unit catalog/adoption checks, fixture 13/13, browser directory/install coverage, and corrected visible copy.
 6. Automated/rendered QA: all gates above pass except the verified upstream audit blocker.
 7. User work preserved: `next-env.d.ts` retains the exact `./.next/dev/types/routes.d.ts` import and is excluded from staging.
+
+## Fix Round 1
+
+- Corrected the browser project summary to list only the four projects actually configured: desktop Chromium, mobile Chromium, desktop Firefox, and desktop WebKit.
+- Recorded the fallback basis exactly: Task 1 reported `Browser is not available: iab`; the user requested QA and approved the specification and plan; therefore the repository's approved Playwright workflow supplied fallback evidence. The in-app Browser-specific pass was not performed.
+- No code or test rerun was needed because this round changes only the evidence report.
