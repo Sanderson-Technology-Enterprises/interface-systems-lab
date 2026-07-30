@@ -3,6 +3,7 @@ node_modules/
 out/
 .preview/
 .tmp/
+.worktrees/
 playwright-report/
 test-results/
 /public/fixtures/generated/
