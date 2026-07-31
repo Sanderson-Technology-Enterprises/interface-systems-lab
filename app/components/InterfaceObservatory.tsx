@@ -21,7 +21,7 @@ const resourceOrder: readonly ResourceLink[] = [
   "demo",
 ];
 
-const orbitVariants = ["primary", "accent", "secondary"] as const;
+const orbitVariants = ["primary", "accent", "secondary", "subtle"] as const;
 
 export function InterfaceObservatory() {
   const { announce, configuration } = useLabConfiguration();
@@ -35,8 +35,8 @@ export function InterfaceObservatory() {
       aria-labelledby="observatory-caption"
     >
       <figcaption id="observatory-caption" className="ly-visually-hidden">
-        Interface Observatory: choose structure, identity, or behavior to
-        inspect the matching CSS package.
+        Interface Observatory: choose structure, identity, iconography, or
+        behavior to inspect the matching ecosystem package.
       </figcaption>
 
       <div
@@ -59,7 +59,7 @@ export function InterfaceObservatory() {
           <button
             className={`observatory-orbit observatory-orbit-${pkg.layer.toLowerCase()} interactive-surface site-action`}
             data-surface-variant={orbitVariants[index]}
-            data-surface-level="2"
+            data-surface-level={orbitVariants[index] === "subtle" ? "1" : "2"}
             type="button"
             key={pkg.name}
             aria-pressed={selectedIndex === index}
@@ -84,7 +84,7 @@ export function InterfaceObservatory() {
       >
         {ECOSYSTEM_PACKAGES.map((pkg, index) => (
           <li
-            className={`${prefix}-surface ly-surface ly-cluster ly-gap-3 ly-items-start ly-pad-3`}
+            className={`${prefix}-surface ly-surface ly-cluster ly-gap-4 ly-items-start ly-pad-4`}
             key={pkg.name}
             data-active={selectedIndex === index}
           >
@@ -100,7 +100,7 @@ export function InterfaceObservatory() {
       </ol>
 
       <article
-        className={`observatory-detail ${prefix}-card ly-surface ly-pad-4 ly-stack ly-gap-3`}
+        className={`observatory-detail ${prefix}-card ly-surface ly-pad-4 ly-stack ly-gap-4`}
         id="observatory-active-package"
       >
         <p className="section-label">Selected layer</p>

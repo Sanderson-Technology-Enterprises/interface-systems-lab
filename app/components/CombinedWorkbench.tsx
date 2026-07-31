@@ -16,7 +16,7 @@ export function HeroActions({ companyUrl }: HeroActionsProps) {
   const pillClass = `${prefix}-button-pill`;
 
   return (
-    <div className="hero-actions ly-switcher ly-gap-3">
+    <div className="hero-actions ly-switcher ly-gap-4">
       <a className={pillClass} data-hero-action="developer" href="#workbench">
         Launch the workbench
         <ArrowRightIcon />
@@ -67,7 +67,7 @@ export function CombinedWorkbench() {
         <div className="section-heading ly-split ly-gap-6 ly-items-end">
           <div className="ly-stack ly-gap-2">
             <p className="section-label">Live client outcome</p>
-            <h2 id="workbench-title">One workspace. Three proven layers.</h2>
+            <h2 id="workbench-title">One workspace. Four proven layers.</h2>
           </div>
           <p>
             A realistic delivery workspace doubles as a developer proof: the
@@ -87,8 +87,8 @@ export function CombinedWorkbench() {
               className={`${surfaceClass} workbench-region ly-pad-4`}
               data-ly-area="header"
             >
-              <div className="workbench-toolbar ly-cluster ly-gap-3 ly-items-stretch ly-justify-between">
-                <div className="ly-stack ly-gap-1">
+              <div className="workbench-toolbar ly-cluster ly-gap-4 ly-items-stretch ly-justify-between">
+                <div className="ly-stack ly-gap-2">
                   <small>Northstar rebrand</small>
                   <strong>Delivery command center</strong>
                 </div>
@@ -106,7 +106,7 @@ export function CombinedWorkbench() {
 
             <nav
               className={`${panelClass} workbench-region ly-pad-4`}
-              data-ly-area="nav"
+              data-ly-area="sidebar"
               aria-label="Northstar workspace"
             >
               <p className="workbench-kicker">Atelier One</p>
@@ -140,20 +140,20 @@ export function CombinedWorkbench() {
             </nav>
 
             <section
-              className={`${surfaceClass} workbench-region workbench-main ly-pad-5 ly-stack ly-gap-5`}
+              className={`${surfaceClass} workbench-region workbench-main ly-pad-6 ly-stack ly-gap-6`}
               data-ly-area="main"
               id="workspace-summary"
               aria-labelledby="workspace-title"
             >
               <header className="workbench-main-heading ly-split ly-gap-4 ly-items-start">
-                <div className="ly-stack ly-gap-1">
+                <div className="ly-stack ly-gap-2">
                   <small>Client workspace</small>
                   <h3 id="workspace-title">A confident path to launch</h3>
                 </div>
                 <span className="workbench-mode">{modeLabel} mode</span>
               </header>
 
-              <dl className="workbench-metrics ly-grid ly-grid--auto ly-gap-3">
+              <dl className="workbench-metrics ly-grid ly-gap-4">
                 <div className={`${cardClass} ly-pad-4`}>
                   <dt>Delivery health</dt>
                   <dd>On track</dd>
@@ -169,10 +169,10 @@ export function CombinedWorkbench() {
               </dl>
 
               <div
-                className="workbench-deliverables ly-grid ly-grid--auto ly-gap-4"
+                className="workbench-deliverables ly-grid ly-gap-4"
                 id="workspace-deliverables"
               >
-                <article className={`${cardClass} ly-pad-5 ly-stack ly-gap-3`}>
+                <article className={`${cardClass} ly-pad-6 ly-stack ly-gap-4`}>
                   <div className="meta-line ly-cluster ly-justify-between ly-gap-2">
                     <span>Design system</span>
                     <strong>72%</strong>
@@ -223,12 +223,12 @@ export function CombinedWorkbench() {
                 </article>
 
                 <article
-                  className={`${cardClass} ly-pad-5 ly-stack ly-gap-3`}
+                  className={`${cardClass} ly-pad-6 ly-stack ly-gap-4`}
                   id="workspace-activity"
                 >
                   <small>Latest activity</small>
                   <h4>Decisions stay visible</h4>
-                  <ul className="workbench-activity ly-stack ly-gap-3">
+                  <ul className="workbench-activity ly-stack ly-gap-4">
                     <li>Navigation model approved by the client team.</li>
                     <li>High-contrast interface review completed.</li>
                     <li>Responsive content model ready for handoff.</li>
@@ -242,11 +242,11 @@ export function CombinedWorkbench() {
               data-ly-area="aside"
               aria-label="Workspace inspector"
             >
-              <div className="ly-stack ly-gap-1">
+              <div className="ly-stack ly-gap-2">
                 <small>Configuration proof</small>
                 <strong>{formatLabel(configuration.layout)}</strong>
               </div>
-              <dl className="workbench-config ly-stack ly-gap-3">
+              <dl className="workbench-config ly-stack ly-gap-4">
                 <div>
                   <dt>UI preset</dt>
                   <dd>{formatLabel(configuration.ui)}</dd>
@@ -275,7 +275,7 @@ export function CombinedWorkbench() {
               className={`${surfaceClass} workbench-region ly-pad-4`}
               data-ly-area="footer"
             >
-              <div className="ly-cluster ly-justify-between ly-gap-3">
+              <div className="ly-cluster ly-justify-between ly-gap-4">
                 <small>Semantic DOM order remains the mobile order.</small>
                 <strong>Last synchronized today</strong>
               </div>

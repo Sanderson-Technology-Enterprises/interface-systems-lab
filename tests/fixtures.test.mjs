@@ -18,6 +18,8 @@ import { fileURLToPath } from "node:url";
 import path from "node:path";
 import { before, test } from "node:test";
 
+import { BUNDLER_IMPORTS } from "../app/data/ecosystem.ts";
+
 const execFileAsync = promisify(execFile);
 const repositoryRoot = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
@@ -33,28 +35,27 @@ const generatedRoot = path.join(
 const expectedFixtures = [
   "layout-only",
   "ui-only",
+  "icon-only",
   "interactive-only",
   "layout-ui",
+  "ui-icons",
   "layout-interactive",
   "ui-interactive",
   "all-canonical",
-  "all-legacy",
 ];
 
 const expectedPackages = {
   "layout-only": ["layout-style-css"],
   "ui-only": ["ui-style-kit-css"],
+  "icon-only": ["ui-style-kit-icons"],
   "interactive-only": ["interactive-surface-css"],
   "layout-ui": ["ui-style-kit-css", "layout-style-css"],
+  "ui-icons": ["ui-style-kit-css", "ui-style-kit-icons"],
   "layout-interactive": ["interactive-surface-css", "layout-style-css"],
   "ui-interactive": ["ui-style-kit-css", "interactive-surface-css"],
   "all-canonical": [
     "ui-style-kit-css",
-    "interactive-surface-css",
-    "layout-style-css",
-  ],
-  "all-legacy": [
-    "ui-style-kit-css",
+    "ui-style-kit-icons",
     "interactive-surface-css",
     "layout-style-css",
   ],
@@ -69,9 +70,9 @@ const expectedAssets = {
     export: "ui-style-kit-css/interactive-surface-theme.css",
     target: "assets/ui-style-kit-css/2.1.0/interactive-surface-theme.css",
   },
-  "ui-with-bridge": {
-    export: "ui-style-kit-css/with-bridge.css",
-    target: "assets/ui-style-kit-css/2.1.0/ui-style-kit.with-bridge.css",
+  "icon-css": {
+    export: "ui-style-kit-icons/css.css",
+    target: "assets/ui-style-kit-icons/1.0.0/ui-style-kit-icons.css",
   },
   "interaction-core": {
     export: "interactive-surface-css/state-core.css",
@@ -81,38 +82,31 @@ const expectedAssets = {
     export: "interactive-surface-css/standalone-preset.css",
     target: "assets/interactive-surface-css/1.5.0/standalone-preset.css",
   },
-  "interaction-complete": {
-    export: "interactive-surface-css/interactive-surface.css",
-    target: "assets/interactive-surface-css/1.5.0/interactive-surface.css",
-  },
   "layout-core": {
     export: "layout-style-css",
-    target: "assets/layout-style-css/2.1.1/layout-style-css.css",
-  },
-  "layout-ui-bridge": {
-    export: "layout-style-css/integrations/ui-style-kit.css",
-    target: "assets/layout-style-css/2.1.1/integrations/ui-style-kit.css",
-  },
-  "layout-legacy": {
-    export: "layout-style-css/legacy.css",
-    target: "assets/layout-style-css/2.1.1/legacy.css",
+    target: "assets/layout-style-css/3.0.0/layout-style-css.css",
   },
 };
 
 const expectedStyles = {
   "layout-only": ["layout-core"],
   "ui-only": ["ui-visual"],
+  "icon-only": ["icon-css"],
   "interactive-only": ["interaction-standalone"],
   "layout-ui": ["ui-visual", "layout-core"],
+  "ui-icons": ["ui-visual", "icon-css"],
   "layout-interactive": ["interaction-standalone", "layout-core"],
   "ui-interactive": ["ui-visual", "ui-theme", "interaction-core"],
-  "all-canonical": ["ui-visual", "ui-theme", "interaction-core", "layout-core"],
-  "all-legacy": [
-    "ui-with-bridge",
-    "interaction-complete",
-    "layout-ui-bridge",
-    "layout-legacy",
-  ],
+  "all-canonical": BUNDLER_IMPORTS.filter(
+    (statement) => !statement.includes("ui-style-kit-icons/element"),
+  ).map((statement) => {
+    const packageExport = statement.match(/^import "([^"]+)";$/)?.[1];
+    const asset = Object.entries(expectedAssets).find(
+      ([, candidate]) => candidate.export === packageExport,
+    );
+    assert.ok(asset, `Missing fixture asset for ${packageExport}`);
+    return asset[0];
+  }),
 };
 
 function stylesheetLinks(html) {
@@ -163,6 +157,14 @@ test("the fixture catalog declares the exact package combinations", async () => 
     expectedFixtures,
   );
   assert.equal(new Set(catalog.map(({ id }) => id)).size, catalog.length);
+  assert.equal(
+    catalog.some(({ id }) => id === "all-legacy"),
+    false,
+  );
+  assert.deepEqual(
+    catalog.find(({ id }) => id === "all-canonical")?.packages,
+    expectedPackages["all-canonical"],
+  );
   for (const fixture of catalog) {
     assert.deepEqual(fixture.packages, expectedPackages[fixture.id]);
     assert.deepEqual(fixture.styles, expectedStyles[fixture.id]);
@@ -179,13 +181,13 @@ test("fixture generation runs before every development and production build", as
   );
   assert.equal(
     packageManifest.scripts["test:fixtures"],
-    "node --test tests/fixtures.test.mjs",
+    "node --test tests/fixtures.test.mjs tests/icon-assets.test.mjs",
   );
-  assert.equal(packageManifest.scripts.predev, "npm run fixtures:build");
-  assert.equal(packageManifest.scripts.prebuild, "npm run fixtures:build");
+  assert.equal(packageManifest.scripts.predev, "npm run assets:build");
+  assert.equal(packageManifest.scripts.prebuild, "npm run assets:build");
   assert.equal(
     packageManifest.scripts["prebuild:pages"],
-    "npm run fixtures:build",
+    "npm run assets:build",
   );
   assert.equal(packageManifest.scripts.dev, "next dev");
   assert.equal(packageManifest.scripts.build, "next build");
@@ -193,9 +195,21 @@ test("fixture generation runs before every development and production build", as
     packageManifest.scripts["build:pages"],
     "cross-env PAGES_BASE_PATH=/interface-systems-lab next build",
   );
+  assert.equal(
+    packageManifest.scripts["test:dev-hydration"],
+    "node scripts/run-dev-hydration.mjs",
+  );
+  assert.equal(
+    packageManifest.scripts["assets:brand"],
+    "node scripts/build-brand-assets.mjs",
+  );
+  assert.equal(
+    packageManifest.scripts["test:brand"],
+    "node --test tests/brand-assets.test.mjs",
+  );
   assert.match(
     packageManifest.scripts.quality,
-    /npm run test:unit && npm run test:fixtures && npm run build:pages/,
+    /npm run test:fixtures && npm run test:brand && npm run test:dev-hydration/,
   );
 
   const gitignore = await readFile(
@@ -210,7 +224,7 @@ test("fixture generation runs before every development and production build", as
   );
 });
 
-test("the generator writes exactly eight deterministic documents", async () => {
+test("the generator writes exactly nine deterministic documents", async () => {
   const generatedStat = await lstat(generatedRoot);
   assert.equal(generatedStat.isSymbolicLink(), false);
 
@@ -419,8 +433,9 @@ test("copied package styles are byte-identical to their public exports", async (
 
   const expectedVersions = {
     "ui-style-kit-css": "2.1.0",
+    "ui-style-kit-icons": "1.0.0",
     "interactive-surface-css": "1.5.0",
-    "layout-style-css": "2.1.1",
+    "layout-style-css": "3.0.0",
   };
   for (const [packageName, expectedVersion] of Object.entries(
     expectedVersions,
@@ -460,7 +475,18 @@ test("each fixture uses only its ordered local styles and semantic proof hooks",
     }
     assert.doesNotMatch(html, /<style(?:\s|>)/i);
     assert.doesNotMatch(html, /\sstyle=/i);
-    assert.doesNotMatch(html, /<script(?:\s|>)/i);
+    const usesIcons = ["icon-only", "ui-icons", "all-canonical"].includes(id);
+    if (usesIcons) {
+      assert.match(html, /<usk-icon\b/);
+      assert.match(html, /ui-style-kit-icons\.js/);
+      assert.match(
+        html,
+        /asset-base="\.\.\/\.\.\/assets\/ui-style-kit-icons\/1\.0\.0\/"/,
+      );
+    } else {
+      assert.doesNotMatch(html, /<usk-icon\b/);
+      assert.doesNotMatch(html, /ui-style-kit-icons\.js/);
+    }
     assert.doesNotMatch(html, /https?:\/\//i);
     assert.doesNotMatch(html, /(?:href|src)="\//i);
     assert.doesNotMatch(
@@ -488,24 +514,8 @@ test("each fixture uses only its ordered local styles and semantic proof hooks",
     assert.match(pressed, /aria-pressed="true"/);
     assert.notEqual(uiControl, interaction);
 
-    if (id === "all-legacy") {
-      assert.match(html, /\bdata-layout="bento"/);
-      assert.doesNotMatch(html, /\bdata-ly-layout=/);
-      assert.match(html, /\bdata-proof-legacy-layout\b/);
-    } else {
-      assert.match(html, /\bdata-ly-layout="bento"/);
-      assert.doesNotMatch(html, /\bdata-layout=/);
-      assert.doesNotMatch(html, /\bdata-proof-legacy-layout\b/);
-    }
+    assert.match(html, /\bdata-ly-layout="bento"/);
+    assert.doesNotMatch(html, /\bdata-layout=/);
+    assert.doesNotMatch(html, /\bdata-proof-legacy-layout\b/);
   }
-});
-
-test("Layout legacy keeps its relative core import resolvable", async () => {
-  const legacyPath = path.join(
-    generatedRoot,
-    expectedAssets["layout-legacy"].target,
-  );
-  const legacy = await readFile(legacyPath, "utf8");
-  assert.match(legacy, /@import url\("\.\/layout-style-css\.css"\);/);
-  await access(path.join(path.dirname(legacyPath), "layout-style-css.css"));
 });

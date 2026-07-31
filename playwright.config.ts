@@ -1,5 +1,8 @@
 import { defineConfig, devices } from "@playwright/test";
 
+const browserPort = process.env.PLAYWRIGHT_TEST_PORT?.trim() || "4173";
+const browserBaseUrl = `http://127.0.0.1:${browserPort}/interface-systems-lab/`;
+
 export default defineConfig({
   testDir: "./tests/browser",
   fullyParallel: false,
@@ -9,7 +12,7 @@ export default defineConfig({
   workers: process.env.CI ? 2 : undefined,
   reporter: process.env.CI ? "github" : "list",
   use: {
-    baseURL: "http://127.0.0.1:4173/interface-systems-lab/",
+    baseURL: browserBaseUrl,
     trace: "retain-on-failure",
     screenshot: "only-on-failure",
   },
@@ -37,8 +40,8 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: "npm run preview:prepare && npm run preview:serve",
-    url: "http://127.0.0.1:4173/interface-systems-lab/",
+    command: `npm run preview:prepare && node scripts/serve-preview.mjs .preview ${browserPort}`,
+    url: browserBaseUrl,
     reuseExistingServer: false,
     timeout: 120_000,
   },

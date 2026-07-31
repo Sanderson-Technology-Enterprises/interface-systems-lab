@@ -136,7 +136,7 @@ export function InteractionLab() {
             data-specimen="interaction-variants"
             aria-labelledby="interaction-variants-title"
           >
-            <div className="specimen-heading ly-stack ly-gap-1">
+            <div className="specimen-heading ly-stack ly-gap-2">
               <h3 id="interaction-variants-title">Six semantic variants</h3>
               <p>
                 Variant comparisons use level 2 so paint depth stays constant.
@@ -163,7 +163,7 @@ export function InteractionLab() {
             data-specimen="interaction-levels"
             aria-labelledby="interaction-levels-title"
           >
-            <div className="specimen-heading ly-stack ly-gap-1">
+            <div className="specimen-heading ly-stack ly-gap-2">
               <h3 id="interaction-levels-title">Three surface levels</h3>
               <p>
                 Level 1 is deliberately subtle; level 3 mixes the active
@@ -317,11 +317,11 @@ export function InteractionLab() {
           </details>
 
           <section
-            className="collision-console ly-stack ly-gap-5"
+            className="collision-console ly-stack ly-gap-6"
             data-specimen="interaction-collision"
             aria-labelledby="collision-title"
           >
-            <div className="specimen-heading ly-stack ly-gap-1">
+            <div className="specimen-heading ly-stack ly-gap-2">
               <h3 id="collision-title">State-collision console</h3>
               <p>
                 Toggle only documented ARIA and class hooks. Move the pointer

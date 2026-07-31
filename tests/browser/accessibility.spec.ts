@@ -41,6 +41,20 @@ test(
     await expect(page.locator("#install")).toBeVisible();
     await expect(page.locator("#libraries")).toBeVisible();
     await expect(page.locator("#company")).toBeVisible();
+    await expect(
+      page.locator('[data-icon-lab] usk-icon[role="img"]'),
+    ).toHaveAttribute("aria-label", /.+/);
+    await expect(
+      page.locator("[data-icon-lab] [data-icon-specimen] usk-icon").first(),
+    ).toHaveAttribute("aria-hidden", "true");
+    const iconAction = page
+      .locator("[data-icon-lab]")
+      .getByRole("button", { name: "Restore authored frame" });
+    await expect(iconAction).toBeVisible();
+    await expect(iconAction.locator("usk-icon")).toHaveAttribute(
+      "aria-hidden",
+      "true",
+    );
 
     const results = await new AxeBuilder({ page }).analyze();
     await expectNoAxeViolations(
@@ -81,6 +95,7 @@ test(
 
     const extremeResults = await new AxeBuilder({ page })
       .include("#ui-native")
+      .include("#icons")
       .include("#interactions")
       .analyze();
     await expectNoAxeViolations(

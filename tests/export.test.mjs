@@ -16,6 +16,7 @@ const repositoryRoot = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
   "..",
 );
+const outRoot = path.join(repositoryRoot, "out");
 const canonicalUrl =
   "https://sanderson-technology-enterprises.github.io/interface-systems-lab/";
 const corporateUrl = "https://sandersontechnologyenterprises.com";
@@ -24,7 +25,7 @@ const repositoryUrl =
   "https://github.com/Sanderson-Technology-Enterprises/interface-systems-lab";
 const socialImageUrl = `${canonicalUrl}interface-systems-lab-social-card.png`;
 const socialImageAlt =
-  "Interface Systems Lab graphic showing 3 libraries, 1 interface, and 5,280 possibilities across layout, identity, and interaction.";
+  "Interface Systems Lab social card with the text \u201c4 libraries, 1 interface, and 5,280 possibilities\u201d over layout, identity, iconography, and interaction.";
 const websiteId = `${canonicalUrl}#website`;
 const webpageId = `${canonicalUrl}#webpage`;
 const applicationId = `${canonicalUrl}#application`;
@@ -183,7 +184,7 @@ test("home structured data separates corporate ownership from Lab entities", asy
   const packages = nodesOfType(nodes, "ItemList")[0];
   assert.equal(packages["@id"], packagesId);
   assert.equal(packages.url, canonicalUrl);
-  assert.equal(packages.numberOfItems, 3);
+  assert.equal(packages.numberOfItems, 4);
   assert.deepEqual(
     packages.itemListElement.map((entry) => ({
       codeRepository: entry.item.codeRepository,
@@ -198,7 +199,7 @@ test("home structured data separates corporate ownership from Lab entities", asy
         name: "layout-style-css",
         programmingLanguage: "CSS",
         url: "https://www.npmjs.com/package/layout-style-css",
-        version: "2.1.1",
+        version: "3.0.0",
       },
       {
         codeRepository: "https://github.com/Foscat/ui-style-kit-css",
@@ -206,6 +207,13 @@ test("home structured data separates corporate ownership from Lab entities", asy
         programmingLanguage: "CSS",
         url: "https://www.npmjs.com/package/ui-style-kit-css",
         version: "2.1.0",
+      },
+      {
+        codeRepository: "https://github.com/Foscat/ui-style-kit-icons",
+        name: "ui-style-kit-icons",
+        programmingLanguage: "JavaScript, SVG",
+        url: "https://www.npmjs.com/package/ui-style-kit-icons",
+        version: "1.0.0",
       },
       {
         codeRepository: "https://github.com/Foscat/Interactive-Surface-CSS",
@@ -364,12 +372,13 @@ const exportFixtureRoot = path.join(
 const fixtureIds = [
   "layout-only",
   "ui-only",
+  "icon-only",
   "interactive-only",
   "layout-ui",
+  "ui-icons",
   "layout-interactive",
   "ui-interactive",
   "all-canonical",
-  "all-legacy",
 ];
 
 test("the Pages artifact contains every isolated integration fixture", async () => {
@@ -407,7 +416,12 @@ test("the package directory links to Pages-prefixed standalone fixtures", async 
     "utf8",
   );
 
-  for (const id of ["layout-only", "ui-only", "interactive-only"]) {
+  for (const id of [
+    "layout-only",
+    "ui-only",
+    "icon-only",
+    "interactive-only",
+  ]) {
     assert.match(
       page,
       new RegExp(
@@ -417,15 +431,60 @@ test("the package directory links to Pages-prefixed standalone fixtures", async 
   }
 });
 
-test("the legacy artifact retains its local relative Layout core import", async () => {
-  const legacyPath = path.join(
+test("the Pages artifact stages the pinned Layout v3 core", async () => {
+  const layoutCorePath = path.join(
     exportFixtureRoot,
     "assets",
     "layout-style-css",
-    "2.1.1",
-    "legacy.css",
+    "3.0.0",
+    "layout-style-css.css",
   );
-  const legacy = await readFile(legacyPath, "utf8");
-  assert.match(legacy, /@import url\("\.\/layout-style-css\.css"\);/);
-  await access(path.join(path.dirname(legacyPath), "layout-style-css.css"));
+  const layoutCore = await readFile(layoutCorePath, "utf8");
+  assert.match(layoutCore, /\.ly-grid\s*\{/);
+  assert.match(layoutCore, /--ly-pane-min/);
+});
+
+test("the Pages artifact stages versioned icon assets without private or retired paths", async () => {
+  const [index, runtime, cyberpunkDashboard] = await Promise.all([
+    readFile(path.join(outRoot, "index.html"), "utf8"),
+    stat(
+      path.join(
+        outRoot,
+        "assets",
+        "ui-style-kit-icons",
+        "1.0.0",
+        "ui-style-kit-icons.js",
+      ),
+    ),
+    stat(
+      path.join(
+        outRoot,
+        "assets",
+        "ui-style-kit-icons",
+        "1.0.0",
+        "packs",
+        "cyberpunk",
+        "icons",
+        "dashboard.svg",
+      ),
+    ),
+  ]);
+  const exportedFixtureHtml = await Promise.all(
+    fixtureIds.map((id) =>
+      readFile(path.join(exportFixtureRoot, `${id}.html`), "utf8"),
+    ),
+  );
+  const exportedHtml = [index, ...exportedFixtureHtml].join("\n");
+
+  assert.equal(runtime.isFile(), true);
+  assert.equal(cyberpunkDashboard.isFile(), true);
+  assert.match(
+    index,
+    /asset-base="\/interface-systems-lab\/assets\/ui-style-kit-icons\/1\.0\.0\/"/,
+  );
+  assert.doesNotMatch(exportedHtml, /node_modules/);
+  assert.doesNotMatch(
+    exportedHtml,
+    /layout-style-css\/(?:legacy\.css|integrations\/ui-style-kit\.css)/,
+  );
 });

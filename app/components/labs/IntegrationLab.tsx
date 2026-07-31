@@ -6,15 +6,13 @@ type FixtureDefinition = (typeof fixtureCatalog)[number];
 function FixtureCard({ fixture }: { fixture: FixtureDefinition }) {
   return (
     <article
-      className="integration-card ly-stack ly-gap-3"
+      className="integration-card ly-stack ly-gap-4"
       id={`fixture-${fixture.id}`}
       data-fixture-card={fixture.id}
     >
       <header className="ly-stack ly-gap-2">
         <div className="ly-cluster ly-gap-2">
-          <p className="section-label">
-            {fixture.deprecated ? "Deprecated" : "Isolated proof"}
-          </p>
+          <p className="section-label">Isolated proof</p>
           <code>{fixture.packages.join(" + ")}</code>
         </div>
         <h3>{fixture.title}</h3>
@@ -37,14 +35,14 @@ function FixtureGroup({
   label,
   fixtures,
 }: {
-  group: "one" | "pair" | "legacy";
+  group: "one" | "pair";
   label: string;
   fixtures: FixtureDefinition[];
 }) {
   return (
     <details className="integration-disclosure" data-integration-group={group}>
       <summary>{label}</summary>
-      <div className="integration-grid ly-grid ly-grid--auto ly-gap-6">
+      <div className="integration-grid ly-grid ly-gap-6">
         {fixtures.map((fixture) => (
           <FixtureCard fixture={fixture} key={fixture.id} />
         ))}
@@ -70,7 +68,7 @@ export function IntegrationLab() {
       id="integrate"
       aria-labelledby="integrate-title"
     >
-      <div className="ly-wrapper ly-stack ly-gap-7">
+      <div className="ly-wrapper ly-stack ly-gap-8">
         <div className="section-heading ly-split ly-gap-6 ly-items-end">
           <div className="ly-stack ly-gap-2">
             <p className="section-label">Isolated integration laboratory</p>
@@ -98,11 +96,6 @@ export function IntegrationLab() {
             fixtures={fixturesFor("pair")}
             group="pair"
             label="Compose two independent layers"
-          />
-          <FixtureGroup
-            fixtures={fixturesFor("legacy")}
-            group="legacy"
-            label="Deprecated migration-only compatibility"
           />
         </div>
 

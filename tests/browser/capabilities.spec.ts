@@ -60,11 +60,11 @@ const primitiveHooks = [
   ["cover", ".ly-cover"],
   ["switcher", ".ly-switcher"],
   ["sidebar", ".ly-sidebar"],
-  ["grid", ".ly-grid:not(.ly-grid--auto)"],
-  ["grid-auto", ".ly-grid.ly-grid--auto"],
+  ["grid", ".ly-grid"],
+  ["grid-intrinsic", ".ly-grid"],
   ["split", ".ly-split"],
-  ["panes-2", ".ly-panes.ly-panes--2"],
-  ["panes-3", ".ly-panes.ly-panes--3"],
+  ["panes-2", '.ly-panes[data-pane-count="2"]'],
+  ["panes-3", '.ly-panes[data-pane-count="3"]'],
   ["media", ".ly-media"],
   ["reel", ".ly-reel"],
   ["frame", ".ly-frame"],
@@ -89,14 +89,8 @@ const wrapperVariants = [
 ] as const;
 
 const spacingUtilities = [
-  ...Array.from({ length: 10 }, (_, index) => `ly-gap-${index}`),
-  ...Array.from({ length: 10 }, (_, index) => `ly-pad-${index}`),
-  "ly-px-4",
-  "ly-px-6",
-  "ly-px-8",
-  "ly-py-4",
-  "ly-py-6",
-  "ly-py-8",
+  ...Array.from({ length: 5 }, (_, index) => `ly-gap-${index * 2}`),
+  ...Array.from({ length: 5 }, (_, index) => `ly-pad-${index * 2}`),
 ];
 
 const alignmentUtilities = [
@@ -124,34 +118,49 @@ const interactionLevels = ["1", "2", "3"] as const;
 const integrationFixtures = [
   "layout-only",
   "ui-only",
+  "icon-only",
   "interactive-only",
   "layout-ui",
+  "ui-icons",
   "layout-interactive",
   "ui-interactive",
   "all-canonical",
-  "all-legacy",
 ] as const;
 
-const integrationDomOrder = [
+const integrationFixtureDomOrder = [
   "all-canonical",
   "layout-only",
   "ui-only",
+  "icon-only",
   "interactive-only",
   "layout-ui",
+  "ui-icons",
   "layout-interactive",
   "ui-interactive",
-  "all-legacy",
+] as const;
+
+const adoptionDomOrder = [
+  "all-canonical",
+  "layout-only",
+  "ui-only",
+  "icons-only",
+  "interactive-only",
+  "layout-ui",
+  "ui-icons",
+  "layout-interactive",
+  "ui-interactive",
 ] as const;
 
 const integrationTruth = {
   "layout-only": { interaction: false, layout: true, ui: false },
   "ui-only": { interaction: false, layout: false, ui: true },
+  "icon-only": { interaction: false, layout: false, ui: false },
   "interactive-only": { interaction: true, layout: false, ui: false },
   "layout-ui": { interaction: false, layout: true, ui: true },
+  "ui-icons": { interaction: false, layout: false, ui: true },
   "layout-interactive": { interaction: true, layout: true, ui: false },
   "ui-interactive": { interaction: true, layout: false, ui: true },
   "all-canonical": { interaction: true, layout: true, ui: true },
-  "all-legacy": { interaction: true, layout: true, ui: true },
 } as const;
 
 const nativeInputTypes = [
@@ -215,7 +224,7 @@ const interactionStates = [
 ] as const;
 
 const recipeAreas: Partial<Record<(typeof layoutRecipes)[number], string[]>> = {
-  "app-shell": ["header", "nav", "main", "aside", "footer"],
+  "app-shell": ["header", "sidebar", "main", "aside", "footer"],
   dashboard: ["header", "nav", "main", "aside", "footer"],
   docs: ["header", "nav", "main", "aside", "footer"],
   "list-detail": ["primary", "secondary", "actions"],
@@ -559,7 +568,9 @@ test("layout laboratory renders the complete recipe and primitive contracts", as
   await expect(
     page.locator('[data-layout-recipe="app-shell"] > [data-ly-area="main"]'),
   ).toHaveJSProperty("tagName", "SECTION");
-  await expect(page.locator('[data-ly-area="sidebar"]')).toHaveCount(0);
+  await expect(
+    page.locator('[data-layout-recipe="app-shell"] > [data-ly-area="sidebar"]'),
+  ).toHaveJSProperty("tagName", "NAV");
 
   for (const [name, selector] of primitiveHooks) {
     const specimen = page.locator(
@@ -2061,29 +2072,21 @@ test("review contract renders distinct variant and level treatments", async ({
   expect(new Set(levelSignatures).size).toBe(interactionLevels.length);
 });
 
-test("integration laboratory progressively discloses exactly eight isolated fixtures", async ({
+test("integration laboratory progressively discloses exactly nine isolated fixtures", async ({
   page,
 }) => {
   await expect(page.locator("#integrate")).toHaveCount(1);
   await expect(page.locator("#integrate")).toContainText(/fixed baseline/i);
-  await expect(page.locator("#integrate details > summary")).toHaveCount(3);
+  await expect(page.locator("#integrate details > summary")).toHaveCount(2);
   await expect(
     page.locator('[data-integration-fixture="all-canonical"]'),
   ).toBeVisible();
   await expect(
     page.locator('[data-integration-group="one"] [data-integration-fixture]'),
-  ).toHaveCount(3);
+  ).toHaveCount(4);
   await expect(
     page.locator('[data-integration-group="pair"] [data-integration-fixture]'),
-  ).toHaveCount(3);
-  await expect(
-    page.locator(
-      '[data-integration-group="legacy"] [data-integration-fixture]',
-    ),
-  ).toHaveCount(1);
-  await expect(
-    page.locator('[data-integration-group="legacy"]'),
-  ).not.toHaveAttribute("open");
+  ).toHaveCount(4);
 
   const frames = page.locator("#integrate iframe[data-integration-fixture]");
   await expect(frames).toHaveCount(integrationFixtures.length);
@@ -2097,7 +2100,7 @@ test("integration laboratory progressively discloses exactly eight isolated fixt
       })),
     ),
   ).toEqual(
-    integrationDomOrder.map((id) => ({
+    integrationFixtureDomOrder.map((id) => ({
       id,
       loading: "lazy",
       src: `/interface-systems-lab/fixtures/generated/${id}.html`,
@@ -2108,14 +2111,14 @@ test("integration laboratory progressively discloses exactly eight isolated fixt
     elements.map((element) => element.getAttribute("title")),
   );
   expect(new Set(titles).size).toBe(integrationFixtures.length);
-  await expect(page.locator('[data-integration-group="legacy"]')).toContainText(
-    /deprecated|migration-only/i,
+  await expect(page.locator('[data-integration-group="legacy"]')).toHaveCount(
+    0,
   );
 
   const standaloneProofs = page.locator(
     "#libraries [data-package] [data-standalone-fixture]",
   );
-  await expect(standaloneProofs).toHaveCount(3);
+  await expect(standaloneProofs).toHaveCount(4);
   expect(
     await standaloneProofs.evaluateAll((links) =>
       links.map((link) => ({
@@ -2138,6 +2141,11 @@ test("integration laboratory progressively discloses exactly eight isolated fixt
       packageName: "ui-style-kit-css",
     },
     {
+      fixture: "icon-only",
+      href: "/interface-systems-lab/fixtures/generated/icon-only.html",
+      packageName: "ui-style-kit-icons",
+    },
+    {
       fixture: "interactive-only",
       href: "/interface-systems-lab/fixtures/generated/interactive-only.html",
       packageName: "interactive-surface-css",
@@ -2146,6 +2154,7 @@ test("integration laboratory progressively discloses exactly eight isolated fixt
   for (const displayName of [
     "Layout Style CSS",
     "UI Style Kit CSS",
+    "UI Style Kit Icons",
     "Interactive Surface CSS",
   ]) {
     await expect(
@@ -2167,17 +2176,6 @@ test("isolated fixtures resolve only their declared ownership layers", async ({
       integrationTruth[id],
     );
   }
-
-  const legacy = await integrationFrame(page, "all-legacy");
-  const legacyProof = legacy.locator("[data-proof-legacy-layout]");
-  await expect(legacyProof).toHaveCSS("display", "grid");
-  expect(
-    await legacy
-      .locator("[data-fixture-root]")
-      .evaluate((element) =>
-        getComputedStyle(element).getPropertyValue("--ly-grid-columns").trim(),
-      ),
-  ).toBe("6");
 });
 
 test("canonical integration preserves geometry and paint through real hover and keyboard focus", async ({
@@ -2267,7 +2265,7 @@ test("canonical integration preserves geometry and paint through real hover and 
   expect(await readPaintSignature(paint)).toBe(basePaint);
 });
 
-test("installation guidance renders all adoption paths with legacy isolated", async ({
+test("installation guidance renders all current adoption paths", async ({
   page,
 }) => {
   const paths = page.locator("#install [data-adoption-path]");
@@ -2276,21 +2274,20 @@ test("installation guidance renders all adoption paths with legacy isolated", as
     await paths.evaluateAll((elements) =>
       elements.map((element) => element.getAttribute("data-adoption-path")),
     ),
-  ).toEqual(integrationDomOrder);
-  await expect(page.locator("#install details > summary")).toHaveCount(3);
+  ).toEqual(adoptionDomOrder);
+  await expect(page.locator("#install details > summary")).toHaveCount(2);
   await expect(
     page.locator('#install [data-adoption-group="one"]'),
   ).toHaveCount(1);
   await expect(
     page.locator('#install [data-adoption-group="pair"]'),
   ).toHaveCount(1);
-  const legacy = page.locator('#install [data-adoption-group="legacy"]');
-  await expect(legacy).toHaveCount(1);
-  await expect(legacy).not.toHaveAttribute("open");
-  await expect(legacy).toContainText(/deprecated|migration-only/i);
+  await expect(
+    page.locator('#install [data-adoption-group="legacy"]'),
+  ).toHaveCount(0);
   await expect(
     page.locator('[data-adoption-path="all-canonical"]'),
-  ).toContainText("Install all three");
+  ).toContainText("Install all four");
 
   // The repeated snippet titles remain distinguishable when every supported
   // path is visible to assistive technology at the same time.
@@ -2315,6 +2312,7 @@ test("integration fixtures load locally without errors or overflow", async ({
   const pageErrors: string[] = [];
   const failedStylesheets: string[] = [];
   const remoteFixtureStylesheets: string[] = [];
+  const fixtureOrigin = new URL(page.url()).origin;
   page.on("console", (message) => {
     if (message.type() === "error") consoleErrors.push(message.text());
   });
@@ -2339,7 +2337,7 @@ test("integration fixtures load locally without errors or overflow", async ({
     if (
       request.resourceType() === "stylesheet" &&
       request.frame().url().includes("/fixtures/generated/") &&
-      new URL(request.url()).origin !== "http://127.0.0.1:4173"
+      new URL(request.url()).origin !== fixtureOrigin
     ) {
       remoteFixtureStylesheets.push(request.url());
     }

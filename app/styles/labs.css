@@ -19,6 +19,10 @@
   margin-block-end: var(--ly-space-6);
 }
 
+.control-deck {
+  --ly-grid-columns: 1;
+}
+
 .control-deck label,
 .control-deck fieldset {
   display: grid;
@@ -237,6 +241,14 @@
 
 .primitive-cover {
   --ly-cover-min: 16rem;
+}
+
+[data-pane-count="2"] {
+  --ly-pane-min: min(100%, 12rem);
+}
+
+[data-pane-count="3"] {
+  --ly-pane-min: min(100%, 9rem);
 }
 
 .primitive-scroll {
@@ -544,4 +556,26 @@
 
 .collision-surface {
   min-inline-size: min(100%, 15rem);
+}
+
+.icon-lab-toolbar,
+.icon-accessibility-proof {
+  justify-content: space-between;
+}
+
+.icon-lab-toolbar label {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.icon-specimen-grid {
+  --ly-grid-min: min(100%, 10rem);
+}
+
+.icon-specimen {
+  min-inline-size: 0;
+}
+
+.icon-frame-action usk-icon {
+  flex: none;
 }

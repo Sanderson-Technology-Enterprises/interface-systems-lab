@@ -26,8 +26,9 @@ const defaultGeneratedRoot = path.join(
 
 export const EXPECTED_PACKAGE_VERSIONS = Object.freeze({
   "interactive-surface-css": "1.5.0",
-  "layout-style-css": "2.1.1",
+  "layout-style-css": "3.0.0",
   "ui-style-kit-css": "2.1.0",
+  "ui-style-kit-icons": "1.0.0",
 });
 
 export const FIXTURE_ASSETS = Object.freeze({
@@ -39,9 +40,9 @@ export const FIXTURE_ASSETS = Object.freeze({
     export: "ui-style-kit-css/interactive-surface-theme.css",
     target: "assets/ui-style-kit-css/2.1.0/interactive-surface-theme.css",
   }),
-  "ui-with-bridge": Object.freeze({
-    export: "ui-style-kit-css/with-bridge.css",
-    target: "assets/ui-style-kit-css/2.1.0/ui-style-kit.with-bridge.css",
+  "icon-css": Object.freeze({
+    export: "ui-style-kit-icons/css.css",
+    target: "assets/ui-style-kit-icons/1.0.0/ui-style-kit-icons.css",
   }),
   "interaction-core": Object.freeze({
     export: "interactive-surface-css/state-core.css",
@@ -51,21 +52,9 @@ export const FIXTURE_ASSETS = Object.freeze({
     export: "interactive-surface-css/standalone-preset.css",
     target: "assets/interactive-surface-css/1.5.0/standalone-preset.css",
   }),
-  "interaction-complete": Object.freeze({
-    export: "interactive-surface-css/interactive-surface.css",
-    target: "assets/interactive-surface-css/1.5.0/interactive-surface.css",
-  }),
   "layout-core": Object.freeze({
     export: "layout-style-css",
-    target: "assets/layout-style-css/2.1.1/layout-style-css.css",
-  }),
-  "layout-ui-bridge": Object.freeze({
-    export: "layout-style-css/integrations/ui-style-kit.css",
-    target: "assets/layout-style-css/2.1.1/integrations/ui-style-kit.css",
-  }),
-  "layout-legacy": Object.freeze({
-    export: "layout-style-css/legacy.css",
-    target: "assets/layout-style-css/2.1.1/legacy.css",
+    target: "assets/layout-style-css/3.0.0/layout-style-css.css",
   }),
 });
 
@@ -233,7 +222,7 @@ export async function assertSafeGeneratedPath(
 }
 
 function fixtureMarkup(fixture, assets) {
-  const legacy = fixture.id === "all-legacy";
+  const usesIcons = fixture.packages.includes("ui-style-kit-icons");
   const stylesheetMarkup = fixture.styles
     .map(
       (key) =>
@@ -242,15 +231,30 @@ function fixtureMarkup(fixture, assets) {
         )}">`,
     )
     .join("\n");
-  const rootLayoutAttribute = legacy
-    ? 'data-layout="bento"'
-    : 'data-ly-layout="bento"';
-  const legacyProof = legacy
+  const iconModuleMarkup = usesIcons
     ? `
-        <section class="bento-grid" data-proof-legacy-layout aria-label="Legacy prefixed layout alias">
-          <span>Legacy area one</span>
-          <span>Legacy area two</span>
-        </section>`
+    <script
+      type="module"
+      src="../../assets/ui-style-kit-icons/1.0.0/ui-style-kit-icons.js"
+    ></script>`
+    : "";
+  const iconSpecimenMarkup = usesIcons
+    ? `
+      <article class="ly-stack ly-gap-4" data-proof-icons>
+        <h2>Theme-aware iconography</h2>
+        <div class="ly-cluster ly-gap-4">
+          <usk-icon
+            name="dashboard"
+            label="Dashboard"
+            asset-base="../../assets/ui-style-kit-icons/1.0.0/"
+          ></usk-icon>
+          <usk-icon
+            name="palette"
+            label="Palette"
+            asset-base="../../assets/ui-style-kit-icons/1.0.0/"
+          ></usk-icon>
+        </div>
+      </article>`
     : "";
 
   return `<!doctype html>
@@ -261,24 +265,25 @@ function fixtureMarkup(fixture, assets) {
     <meta name="robots" content="noindex,nofollow">
     <title>${escapeHtml(fixture.title)} | Interface Systems Lab integration proof</title>
 ${stylesheetMarkup}
+${iconModuleMarkup}
   </head>
   <body
     class="ly-root"
-    ${rootLayoutAttribute}
+    data-ly-layout="bento"
     data-ui="minimal-saas"
     data-theme="midnight-gold"
     data-mode="dark"
     data-fixture-id="${escapeHtml(fixture.id)}"
     data-fixture-root
   >
-    <main class="ly-wrapper ly-section ly-stack ly-gap-5">
+    <main class="ly-wrapper ly-section ly-stack ly-gap-6">
       <header class="ly-stack ly-gap-2">
-        <p>${legacy ? "Deprecated migration-only compatibility" : "Isolated package proof"}</p>
+        <p>Isolated package proof</p>
         <h1>${escapeHtml(fixture.title)}</h1>
         <p>${escapeHtml(fixture.summary)}</p>
       </header>
-      <section class="ly-grid ly-grid--auto" data-proof-layout aria-label="Layout proof">
-        <article class="saas-card ly-stack ly-gap-3" data-proof-paint>
+      <section class="ly-grid" data-proof-layout aria-label="Layout proof">
+        <article class="saas-card ly-stack ly-gap-4" data-proof-paint>
           <h2 class="saas-heading">Shared semantic specimen</h2>
           <label class="saas-field" for="fixture-field">
             <span class="saas-label">Project name</span>
@@ -288,9 +293,9 @@ ${stylesheetMarkup}
             UI-owned control
           </button>
         </article>
-        <article class="ly-stack ly-gap-3">
+        <article class="ly-stack ly-gap-4">
           <h2>Interaction mechanics</h2>
-          <div class="ly-cluster ly-gap-3">
+          <div class="ly-cluster ly-gap-4">
             <button
               class="interactive-surface"
               type="button"
@@ -312,7 +317,7 @@ ${stylesheetMarkup}
             </button>
           </div>
         </article>
-      </section>${legacyProof}
+      </section>${iconSpecimenMarkup}
     </main>
   </body>
 </html>

@@ -2,10 +2,12 @@ node_modules/
 .next/
 out/
 .preview/
+.qa/
 .tmp/
 playwright-report/
 test-results/
 /public/fixtures/generated/
+public/assets/ui-style-kit-icons/
 .superpowers/
 *.tsbuildinfo
 .env*

@@ -19,7 +19,7 @@ export function NativeDialogDemo() {
   }
 
   return (
-    <div className="native-dialog-demo ly-stack ly-gap-3">
+    <div className="native-dialog-demo ly-stack ly-gap-4">
       <button
         className="interactive-surface site-action"
         data-surface-variant="primary"
@@ -56,7 +56,7 @@ export function NativeDialogDemo() {
             </p>
           </header>
 
-          <form method="dialog" className="dialog-actions ly-cluster ly-gap-3">
+          <form method="dialog" className="dialog-actions ly-cluster ly-gap-4">
             <button
               className="interactive-surface site-action"
               data-surface-variant="primary"

@@ -4,14 +4,8 @@ import { getUiPrefix } from "../../data/catalog";
 import { useLabConfiguration } from "../LabExperience";
 
 const spacingUtilities = [
-  ...Array.from({ length: 10 }, (_, index) => `ly-gap-${index}`),
-  ...Array.from({ length: 10 }, (_, index) => `ly-pad-${index}`),
-  "ly-px-4",
-  "ly-px-6",
-  "ly-px-8",
-  "ly-py-4",
-  "ly-py-6",
-  "ly-py-8",
+  ...Array.from({ length: 5 }, (_, index) => `ly-gap-${index * 2}`),
+  ...Array.from({ length: 5 }, (_, index) => `ly-pad-${index * 2}`),
 ] as const;
 
 const alignmentUtilities = [
@@ -66,7 +60,9 @@ export function LayoutLab() {
           <p>
             Change the global personality above. The same semantic recipe and
             primitive hooks recompute their geometry without moving a single
-            node in reading or keyboard order.
+            node in reading or keyboard order. This laboratory targets Layout
+            Style CSS 3.0.0 with intrinsic grids, intrinsic panes, and canonical
+            attribute recipes.
           </p>
         </div>
 
@@ -76,7 +72,7 @@ export function LayoutLab() {
           aria-label="Personality-sensitive base grid"
         >
           <p
-            className="specimen-intro ly-span-full ly-stack ly-gap-1"
+            className="specimen-intro ly-span-full ly-stack ly-gap-2"
             data-primitive-label
           >
             <strong>Base grid</strong>
@@ -92,7 +88,7 @@ export function LayoutLab() {
             ["04", "Deliver"],
           ].map(([index, label]) => (
             <span
-              className={`${cardClass} layout-grid-cell ly-pad-4 ly-stack ly-gap-1`}
+              className={`${cardClass} layout-grid-cell ly-pad-4 ly-stack ly-gap-2`}
               key={index}
             >
               <small>{index}</small>
@@ -105,8 +101,8 @@ export function LayoutLab() {
           <details>
             <summary>Explore the six supporting recipes</summary>
             <div className="recipe-atlas ly-stack ly-gap-6">
-              <article className="recipe-entry ly-stack ly-gap-3">
-                <header className="specimen-heading ly-stack ly-gap-1">
+              <article className="recipe-entry ly-stack ly-gap-4">
+                <header className="specimen-heading ly-stack ly-gap-2">
                   <h3>Dashboard</h3>
                   <code>header / nav / main / aside / footer</code>
                 </header>
@@ -118,13 +114,13 @@ export function LayoutLab() {
                     aria-label="Dashboard recipe specimen"
                   >
                     <header
-                      className={`${surfaceClass} ly-pad-3`}
+                      className={`${surfaceClass} ly-pad-4`}
                       data-ly-area="header"
                     >
                       Pipeline overview
                     </header>
                     <nav
-                      className={`${surfaceClass} ly-pad-3`}
+                      className={`${surfaceClass} ly-pad-4`}
                       data-ly-area="nav"
                       aria-label="Dashboard specimen"
                     >
@@ -145,7 +141,7 @@ export function LayoutLab() {
                       <p>Three reviews due.</p>
                     </aside>
                     <footer
-                      className={`${surfaceClass} ly-pad-3`}
+                      className={`${surfaceClass} ly-pad-4`}
                       data-ly-area="footer"
                     >
                       Updated today
@@ -154,8 +150,8 @@ export function LayoutLab() {
                 </div>
               </article>
 
-              <article className="recipe-entry ly-stack ly-gap-3">
-                <header className="specimen-heading ly-stack ly-gap-1">
+              <article className="recipe-entry ly-stack ly-gap-4">
+                <header className="specimen-heading ly-stack ly-gap-2">
                   <h3>Documentation</h3>
                   <code>header / nav / main / aside / footer</code>
                 </header>
@@ -167,13 +163,13 @@ export function LayoutLab() {
                     aria-label="Documentation recipe specimen"
                   >
                     <header
-                      className={`${surfaceClass} ly-pad-3`}
+                      className={`${surfaceClass} ly-pad-4`}
                       data-ly-area="header"
                     >
                       System handbook
                     </header>
                     <nav
-                      className={`${surfaceClass} ly-pad-3`}
+                      className={`${surfaceClass} ly-pad-4`}
                       data-ly-area="nav"
                       aria-label="Documentation specimen"
                     >
@@ -194,17 +190,17 @@ export function LayoutLab() {
                       <p>Named regions · container behavior</p>
                     </aside>
                     <footer
-                      className={`${surfaceClass} ly-pad-3`}
+                      className={`${surfaceClass} ly-pad-4`}
                       data-ly-area="footer"
                     >
-                      Version 2.1.0
+                      Version 3.0.0
                     </footer>
                   </section>
                 </div>
               </article>
 
-              <article className="recipe-entry ly-stack ly-gap-3">
-                <header className="specimen-heading ly-stack ly-gap-1">
+              <article className="recipe-entry ly-stack ly-gap-4">
+                <header className="specimen-heading ly-stack ly-gap-2">
                   <h3>List detail</h3>
                   <code>primary / secondary / actions</code>
                 </header>
@@ -230,7 +226,7 @@ export function LayoutLab() {
                       <p>Brand and interface system delivery.</p>
                     </article>
                     <footer
-                      className={`${surfaceClass} ly-pad-3`}
+                      className={`${surfaceClass} ly-pad-4`}
                       data-ly-area="actions"
                     >
                       Review · Export · Share
@@ -239,8 +235,8 @@ export function LayoutLab() {
                 </div>
               </article>
 
-              <article className="recipe-entry ly-stack ly-gap-3">
-                <header className="specimen-heading ly-stack ly-gap-1">
+              <article className="recipe-entry ly-stack ly-gap-4">
+                <header className="specimen-heading ly-stack ly-gap-2">
                   <h3>Split hero</h3>
                   <code>content / media / actions</code>
                 </header>
@@ -265,7 +261,7 @@ export function LayoutLab() {
                       <span>Responsive media field</span>
                     </figure>
                     <div
-                      className={`${surfaceClass} ly-pad-3`}
+                      className={`${surfaceClass} ly-pad-4`}
                       data-ly-area="actions"
                     >
                       Inspect recipe · Read API
@@ -274,8 +270,8 @@ export function LayoutLab() {
                 </div>
               </article>
 
-              <article className="recipe-entry ly-stack ly-gap-3">
-                <header className="specimen-heading ly-stack ly-gap-1">
+              <article className="recipe-entry ly-stack ly-gap-4">
+                <header className="specimen-heading ly-stack ly-gap-2">
                   <h3>Gallery</h3>
                   <code>repeated direct children</code>
                 </header>
@@ -300,8 +296,8 @@ export function LayoutLab() {
                 </div>
               </article>
 
-              <article className="recipe-entry ly-stack ly-gap-3">
-                <header className="specimen-heading ly-stack ly-gap-1">
+              <article className="recipe-entry ly-stack ly-gap-4">
+                <header className="specimen-heading ly-stack ly-gap-2">
                   <h3>Card grid</h3>
                   <code>repeated direct children</code>
                 </header>
@@ -329,9 +325,9 @@ export function LayoutLab() {
 
           <details>
             <summary>Inspect every composition primitive</summary>
-            <div className="primitive-atlas ly-grid ly-grid--auto ly-gap-4">
+            <div className="primitive-atlas ly-grid ly-gap-4">
               <article
-                className={`${cardClass} primitive-specimen ly-stack ly-gap-3 ly-pad-4`}
+                className={`${cardClass} primitive-specimen ly-stack ly-gap-4 ly-pad-4`}
                 data-layout-primitive="stack"
               >
                 <SpecimenLabel>Stack</SpecimenLabel>
@@ -369,7 +365,7 @@ export function LayoutLab() {
               </article>
 
               <article
-                className={`${cardClass} primitive-specimen ly-switcher ly-gap-3 ly-pad-4`}
+                className={`${cardClass} primitive-specimen ly-switcher ly-gap-4 ly-pad-4`}
                 data-layout-primitive="switcher"
               >
                 <span>
@@ -379,7 +375,7 @@ export function LayoutLab() {
               </article>
 
               <article
-                className={`${cardClass} primitive-specimen ly-sidebar ly-gap-3 ly-pad-4`}
+                className={`${cardClass} primitive-specimen ly-sidebar ly-gap-4 ly-pad-4`}
                 data-layout-primitive="sidebar"
               >
                 <span data-ly-sidebar="side">
@@ -389,11 +385,11 @@ export function LayoutLab() {
               </article>
 
               <article
-                className={`${cardClass} primitive-specimen ly-grid ly-grid--auto ly-gap-2 ly-pad-4`}
-                data-layout-primitive="grid-auto"
+                className={`${cardClass} primitive-specimen ly-grid ly-gap-2 ly-pad-4`}
+                data-layout-primitive="grid-intrinsic"
               >
                 <span>
-                  <SpecimenLabel>Auto grid</SpecimenLabel>
+                  <SpecimenLabel>Intrinsic grid</SpecimenLabel>
                 </span>
                 <span>Two</span>
                 <span>Three</span>
@@ -404,7 +400,7 @@ export function LayoutLab() {
                 data-layout-query-scope="split"
               >
                 <article
-                  className={`${cardClass} primitive-specimen ly-split ly-gap-3 ly-pad-4`}
+                  className={`${cardClass} primitive-specimen ly-split ly-gap-4 ly-pad-4`}
                   data-layout-primitive="split"
                 >
                   <span>
@@ -419,8 +415,9 @@ export function LayoutLab() {
                 data-layout-query-scope="panes-2"
               >
                 <article
-                  className={`${cardClass} primitive-specimen ly-panes ly-panes--2 ly-gap-3 ly-pad-4`}
+                  className={`${cardClass} primitive-specimen ly-panes ly-gap-4 ly-pad-4`}
                   data-layout-primitive="panes-2"
+                  data-pane-count="2"
                 >
                   <span>
                     <SpecimenLabel>Two panes</SpecimenLabel>
@@ -434,8 +431,9 @@ export function LayoutLab() {
                 data-layout-query-scope="panes-3"
               >
                 <article
-                  className={`${cardClass} primitive-specimen ly-panes ly-panes--3 ly-gap-3 ly-pad-4`}
+                  className={`${cardClass} primitive-specimen ly-panes ly-gap-4 ly-pad-4`}
                   data-layout-primitive="panes-3"
+                  data-pane-count="3"
                 >
                   <span>
                     <SpecimenLabel>Three panes</SpecimenLabel>
@@ -450,7 +448,7 @@ export function LayoutLab() {
                 data-layout-query-scope="media"
               >
                 <article
-                  className={`${cardClass} primitive-specimen ly-media ly-gap-3 ly-pad-4`}
+                  className={`${cardClass} primitive-specimen ly-media ly-gap-4 ly-pad-4`}
                   data-layout-primitive="media"
                 >
                   <span
@@ -469,13 +467,13 @@ export function LayoutLab() {
               </div>
 
               <article
-                className={`${cardClass} primitive-specimen ly-reel ly-gap-3 ly-pad-4`}
+                className={`${cardClass} primitive-specimen ly-reel ly-gap-4 ly-pad-4`}
                 data-layout-primitive="reel"
                 aria-label="Scrollable Reel specimen"
                 tabIndex={0}
               >
                 {["Reel", "Second", "Third", "Fourth"].map((label, index) => (
-                  <span className={`${surfaceClass} ly-pad-3`} key={label}>
+                  <span className={`${surfaceClass} ly-pad-4`} key={label}>
                     {index === 0 ? (
                       <SpecimenLabel>{label}</SpecimenLabel>
                     ) : (
@@ -510,16 +508,16 @@ export function LayoutLab() {
           <details>
             <summary>Review wrappers, breakout lanes, and utilities</summary>
             <div className="wrapper-atlas ly-stack ly-gap-4">
-              <div className="ly-stack ly-gap-3">
+              <div className="ly-stack ly-gap-4">
                 <div
-                  className={`ly-wrapper ${surfaceClass} wrapper-sample ly-pad-3`}
+                  className={`ly-wrapper ${surfaceClass} wrapper-sample ly-pad-4`}
                 >
                   <strong>Plain wrapper</strong>
                   <span>Personality-sensitive measure</span>
                 </div>
                 {wrapperVariants.map((variant) => (
                   <div
-                    className={`ly-wrapper ly-wrapper--${variant} ${surfaceClass} wrapper-sample ly-pad-3`}
+                    className={`ly-wrapper ly-wrapper--${variant} ${surfaceClass} wrapper-sample ly-pad-4`}
                     data-wrapper-variant={variant}
                     key={variant}
                   >
@@ -535,15 +533,15 @@ export function LayoutLab() {
                 data-wrapper-variant="breakout"
               >
                 <div
-                  className={`${surfaceClass} ly-pad-3`}
+                  className={`${surfaceClass} ly-pad-4`}
                   data-ly-lane="content"
                 >
                   <SpecimenLabel>Breakout content lane</SpecimenLabel>
                 </div>
-                <div className={`${cardClass} ly-pad-3`} data-ly-lane="feature">
+                <div className={`${cardClass} ly-pad-4`} data-ly-lane="feature">
                   Feature lane
                 </div>
-                <div className={`${surfaceClass} ly-pad-3`} data-ly-lane="full">
+                <div className={`${surfaceClass} ly-pad-4`} data-ly-lane="full">
                   Full lane
                 </div>
               </div>
