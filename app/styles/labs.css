@@ -213,6 +213,20 @@
   overflow-wrap: anywhere;
 }
 
+/*
+  A container-query target cannot query its own size. This parent boundary
+  adopts the atlas grid-cell allocation so the nested primitive responds locally.
+*/
+.primitive-query-scope {
+  container-type: inline-size;
+  display: grid;
+  min-inline-size: 0;
+}
+
+.primitive-query-scope > .primitive-specimen {
+  inline-size: 100%;
+}
+
 .recipe-media > span,
 .gallery-field,
 .media-field,

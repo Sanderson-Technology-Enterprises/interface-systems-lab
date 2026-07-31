@@ -40,7 +40,7 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: `npm run preview:prepare && serve .preview -l ${browserPort} --no-clipboard`,
+    command: `npm run preview:prepare && node scripts/serve-preview.mjs .preview ${browserPort}`,
     url: browserBaseUrl,
     reuseExistingServer: false,
     timeout: 120_000,
