@@ -17,8 +17,10 @@ type ResponsiveNavigationProps = {
   presentation: "responsive" | "disclosure";
 };
 
+const REQUESTED_BASE_PATH = process.env.NEXT_PUBLIC_PAGES_BASE_PATH ?? "";
+
 function resolveHref(href: string): string {
-  return href.startsWith("/") ? withBasePath(href) : href;
+  return href.startsWith("/") ? withBasePath(href, REQUESTED_BASE_PATH) : href;
 }
 
 function NavigationAnchor({
