@@ -2,33 +2,61 @@
 
 import { useEffect, useRef, useState } from "react";
 
+import type { NavigationItem } from "../data/navigation";
+import { withBasePath } from "../lib/site";
 import { ExternalLinkIcon } from "./Icons";
 import { UiIcon } from "./UiIcon";
 
-const DESKTOP_NAVIGATION_QUERY = "(min-width: 78.0625rem)";
+const DESKTOP_NAVIGATION_QUERY = "(min-width: 64.0625rem)";
 const PRIMARY_NAVIGATION_PANEL_ID = "primary-navigation-panel";
 
-const navigationItems = [
-  ["Home", "top"],
-  ["Workbench", "workbench"],
-  ["Layout", "layouts"],
-  ["UI + native", "ui-native"],
-  ["Icons", "icons"],
-  ["Interactions", "interactions"],
-  ["Integrate", "integrate"],
-  ["Install", "install"],
-  ["Libraries", "libraries"],
-  ["Company", "company"],
-] as const;
-
 type ResponsiveNavigationProps = {
-  companyUrl: string;
-  repositoryUrl: string;
+  actionItems: readonly NavigationItem[];
+  items: readonly NavigationItem[];
+  menuLabel: string;
+  presentation: "responsive" | "disclosure";
 };
 
+const REQUESTED_BASE_PATH = process.env.NEXT_PUBLIC_PAGES_BASE_PATH ?? "";
+
+function resolveHref(href: string): string {
+  return href.startsWith("/") ? withBasePath(href, REQUESTED_BASE_PATH) : href;
+}
+
+function NavigationAnchor({
+  item,
+  onClick,
+}: {
+  item: NavigationItem;
+  onClick: () => void;
+}) {
+  return (
+    <a
+      className="navigation-link interactive-surface site-action"
+      data-surface-variant={item.variant ?? "subtle"}
+      data-surface-level={item.variant === "accent" ? "2" : "1"}
+      href={resolveHref(item.href)}
+      {...(item.external
+        ? { target: "_blank", rel: "noreferrer noopener" }
+        : {})}
+      onClick={onClick}
+    >
+      <span>{item.label}</span>
+      {item.external ? (
+        <>
+          <ExternalLinkIcon />
+          <span className="ly-visually-hidden"> (opens in a new tab)</span>
+        </>
+      ) : null}
+    </a>
+  );
+}
+
 export function ResponsiveNavigation({
-  companyUrl,
-  repositoryUrl,
+  actionItems,
+  items,
+  menuLabel,
+  presentation,
 }: ResponsiveNavigationProps) {
   const [isOpen, setIsOpen] = useState(false);
   const menuButtonRef = useRef<HTMLButtonElement>(null);
@@ -61,6 +89,8 @@ export function ResponsiveNavigation({
   }, [isOpen]);
 
   useEffect(() => {
+    if (presentation === "disclosure") return;
+
     const desktopNavigation = window.matchMedia(DESKTOP_NAVIGATION_QUERY);
     const closeAtDesktop = (event: MediaQueryListEvent) => {
       if (event.matches) setIsOpen(false);
@@ -70,12 +100,17 @@ export function ResponsiveNavigation({
     return () => {
       desktopNavigation.removeEventListener("change", closeAtDesktop);
     };
-  }, []);
+  }, [presentation]);
 
   const closeNavigation = () => setIsOpen(false);
+  const toggleLabel = `${isOpen ? "Close" : "Open"} ${menuLabel.toLowerCase()}`;
 
   return (
-    <div className="site-navigation" ref={navigationRef}>
+    <div
+      className="site-navigation"
+      data-presentation={presentation}
+      ref={navigationRef}
+    >
       <button
         ref={menuButtonRef}
         className="navigation-toggle interactive-surface site-action"
@@ -84,11 +119,11 @@ export function ResponsiveNavigation({
         type="button"
         aria-controls={PRIMARY_NAVIGATION_PANEL_ID}
         aria-expanded={isOpen}
-        aria-label={isOpen ? "Close navigation menu" : "Open navigation menu"}
+        aria-label={toggleLabel}
         onClick={() => setIsOpen((currentState) => !currentState)}
       >
         <UiIcon decorative name="menu" size="1.1em" />
-        <span>Menu</span>
+        <span>{menuLabel}</span>
       </button>
 
       <div
@@ -97,47 +132,23 @@ export function ResponsiveNavigation({
         data-open={isOpen}
       >
         <nav className="primary-nav" aria-label="Primary navigation">
-          {navigationItems.map(([label, id]) => (
-            <a
-              className="navigation-link interactive-surface site-action"
-              data-surface-variant="subtle"
-              data-surface-level="1"
-              href={`#${id}`}
-              key={id}
+          {items.map((item) => (
+            <NavigationAnchor
+              item={item}
+              key={`${item.href}-${item.label}`}
               onClick={closeNavigation}
-            >
-              {label}
-            </a>
+            />
           ))}
         </nav>
 
         <div className="navigation-actions">
-          <a
-            className="interactive-surface site-action"
-            data-surface-variant="accent"
-            data-surface-level="2"
-            href={companyUrl}
-            target="_blank"
-            rel="noreferrer noopener"
-            onClick={closeNavigation}
-          >
-            Discover STE
-            <ExternalLinkIcon />
-            <span className="ly-visually-hidden"> (opens in a new tab)</span>
-          </a>
-          <a
-            className="interactive-surface site-action"
-            data-surface-variant="subtle"
-            data-surface-level="1"
-            href={repositoryUrl}
-            target="_blank"
-            rel="noreferrer noopener"
-            onClick={closeNavigation}
-          >
-            GitHub
-            <ExternalLinkIcon />
-            <span className="ly-visually-hidden"> (opens in a new tab)</span>
-          </a>
+          {actionItems.map((item) => (
+            <NavigationAnchor
+              item={item}
+              key={`${item.href}-${item.label}`}
+              onClick={closeNavigation}
+            />
+          ))}
         </div>
       </div>
     </div>

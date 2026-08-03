@@ -72,7 +72,9 @@ export function IntegrationLab() {
         <div className="section-heading ly-split ly-gap-6 ly-items-end">
           <div className="ly-stack ly-gap-2">
             <p className="section-label">Isolated integration laboratory</p>
-            <h2 id="integrate-title">Prove every adoption boundary.</h2>
+            <h2 id="integrate-title">
+              Verify each adoption path in isolation.
+            </h2>
           </div>
           <p>
             Each iframe uses a fixed baseline configuration and local CSS copied
@@ -90,12 +92,12 @@ export function IntegrationLab() {
           <FixtureGroup
             fixtures={fixturesFor("one")}
             group="one"
-            label="Use one package at a time"
+            label="View single-package fixtures"
           />
           <FixtureGroup
             fixtures={fixturesFor("pair")}
             group="pair"
-            label="Compose two independent layers"
+            label="View two-package fixtures"
           />
         </div>
 
@@ -115,9 +117,9 @@ export function IntegrationLab() {
             className="interactive-surface site-action"
             data-surface-variant="accent"
             data-surface-level="2"
-            href="#company"
+            href={withBasePath("/#company")}
           >
-            Plan organizational adoption
+            Learn about the studio
           </a>
         </nav>
       </div>

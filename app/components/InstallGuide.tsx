@@ -199,7 +199,9 @@ export function InstallGuide() {
         <div className="section-heading ly-split ly-gap-6 ly-items-end">
           <div>
             <p className="section-label">Install</p>
-            <h2 id="install-title">Install all four, or adopt by layer.</h2>
+            <h2 id="install-title">
+              Install one package or the complete stack.
+            </h2>
           </div>
           <p>
             Every path pins the aligned releases and preserves ownership across
@@ -219,7 +221,7 @@ export function InstallGuide() {
         <div className="adoption-disclosures ly-stack ly-gap-4">
           <AdoptionGroup
             copyLabels={copyLabels}
-            label="Install one independent package"
+            label="View single-package options"
             onCopy={copySnippet}
             paths={pathsFor("one")}
             prefix={prefix}
@@ -227,7 +229,7 @@ export function InstallGuide() {
           />
           <AdoptionGroup
             copyLabels={copyLabels}
-            label="Compose two independent layers"
+            label="View two-package options"
             onCopy={copySnippet}
             paths={pathsFor("pair")}
             prefix={prefix}

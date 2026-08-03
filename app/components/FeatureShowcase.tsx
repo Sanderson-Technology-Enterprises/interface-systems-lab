@@ -1,123 +1,81 @@
+import { ECOSYSTEM_PACKAGES } from "../data/ecosystem";
+import { SITE, withBasePath } from "../lib/site";
 import { ArrowRightIcon, ExternalLinkIcon } from "./Icons";
+
+const packageLabAnchors: Record<
+  (typeof ECOSYSTEM_PACKAGES)[number]["name"],
+  string
+> = {
+  "layout-style-css": "layouts",
+  "ui-style-kit-css": "ui-native",
+  "ui-style-kit-icons": "icons",
+  "interactive-surface-css": "interactions",
+};
 
 export function FeatureShowcase() {
   return (
     <section
       className="section-band ly-section"
-      id="features"
-      aria-labelledby="features-title"
+      id="libraries"
+      aria-labelledby="libraries-title"
     >
       <div className="ly-wrapper">
-        <div className="section-heading">
-          <p className="section-label">Library proof cards</p>
-          <h2 id="features-title">Library proof cards</h2>
+        <div className="section-heading ly-stack ly-gap-4">
+          <p className="section-label">Four focused interface libraries</p>
+          <h2 id="libraries-title">Use one package or combine all four.</h2>
           <p>
-            Each card keeps one package in focus while relying on the shared
-            root attributes for the active layout, UI style, palette, and mode.
+            Each package owns one interface layer and remains useful on its own.
+            Combine them when you need the complete system.
           </p>
         </div>
 
-        <div className="proof-grid">
-          <article className="proof-card ly-surface ly-pad-6 ly-stack ly-gap-4">
-            <header className="ly-stack ly-gap-2">
-              <small className="eyebrow">layout-style-css</small>
-              <h3>Structure proof</h3>
-              <code>ly-stack + ly-cluster + ly-frame</code>
-            </header>
-            <div className="proof-layout-sample">
-              <div className="ly-frame ly-frame-4x3 ly-surface ly-pad-4">
-                <strong>4:3 frame</strong>
-              </div>
-              <div className="ly-stack ly-gap-2">
-                <span className="ly-surface ly-pad-4">Wrapper</span>
-                <span className="ly-surface ly-pad-4">Stack</span>
-                <span className="ly-surface ly-pad-4">Cluster</span>
-              </div>
-            </div>
-          </article>
-
-          <article className="proof-card ly-surface ly-pad-6 ly-stack ly-gap-4">
-            <header className="ly-stack ly-gap-2">
-              <small className="eyebrow">ui-style-kit-css</small>
-              <h3>Identity proof</h3>
-              <code>forms + table + native progress</code>
-            </header>
-            <form
-              className="proof-form ly-stack ly-gap-4"
-              aria-label="Identity proof sample"
-              onSubmit={(event) => event.preventDefault()}
+        <ol className="package-overview-grid">
+          {ECOSYSTEM_PACKAGES.map((pkg, index) => (
+            <li
+              className="package-overview-card ly-stack ly-gap-4"
+              key={pkg.name}
             >
-              <label>
-                <span>System preset</span>
-                <select defaultValue="bento">
-                  <option value="bento">Bento</option>
-                  <option value="bauhaus">Bauhaus</option>
-                  <option value="cyberpunk">Cyberpunk</option>
-                </select>
-              </label>
-              <label>
-                <span>Completion</span>
-                <input type="range" min="0" max="100" defaultValue="72" />
-              </label>
-              <table>
-                <caption>Identity token sample</caption>
-                <tbody>
-                  <tr>
-                    <th scope="row">Theme</th>
-                    <td>Active</td>
-                  </tr>
-                </tbody>
-              </table>
-            </form>
-          </article>
-
-          <article className="proof-card ly-surface ly-pad-6 ly-stack ly-gap-4">
-            <header className="ly-stack ly-gap-2">
-              <small className="eyebrow">interactive-surface-css</small>
-              <h3>Behavior proof</h3>
-              <code>hover + focus + pressed + disabled</code>
-            </header>
-            <div
-              className="proof-actions ly-cluster ly-gap-2"
-              aria-label="Behavior proof sample"
-            >
-              <button
-                className="interactive-surface site-action"
-                data-surface-variant="primary"
-                data-surface-level="2"
-                type="button"
-              >
-                Primary
-                <ArrowRightIcon />
-              </button>
-              <button
-                className="interactive-surface site-action"
-                data-surface-variant="accent"
-                data-surface-level="2"
-                aria-pressed="true"
-                type="button"
-              >
-                Pressed
-              </button>
-              <button
-                className="interactive-surface site-action"
-                data-surface-variant="subtle"
-                data-surface-level="1"
-                type="button"
-                aria-label="Open proof action"
-              >
-                <ExternalLinkIcon />
-              </button>
-              <button
-                className="interactive-surface site-action"
-                type="button"
-                disabled
-              >
-                Disabled
-              </button>
-            </div>
-          </article>
-        </div>
+              <header className="ly-stack ly-gap-2">
+                <span className="library-index">
+                  {String(index + 1).padStart(2, "0")}
+                </span>
+                <p className="eyebrow">{pkg.layer}</p>
+                <h3>{pkg.displayName}</h3>
+                <code>
+                  {pkg.name}@{pkg.version}
+                </code>
+              </header>
+              <p className="muted-copy">{pkg.summary}</p>
+              <div className="package-overview-actions ly-cluster ly-gap-2">
+                <a
+                  className="interactive-surface site-action"
+                  data-surface-variant="subtle"
+                  data-surface-level="1"
+                  href={withBasePath(
+                    `${SITE.labPath}#${packageLabAnchors[pkg.name]}`,
+                  )}
+                >
+                  Test this layer
+                  <ArrowRightIcon />
+                </a>
+                <a
+                  className="interactive-surface site-action"
+                  data-surface-variant="subtle"
+                  data-surface-level="1"
+                  href={pkg.links.npm}
+                  target="_blank"
+                  rel="noreferrer noopener"
+                >
+                  npm
+                  <ExternalLinkIcon />
+                  <span className="ly-visually-hidden">
+                    {` for ${pkg.displayName} (opens in a new tab)`}
+                  </span>
+                </a>
+              </div>
+            </li>
+          ))}
+        </ol>
       </div>
     </section>
   );

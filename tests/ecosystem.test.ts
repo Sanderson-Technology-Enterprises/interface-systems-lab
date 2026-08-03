@@ -74,7 +74,7 @@ test("UiIcon owns the typed deferred custom-element and asset-base contract", ()
 
 test("the Icon Lab follows UI and precedes interaction", () => {
   const pageSource = readFileSync(
-    path.join(repositoryRoot, "app", "page.tsx"),
+    path.join(repositoryRoot, "app", "lab", "page.tsx"),
     "utf8",
   );
   assert.ok(
@@ -471,24 +471,25 @@ test("local README guidance separates global CSS from the icon runtime owner", a
 });
 
 test("page runtime emits only canonical Layout 3.0 attributes", async () => {
-  const [pageSource, experienceSource, configurationSource] = await Promise.all(
-    [
+  const [homeSource, labSource, experienceSource, configurationSource] =
+    await Promise.all([
       readFile(new URL("../app/page.tsx", import.meta.url), "utf8"),
+      readFile(new URL("../app/lab/page.tsx", import.meta.url), "utf8"),
       readFile(
         new URL("../app/components/LabExperience.tsx", import.meta.url),
         "utf8",
       ),
       readFile(new URL("../app/lib/configuration.ts", import.meta.url), "utf8"),
-    ],
-  );
-  const runtimeSource = `${pageSource}\n${experienceSource}\n${configurationSource}`;
+    ]);
+  const runtimeSource = `${homeSource}\n${labSource}\n${experienceSource}\n${configurationSource}`;
 
   assert.equal(
     runtimeSource.match(/\bdata-layout\b/g)?.length ?? 0,
     0,
     "the configuration runtime must not emit the deprecated data-layout attribute",
   );
-  assert.match(pageSource, /<LabExperience>/);
+  assert.doesNotMatch(homeSource, /<LabExperience>/);
+  assert.match(labSource, /<LabExperience>/);
   assert.match(experienceSource, /data-ly-layout=\{configuration\.layout\}/);
   assert.match(
     configurationSource,
@@ -984,7 +985,8 @@ test("metadata routes opt into static generation for the exported site", async (
 
 test("page components expose approved observatory and resource landmarks", async () => {
   const [
-    page,
+    homePage,
+    labPage,
     observatory,
     installGuide,
     directory,
@@ -993,6 +995,7 @@ test("page components expose approved observatory and resource landmarks", async
     siteFooter,
   ] = await Promise.all([
     readFile(new URL("../app/page.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/lab/page.tsx", import.meta.url), "utf8"),
     readFile(
       new URL("../app/components/InterfaceObservatory.tsx", import.meta.url),
       "utf8",
@@ -1021,12 +1024,14 @@ test("page components expose approved observatory and resource landmarks", async
 
   assert.match(observatory, /Interface Observatory/);
   assert.doesNotMatch(observatory, /signal-bars/);
-  assert.match(installGuide, /Install all four/);
-  assert.match(directory, /Library resources/);
-  assert.match(layoutLab, /Layout laboratory/);
+  assert.match(installGuide, /Install one package or the complete stack/);
+  assert.match(directory, /Package resources/);
+  assert.match(layoutLab, /Test responsive layout recipes/);
   assert.match(layoutLab, /data-ly-recipe="dashboard"/);
-  assert.match(page, /<LabExperience>/);
-  assert.doesNotMatch(page, /^"use client";/);
+  assert.doesNotMatch(homePage, /<LabExperience>/);
+  assert.match(homePage, /<FeatureShowcase/);
+  assert.match(labPage, /<LabExperience>/);
+  assert.doesNotMatch(homePage, /^"use client";/);
   assert.match(siteHeader, /brand-logo/);
   assert.match(siteHeader, /SITE\.productLine/);
   assert.match(siteHeader, /favicon-48x48\.png/);

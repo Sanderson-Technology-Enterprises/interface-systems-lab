@@ -521,7 +521,7 @@ async function readUnthemedPseudoProperty(
 }
 
 test.beforeEach(async ({ page }) => {
-  await page.goto("./");
+  await page.goto("./lab/");
 });
 
 test("layout laboratory renders the complete recipe and primitive contracts", async ({
@@ -649,7 +649,7 @@ test("layout laboratory applies every personality without changing DOM or tab or
   page,
 }, testInfo) => {
   await page.setViewportSize({ width: 1440, height: 1000 });
-  await page.goto("./");
+  await page.goto("./lab/");
 
   const root = page.locator(".experience.ly-root");
   const layoutSelect = page.getByLabel(/01.*Layout/);
@@ -833,7 +833,7 @@ test("layout laboratory honors local responsive allocations while Reel remains s
   ]) {
     await page.setViewportSize(viewport);
     await page.goto(
-      "./?layout=brutalism&ui=minimal-saas&theme=arctic-indigo&mode=contrast",
+      "./lab/?layout=brutalism&ui=minimal-saas&theme=arctic-indigo&mode=contrast",
     );
     await expect(page.locator("#layouts details")).toHaveCount(3);
     await expect(page.locator("#layouts [data-layout-recipe]")).toHaveCount(6);
@@ -965,7 +965,7 @@ test("UI, native, and interaction laboratories stay overflow-free and error-free
     { width: 1440, height: 1000 },
   ]) {
     await page.setViewportSize(viewport);
-    await page.goto("./");
+    await page.goto("./lab/");
     await page
       .locator("#ui-native details, #interactions details")
       .evaluateAll((details) => {
@@ -974,13 +974,17 @@ test("UI, native, and interaction laboratories stay overflow-free and error-free
       });
 
     await expect(
-      page.getByRole("heading", { name: /UI laboratory/i }),
+      page.getByRole("heading", {
+        name: /Test visual styles and native controls/i,
+      }),
     ).toBeVisible();
     await expect(
       page.getByRole("heading", { name: /native laboratory/i }),
     ).toBeVisible();
     await expect(
-      page.getByRole("heading", { name: /interaction laboratory/i }),
+      page.getByRole("heading", {
+        name: /Test interaction states and precedence/i,
+      }),
     ).toBeVisible();
 
     const dimensions = await page.evaluate(() => ({
@@ -1003,7 +1007,9 @@ test("UI laboratory applies every manifest preset, theme, and mode with computed
   const prefixes = uiManifest.presets.map(({ prefix }) => prefix);
 
   await expect(
-    page.getByRole("heading", { name: /UI laboratory/i }),
+    page.getByRole("heading", {
+      name: /Test visual styles and native controls/i,
+    }),
   ).toBeVisible();
   await expect
     .poll(() =>
@@ -1377,7 +1383,9 @@ test("interaction laboratory exposes every variant, level, and public state hook
   page,
 }) => {
   await expect(
-    page.getByRole("heading", { name: /interaction laboratory/i }),
+    page.getByRole("heading", {
+      name: /Test interaction states and precedence/i,
+    }),
   ).toBeVisible();
 
   const variants = page.locator("[data-interaction-variant]");

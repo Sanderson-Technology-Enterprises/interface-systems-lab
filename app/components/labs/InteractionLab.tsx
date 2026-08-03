@@ -120,7 +120,7 @@ export function InteractionLab() {
           <div className="ly-stack ly-gap-2">
             <p className="section-label">Behavior</p>
             <h2 id="interactions-title">
-              Interaction laboratory: one predictable mechanics layer
+              Test interaction states and precedence.
             </h2>
           </div>
           <p>
@@ -187,7 +187,7 @@ export function InteractionLab() {
           </section>
 
           <details>
-            <summary>Inspect semantic attributes and class API parity</summary>
+            <summary>View semantic attributes and class API parity</summary>
             <div
               className="interaction-state-grid"
               data-specimen="interaction-states"

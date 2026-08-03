@@ -10,6 +10,7 @@ const exportRoot = path.join(repositoryRoot, "out");
 const basePath = "/interface-systems-lab";
 const siteUrl =
   "https://sanderson-technology-enterprises.github.io/interface-systems-lab/";
+const labUrl = `${siteUrl}lab/`;
 const corporateUrl = "https://sandersontechnologyenterprises.com";
 const corporateOrganizationId = `${corporateUrl}/#organization`;
 const corporateGithub = "https://github.com/Sanderson-Technology-Enterprises";
@@ -20,7 +21,8 @@ const socialImageAlt =
 const labLogoUrl = `${siteUrl}android-chrome-512x512.png`;
 const websiteId = `${siteUrl}#website`;
 const webpageId = `${siteUrl}#webpage`;
-const applicationId = `${siteUrl}#application`;
+const labWebpageId = `${labUrl}#webpage`;
+const applicationId = `${labUrl}#application`;
 const packagesId = `${siteUrl}#packages`;
 const corporateDescription =
   "Founder-led software studio building creator-owned web platforms, private content systems, admin dashboards, and operational workflows for adult entertainment businesses.";
@@ -38,6 +40,10 @@ const resourceUrls = [
   "https://github.com/Foscat/ui-style-kit-css/wiki",
   "https://www.npmjs.com/package/ui-style-kit-css",
   "https://foscat.github.io/ui-style-kit-css/",
+  "https://github.com/Foscat/ui-style-kit-icons",
+  "https://github.com/Foscat/ui-style-kit-icons/wiki",
+  "https://www.npmjs.com/package/ui-style-kit-icons",
+  "https://foscat.github.io/ui-style-kit-icons/",
   "https://github.com/Foscat/Interactive-Surface-CSS",
   "https://github.com/Foscat/Interactive-Surface-CSS/wiki",
   "https://www.npmjs.com/package/interactive-surface-css",
@@ -124,7 +130,13 @@ async function validateLocalAssets(html, documentName, issues) {
     }
 
     const pathname = reference.split(/[?#]/, 1)[0];
-    const relativePath = pathname.slice(basePath.length + 1) || "index.html";
+    const exportedPath = pathname.slice(basePath.length + 1);
+    const relativePath =
+      exportedPath === ""
+        ? "index.html"
+        : pathname.endsWith("/")
+          ? path.join(exportedPath, "index.html")
+          : exportedPath;
     const resolvedPath = path.resolve(exportRoot, relativePath);
     const exportRelativePath = path.relative(exportRoot, resolvedPath);
     if (
@@ -167,8 +179,9 @@ function enforceArtifactBudget(actual, budget, label, issues) {
   }
 }
 
-function validateStructuredData(index, notFound, issues) {
+function validateStructuredData(index, lab, notFound, issues) {
   const indexNodes = readStructuredDataNodes(index, "index.html", issues);
+  const labNodes = readStructuredDataNodes(lab, "lab/index.html", issues);
   const notFoundNodes = readStructuredDataNodes(notFound, "404.html", issues);
   const organization = requireSingleSchemaNode(
     indexNodes,
@@ -188,10 +201,16 @@ function validateStructuredData(index, notFound, issues) {
     "index.html",
     issues,
   );
+  const labWebpage = requireSingleSchemaNode(
+    labNodes,
+    "WebPage",
+    "lab/index.html",
+    issues,
+  );
   const application = requireSingleSchemaNode(
-    indexNodes,
+    labNodes,
     "SoftwareApplication",
-    "index.html",
+    "lab/index.html",
     issues,
   );
   const packages = requireSingleSchemaNode(
@@ -200,6 +219,17 @@ function validateStructuredData(index, notFound, issues) {
     "index.html",
     issues,
   );
+
+  if (indexNodes.some((node) => node["@type"] === "SoftwareApplication")) {
+    issues.push(
+      "index.html incorrectly contains lab-only SoftwareApplication schema",
+    );
+  }
+  if (labNodes.some((node) => node["@type"] === "ItemList")) {
+    issues.push(
+      "lab/index.html incorrectly contains homepage-only ItemList schema",
+    );
+  }
 
   if (organization) {
     requireExact(
@@ -280,6 +310,22 @@ function validateStructuredData(index, notFound, issues) {
       issues,
     );
   }
+  if (labWebpage) {
+    requireExact(labWebpage["@id"], labWebpageId, "Lab WebPage @id", issues);
+    requireExact(labWebpage.url, labUrl, "Lab WebPage URL", issues);
+    requireExact(
+      labWebpage.isPartOf?.["@id"],
+      websiteId,
+      "Lab WebPage isPartOf",
+      issues,
+    );
+    requireExact(
+      labWebpage.publisher?.["@id"],
+      corporateOrganizationId,
+      "Lab WebPage publisher",
+      issues,
+    );
+  }
   if (application) {
     requireExact(
       application["@id"],
@@ -287,7 +333,7 @@ function validateStructuredData(index, notFound, issues) {
       "SoftwareApplication @id",
       issues,
     );
-    requireExact(application.url, siteUrl, "SoftwareApplication URL", issues);
+    requireExact(application.url, labUrl, "SoftwareApplication URL", issues);
     requireExact(
       application.publisher?.["@id"],
       corporateOrganizationId,
@@ -321,7 +367,7 @@ function validateStructuredData(index, notFound, issues) {
   }
   if (packages) {
     requireExact(packages["@id"], packagesId, "ItemList @id", issues);
-    requireExact(packages.url, siteUrl, "ItemList URL", issues);
+    requireExact(packages.url, `${siteUrl}#libraries`, "ItemList URL", issues);
     requireExact(packages.numberOfItems, 4, "ItemList count", issues);
     const packageContracts = (packages.itemListElement ?? []).map((entry) => ({
       codeRepository: entry.item?.codeRepository,
@@ -378,6 +424,7 @@ function validateStructuredData(index, notFound, issues) {
 export async function collectExportIssues() {
   const issues = [];
   const index = (await readExportFile("index.html", issues)).toString("utf8");
+  const lab = (await readExportFile("lab/index.html", issues)).toString("utf8");
   const notFound = (await readExportFile("404.html", issues)).toString("utf8");
   const robots = (await readExportFile("robots.txt", issues)).toString("utf8");
   const sitemap = (await readExportFile("sitemap.xml", issues)).toString(
@@ -395,6 +442,7 @@ export async function collectExportIssues() {
   );
   const shippingOutput = [
     index,
+    lab,
     notFound,
     robots,
     sitemap,
@@ -414,8 +462,14 @@ export async function collectExportIssues() {
       .reduce((total, file) => total + file.size, 0);
   enforceArtifactBudget(
     Buffer.byteLength(index),
-    256 * 1024,
+    96 * 1024,
     "Raw index.html",
+    issues,
+  );
+  enforceArtifactBudget(
+    Buffer.byteLength(lab),
+    256 * 1024,
+    "Raw lab/index.html",
     issues,
   );
   enforceArtifactBudget(
@@ -442,6 +496,12 @@ export async function collectExportIssues() {
     index,
     `<link rel="canonical" href="${siteUrl}"`,
     "canonical URL",
+    issues,
+  );
+  requireText(
+    lab,
+    `<link rel="canonical" href="${labUrl}"`,
+    "lab canonical URL",
     issues,
   );
   requireText(
@@ -507,6 +567,12 @@ export async function collectExportIssues() {
   );
   requireText(index, "Design every layer.", "primary page content", issues);
   requireText(
+    lab,
+    "Configure the system. Inspect every layer.",
+    "lab primary content",
+    issues,
+  );
+  requireText(
     notFound,
     "This interface is outside the system.",
     "custom 404 content",
@@ -516,9 +582,9 @@ export async function collectExportIssues() {
   const companyLinkCount = (
     index.match(new RegExp(`href="${corporateUrl}"`, "g")) ?? []
   ).length;
-  if (companyLinkCount < 4) {
+  if (companyLinkCount < 2) {
     issues.push(
-      `Expected at least four corporate links, found ${companyLinkCount}`,
+      `Expected at least two corporate links, found ${companyLinkCount}`,
     );
   }
 
@@ -546,14 +612,17 @@ export async function collectExportIssues() {
 
   const headingCount = (index.match(/<h1(?:\s|>)/g) ?? []).length;
   requireExact(headingCount, 1, "home h1 count", issues);
+  const labHeadingCount = (lab.match(/<h1(?:\s|>)/g) ?? []).length;
+  requireExact(labHeadingCount, 1, "lab h1 count", issues);
 
   for (const url of resourceUrls) {
-    requireText(index, `href="${url}"`, "library resource link", issues);
+    requireText(lab, `href="${url}"`, "library resource link", issues);
   }
 
   await validateLocalAssets(index, "index.html", issues);
+  await validateLocalAssets(lab, "lab/index.html", issues);
   await validateLocalAssets(notFound, "404.html", issues);
-  validateStructuredData(index, notFound, issues);
+  validateStructuredData(index, lab, notFound, issues);
 
   // Absolute metadata URLs still need a corresponding file in the Pages artifact.
   for (const metadataIcon of [
@@ -578,11 +647,12 @@ export async function collectExportIssues() {
   }
   requireExact(
     (sitemap.match(/<loc>/g) ?? []).length,
-    1,
+    2,
     "sitemap location count",
     issues,
   );
   requireText(sitemap, `<loc>${siteUrl}</loc>`, "sitemap location", issues);
+  requireText(sitemap, `<loc>${labUrl}</loc>`, "lab sitemap location", issues);
   rejectText(sitemap, "<lastmod>", "unstable sitemap lastmod", issues);
 
   for (const [name, expected] of [

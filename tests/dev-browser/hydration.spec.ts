@@ -18,7 +18,7 @@ test("Turbopack development hydrates UiIcon before custom-element upgrade", asyn
     pageErrors.push(error.message);
   });
 
-  await page.goto("/");
+  await page.goto("/lab/");
 
   const icons = page.locator("#icons usk-icon");
   await expect(icons).toHaveCount(14);
