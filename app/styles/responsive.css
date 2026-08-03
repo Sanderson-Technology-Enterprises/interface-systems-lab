@@ -11,20 +11,20 @@
   }
 }
 
-@media (max-width: 78rem) {
+@media (max-width: 64rem) {
   .site-header-inner {
     grid-template-columns: minmax(0, 1fr) auto;
   }
 
-  .site-navigation {
+  .site-navigation[data-presentation="responsive"] {
     inline-size: auto;
   }
 
-  .navigation-toggle {
+  .site-navigation[data-presentation="responsive"] .navigation-toggle {
     display: inline-flex;
   }
 
-  .navigation-panel {
+  .site-navigation[data-presentation="responsive"] .navigation-panel {
     position: absolute;
     z-index: calc(var(--ly-z-header, 20) + 1);
     inset-block-start: 100%;
@@ -44,36 +44,45 @@
     backdrop-filter: blur(18px);
   }
 
-  .navigation-panel[data-open="true"] {
+  .site-navigation[data-presentation="responsive"]
+    .navigation-panel[data-open="true"] {
     display: grid;
   }
 
-  .primary-nav {
+  .site-navigation[data-presentation="responsive"] .primary-nav {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr));
     gap: var(--ly-space-2);
   }
 
-  .navigation-link {
+  .site-navigation[data-presentation="responsive"] .navigation-link {
     justify-content: flex-start;
     inline-size: 100%;
     padding-inline: 1rem;
   }
 
-  .navigation-actions {
+  .site-navigation[data-presentation="responsive"] .navigation-actions {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     padding-block-start: var(--ly-space-3);
     border-block-start: 1px solid var(--lab-rule-soft);
   }
 
-  .navigation-actions .site-action {
+  .site-navigation[data-presentation="responsive"]
+    .navigation-actions
+    .site-action {
     inline-size: 100%;
     padding-inline: 1rem;
   }
 }
 
 @media (max-width: 62rem) {
+  .package-overview-grid,
+  .quick-start-layout,
+  .company-overview {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
   .observatory-stage {
     inline-size: min(100%, 24rem);
   }
@@ -133,6 +142,19 @@
 
   .navigation-actions {
     grid-template-columns: minmax(0, 1fr);
+  }
+
+  .site-navigation[data-presentation="disclosure"] .navigation-actions {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .package-overview-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .package-overview-actions > *,
+  .lab-invitation > .site-action {
+    inline-size: 100%;
   }
 
   .observatory-legend {

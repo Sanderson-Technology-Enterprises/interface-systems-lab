@@ -26,8 +26,8 @@ export function LibraryDirectory() {
       <div className="ly-wrapper">
         <div className="section-heading ly-split ly-gap-6 ly-items-end">
           <div>
-            <p className="section-label">Library resources</p>
-            <h2 id="libraries-title">One job per package</h2>
+            <p className="section-label">Directory</p>
+            <h2 id="libraries-title">Package resources.</h2>
           </div>
           <p>
             Adopt one layer or all four. Every package remains independently
@@ -116,9 +116,9 @@ export function LibraryDirectory() {
             className="interactive-surface site-action"
             data-surface-variant="accent"
             data-surface-level="2"
-            href="#company"
+            href={withBasePath("/#company")}
           >
-            Plan an ecosystem engagement
+            Learn about the studio
           </a>
         </nav>
       </div>

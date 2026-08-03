@@ -346,7 +346,7 @@ function VisualInventory({ prefix, preset }: VisualInventoryProps) {
       </section>
 
       <details>
-        <summary>Buttons, standalone pill, and component states</summary>
+        <summary>View buttons and component states</summary>
         <section
           className="ui-button-board"
           data-ui-category="buttons"
@@ -416,7 +416,7 @@ function VisualInventory({ prefix, preset }: VisualInventoryProps) {
       </details>
 
       <details>
-        <summary>Alerts, status, and badges</summary>
+        <summary>View alerts, status, and badges</summary>
         <div className="ly-stack ly-gap-6">
           <section
             className="feedback-grid"
@@ -484,7 +484,7 @@ function VisualInventory({ prefix, preset }: VisualInventoryProps) {
       </details>
 
       <details>
-        <summary>Prefixed form recipes and native-first choices</summary>
+        <summary>View form recipes and native-first choices</summary>
         <div className="ly-stack ly-gap-6">
           <section
             className="ui-field-grid"
@@ -599,7 +599,7 @@ function VisualInventory({ prefix, preset }: VisualInventoryProps) {
       </details>
 
       <details>
-        <summary>Progress, loading, and directional tooltips</summary>
+        <summary>View progress, loading, and tooltips</summary>
         <div className="ly-stack ly-gap-8">
           <section
             className="ly-stack ly-gap-4"
@@ -768,7 +768,7 @@ function VisualInventory({ prefix, preset }: VisualInventoryProps) {
       </details>
 
       <details>
-        <summary>Navigation, toolbar, and table</summary>
+        <summary>View navigation, toolbar, and table</summary>
         <section
           className="ui-data-board ly-stack ly-gap-6"
           data-ui-category="data"
@@ -828,7 +828,7 @@ function VisualInventory({ prefix, preset }: VisualInventoryProps) {
       </details>
 
       <details>
-        <summary>Shape, state, and accessibility helpers</summary>
+        <summary>View shape, state, and accessibility helpers</summary>
         <section
           className="helper-board"
           data-ui-category="helpers"
@@ -877,7 +877,7 @@ function VisualInventory({ prefix, preset }: VisualInventoryProps) {
       </details>
 
       <details>
-        <summary>Current preset extras</summary>
+        <summary>View current preset extras</summary>
         <section
           className="preset-extra-board ly-stack ly-gap-4"
           data-ui-category="preset-extra"
@@ -902,7 +902,7 @@ function VisualInventory({ prefix, preset }: VisualInventoryProps) {
 function NativeSupportDisclosure() {
   return (
     <details className="native-support-details">
-      <summary>Native support classifications and public tokens</summary>
+      <summary>View native support and public tokens</summary>
       <section
         className="native-support-disclosure ly-stack ly-gap-6"
         data-ui-category="native-support"
@@ -1049,7 +1049,7 @@ function NativeInventory() {
       </section>
 
       <details>
-        <summary>Select, datalist, textarea, and platform-owned popups</summary>
+        <summary>View select, datalist, textarea, and popups</summary>
         <div className="native-input-grid">
           <label className="native-control" htmlFor="native-select">
             <span>Grouped select</span>
@@ -1107,7 +1107,7 @@ function NativeInventory() {
 
       <details>
         <summary>
-          Checkbox, radio, switch-like, and indeterminate controls
+          View checkbox, radio, switch, and indeterminate states
         </summary>
         <form>
           <fieldset className="native-choice-grid">
@@ -1145,7 +1145,7 @@ function NativeInventory() {
       </details>
 
       <details>
-        <summary>Native validation and control states</summary>
+        <summary>View native validation and control states</summary>
         <form
           className="native-state-grid"
           onSubmit={(event) => event.preventDefault()}
@@ -1228,9 +1228,7 @@ function NativeInventory() {
       </details>
 
       <details>
-        <summary>
-          Progress, meter, output, details, markers, and scrollbars
-        </summary>
+        <summary>View progress, meter, output, details, and scrollbars</summary>
         <div className="native-semantic-grid">
           <label className="native-control">
             <span>Determinate progress</span>
@@ -1322,7 +1320,7 @@ export function UiNativeLab() {
           <div className="ly-stack ly-gap-2">
             <p className="section-label">Identity</p>
             <h2 id="ui-native-title">
-              UI laboratory: preset paint on one semantic system
+              Test visual styles and native controls.
             </h2>
           </div>
           <p>

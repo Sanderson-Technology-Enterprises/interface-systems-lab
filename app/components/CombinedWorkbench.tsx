@@ -3,40 +3,7 @@
 import { useState } from "react";
 
 import { getUiPrefix } from "../data/catalog";
-import { ArrowRightIcon, ExternalLinkIcon } from "./Icons";
 import { useLabConfiguration } from "./LabExperience";
-
-type HeroActionsProps = {
-  companyUrl: string;
-};
-
-export function HeroActions({ companyUrl }: HeroActionsProps) {
-  const { configuration } = useLabConfiguration();
-  const prefix = getUiPrefix(configuration.ui);
-  const pillClass = `${prefix}-button-pill`;
-
-  return (
-    <div className="hero-actions ly-switcher ly-gap-4">
-      <a className={pillClass} data-hero-action="developer" href="#workbench">
-        Launch the workbench
-        <ArrowRightIcon />
-      </a>
-      {/* Explicit tab order keeps the external CTA reachable in WebKit's default keyboard mode. */}
-      <a
-        className={pillClass}
-        data-hero-action="company"
-        href={companyUrl}
-        target="_blank"
-        rel="noreferrer noopener"
-        tabIndex={0}
-      >
-        Visit Sanderson Technology Enterprises
-        <ExternalLinkIcon />
-        <span className="ly-visually-hidden"> (opens in a new tab)</span>
-      </a>
-    </div>
-  );
-}
 
 function formatLabel(value: string): string {
   return value
@@ -67,7 +34,7 @@ export function CombinedWorkbench() {
         <div className="section-heading ly-split ly-gap-6 ly-items-end">
           <div className="ly-stack ly-gap-2">
             <p className="section-label">Live client outcome</p>
-            <h2 id="workbench-title">One workspace. Four proven layers.</h2>
+            <h2 id="workbench-title">See all four layers in one workspace.</h2>
           </div>
           <p>
             A realistic delivery workspace doubles as a developer proof: the

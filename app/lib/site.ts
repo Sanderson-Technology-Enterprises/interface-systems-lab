@@ -1,6 +1,7 @@
 const basePath = "/interface-systems-lab";
 const origin = "https://sanderson-technology-enterprises.github.io";
 const productionUrl = `${origin}${basePath}/`;
+const labPath = "/lab/";
 
 export const SITE = {
   basePath,
@@ -10,6 +11,8 @@ export const SITE = {
   description:
     "Explore and combine layout-style-css, ui-style-kit-css, ui-style-kit-icons, and interactive-surface-css in a live accessible interface workbench.",
   url: productionUrl,
+  labPath,
+  labUrl: new URL(labPath.replace(/^\/+/, ""), productionUrl).href,
   repository:
     "https://github.com/Sanderson-Technology-Enterprises/interface-systems-lab",
   socialImage: `${productionUrl}interface-systems-lab-social-card.png`,

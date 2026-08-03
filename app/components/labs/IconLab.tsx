@@ -78,7 +78,7 @@ export function IconLab() {
         <div className="section-heading ly-split ly-gap-6 ly-items-end">
           <div className="ly-stack ly-gap-2">
             <p className="section-label">Iconography laboratory</p>
-            <h2 id="icons-title">One meaning, styled for every interface.</h2>
+            <h2 id="icons-title">Test icons across every visual style.</h2>
           </div>
           <p>
             Visual Style selects the artwork pack automatically. Palette and

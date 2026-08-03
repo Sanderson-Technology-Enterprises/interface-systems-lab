@@ -1,21 +1,23 @@
 import type { Metadata } from "next";
 
-import { CombinedWorkbench, HeroActions } from "./components/CombinedWorkbench";
+import { FeatureShowcase } from "./components/FeatureShowcase";
+import { HomeHeroActions } from "./components/HeroActions";
 import { ExternalLinkIcon } from "./components/Icons";
-import { InstallGuide } from "./components/InstallGuide";
-import { InterfaceObservatory } from "./components/InterfaceObservatory";
-import { LabControls } from "./components/LabControls";
-import { LabExperience } from "./components/LabExperience";
-import { IconLab } from "./components/labs/IconLab";
-import { InteractionLab } from "./components/labs/InteractionLab";
-import { IntegrationLab } from "./components/labs/IntegrationLab";
-import { LayoutLab } from "./components/labs/LayoutLab";
-import { UiNativeLab } from "./components/labs/UiNativeLab";
-import { LibraryDirectory } from "./components/LibraryDirectory";
+import { LegacyLabRedirect } from "./components/LegacyLabRedirect";
+import { QuickStartCopy } from "./components/QuickStartCopy";
 import { SiteFooter } from "./components/SiteFooter";
 import { SiteHeader } from "./components/SiteHeader";
-import { ECOSYSTEM_PACKAGES } from "./data/ecosystem";
-import { SITE } from "./lib/site";
+import {
+  HOME_NAVIGATION_ACTIONS,
+  HOME_NAVIGATION_ITEMS,
+} from "./data/navigation";
+import { NPM_INSTALL } from "./data/ecosystem";
+import { DEFAULT_CONFIGURATION } from "./lib/configuration";
+import { SITE, withBasePath } from "./lib/site";
+import {
+  buildHomeStructuredData,
+  serializeStructuredData,
+} from "./lib/structured-data";
 
 const companyUrl = SITE.owner.url;
 
@@ -70,60 +72,68 @@ export const metadata: Metadata = {
   },
 };
 
-const homeStructuredData = {
-  "@context": "https://schema.org",
-  "@graph": [
-    {
-      "@type": "WebPage",
-      "@id": `${SITE.url}#webpage`,
-      name: SITE.title,
-      url: SITE.url,
-      description: SITE.description,
-      isPartOf: { "@id": `${SITE.url}#website` },
-      publisher: { "@id": SITE.owner.organizationId },
-      inLanguage: "en-US",
-    },
-    {
-      "@type": "SoftwareApplication",
-      "@id": `${SITE.url}#application`,
-      name: SITE.name,
-      url: SITE.url,
-      description: SITE.description,
-      applicationCategory: "DeveloperApplication",
-      operatingSystem: "Any",
-      isAccessibleForFree: true,
-      codeRepository: SITE.repository,
-      publisher: { "@id": SITE.owner.organizationId },
-      logo: SITE.brandLogo,
-    },
-    {
-      "@type": "ItemList",
-      "@id": `${SITE.url}#packages`,
-      name: "Interface Systems Lab packages",
-      url: SITE.url,
-      numberOfItems: ECOSYSTEM_PACKAGES.length,
-      itemListElement: ECOSYSTEM_PACKAGES.map((pkg, index) => ({
-        "@type": "ListItem",
-        position: index + 1,
-        item: {
-          "@type": "SoftwareSourceCode",
-          name: pkg.name,
-          description: pkg.summary,
-          version: pkg.version,
-          codeRepository: pkg.links.repository,
-          url: pkg.links.npm,
-          programmingLanguage:
-            pkg.name === "ui-style-kit-icons" ? "JavaScript, SVG" : "CSS",
-        },
-      })),
-    },
-  ],
-};
-
-const serializedHomeStructuredData = JSON.stringify(homeStructuredData).replace(
-  /</g,
-  "\\u003c",
+const serializedHomeStructuredData = serializeStructuredData(
+  buildHomeStructuredData(),
 );
+
+function QuickStartSection() {
+  return (
+    <section
+      className="section-band ly-section"
+      id="get-started"
+      aria-labelledby="get-started-title"
+    >
+      <div className="ly-wrapper quick-start-layout ly-grid ly-gap-8">
+        <div className="section-heading ly-stack ly-gap-4">
+          <p className="section-label">Quick start</p>
+          <h2 id="get-started-title">Install the complete stack.</h2>
+          <p>
+            Start with the pinned package set used by this site, then choose the
+            imports that match your adoption path.
+          </p>
+          <a
+            className="interactive-surface site-action ly-self-start"
+            data-surface-variant="subtle"
+            data-surface-level="1"
+            href={withBasePath(`${SITE.labPath}#install`)}
+          >
+            View every installation option
+          </a>
+        </div>
+        <QuickStartCopy command={NPM_INSTALL} />
+      </div>
+    </section>
+  );
+}
+
+function LabInvitationSection() {
+  return (
+    <section
+      className="section-band ly-section"
+      id="lab"
+      aria-labelledby="lab-title"
+    >
+      <div className="ly-wrapper lab-invitation ly-split ly-gap-8 ly-items-center">
+        <div className="section-heading ly-stack ly-gap-4">
+          <p className="section-label">Interactive lab</p>
+          <h2 id="lab-title">Configure once. Inspect every layer.</h2>
+          <p>
+            Explore 5,280 supported configurations across layout, visual style,
+            palette, and mode without changing the semantic markup.
+          </p>
+        </div>
+        <a
+          className="interactive-surface site-action"
+          data-surface-variant="accent"
+          data-surface-level="2"
+          href={withBasePath(SITE.labPath)}
+        >
+          Open the configurable lab
+        </a>
+      </div>
+    </section>
+  );
+}
 
 function CompanySection() {
   return (
@@ -132,59 +142,37 @@ function CompanySection() {
       id="company"
       aria-labelledby="company-title"
     >
-      <div className="ly-wrapper">
+      <div className="ly-wrapper company-overview ly-split ly-gap-8 ly-items-start">
         <div className="section-heading ly-stack ly-gap-4">
-          <p className="section-label">Two paths forward</p>
-          <h2 id="company-title">Build with the system or with its studio.</h2>
+          <p className="section-label">About the studio</p>
+          <h2 id="company-title">
+            Built in the open, backed by a focused software studio.
+          </h2>
           <p>
-            Explore the open CSS ecosystem directly, or bring Sanderson
-            Technology Enterprises into a specialized delivery engagement.
+            Interface Systems Lab is maintained by Sanderson Technology
+            Enterprises as an open developer resource.
           </p>
         </div>
-        <div className="ly-split ly-gap-6">
-          <article className="conversion-path ly-stack ly-gap-4 ly-items-start">
-            <p className="section-label">For developers</p>
-            <h3>Adopt the system at your own pace.</h3>
-            <p>
-              Start with one package or use the complete cascade. Every layer
-              stays independently versioned, documented, and testable.
-            </p>
-            <a
-              className="interactive-surface site-action"
-              data-surface-variant="primary"
-              data-surface-level="2"
-              href={SITE.repository}
-              target="_blank"
-              rel="noreferrer noopener"
-            >
-              Review the source on GitHub
-              <ExternalLinkIcon />
-              <span className="ly-visually-hidden"> (opens in a new tab)</span>
-            </a>
-          </article>
-
-          <article className="conversion-path ly-stack ly-gap-4 ly-items-start">
-            <p className="section-label">For organizations</p>
-            <h3>Turn interface ambition into a delivery system.</h3>
-            <p>
-              Sanderson Technology Enterprises builds creator-owned platforms,
-              private systems, admin tools, and operational workflows for
-              specialized businesses.
-            </p>
-            <a
-              className="interactive-surface site-action"
-              data-surface-variant="accent"
-              data-surface-level="2"
-              href={companyUrl}
-              target="_blank"
-              rel="noreferrer noopener"
-            >
-              Work with Sanderson Technology Enterprises
-              <ExternalLinkIcon />
-              <span className="ly-visually-hidden"> (opens in a new tab)</span>
-            </a>
-          </article>
-        </div>
+        <article className="conversion-path ly-stack ly-gap-4 ly-items-start">
+          <p className="section-label">Secondary path</p>
+          <h3>Need a specialized delivery partner?</h3>
+          <p>
+            STE builds creator-owned platforms, private systems, admin tools,
+            and operational workflows for specialized businesses.
+          </p>
+          <a
+            className="interactive-surface site-action"
+            data-surface-variant="subtle"
+            data-surface-level="1"
+            href={companyUrl}
+            target="_blank"
+            rel="noreferrer noopener"
+          >
+            Discover Sanderson Technology Enterprises
+            <ExternalLinkIcon />
+            <span className="ly-visually-hidden"> (opens in a new tab)</span>
+          </a>
+        </article>
       </div>
     </section>
   );
@@ -192,7 +180,14 @@ function CompanySection() {
 
 export default function Home() {
   return (
-    <LabExperience>
+    <div
+      className="experience home-experience ly-root ly-page"
+      data-ly-layout={DEFAULT_CONFIGURATION.layout}
+      data-ui={DEFAULT_CONFIGURATION.ui}
+      data-theme={DEFAULT_CONFIGURATION.theme}
+      data-mode={DEFAULT_CONFIGURATION.mode}
+    >
+      <LegacyLabRedirect />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: serializedHomeStructuredData }}
@@ -201,45 +196,57 @@ export default function Home() {
         Skip to main content
       </a>
 
-      <SiteHeader companyUrl={companyUrl} />
+      <SiteHeader
+        actionItems={HOME_NAVIGATION_ACTIONS}
+        brandHref="#top"
+        menuLabel="Menu"
+        navigationItems={HOME_NAVIGATION_ITEMS}
+        presentation="responsive"
+      />
 
       <main id="main-content">
         <section
-          className="hero ly-wrapper ly-section ly-split ly-gap-8 ly-items-center"
+          className="hero home-hero ly-wrapper ly-section ly-split ly-gap-8 ly-items-center"
           id="top"
+          aria-labelledby="home-title"
         >
           <div className="hero-copy ly-stack ly-gap-6">
-            <h1>
+            <p className="section-label">Four focused interface libraries</p>
+            <h1 id="home-title">
               Design every layer.
               <br />
               <em>Keep one interface.</em>
             </h1>
             <p className="lede">
-              Build responsive layout, accessible visual identity, and
-              dependable interaction mechanics on one semantic interface.
+              Build accessible interfaces with independent packages for layout,
+              visual styling, icons, and interaction states.
             </p>
-            <HeroActions companyUrl={companyUrl} />
+            <HomeHeroActions />
           </div>
 
-          <InterfaceObservatory />
+          <aside
+            className="home-system-summary ly-stack ly-gap-6"
+            aria-label="System summary"
+          >
+            <div>
+              <strong>4</strong>
+              <span>independent packages</span>
+            </div>
+            <div>
+              <strong>5,280</strong>
+              <span>supported configurations</span>
+            </div>
+            <p>Structure · Identity · Iconography · Behavior</p>
+          </aside>
         </section>
 
-        <div className="configuration-shell ly-wrapper">
-          <LabControls />
-        </div>
-
-        <CombinedWorkbench />
-        <LayoutLab />
-        <UiNativeLab />
-        <IconLab />
-        <InteractionLab />
-        <IntegrationLab />
-        <InstallGuide />
-        <LibraryDirectory />
+        <FeatureShowcase />
+        <QuickStartSection />
+        <LabInvitationSection />
         <CompanySection />
       </main>
 
       <SiteFooter companyUrl={companyUrl} />
-    </LabExperience>
+    </div>
   );
 }

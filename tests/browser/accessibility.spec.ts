@@ -16,13 +16,22 @@ async function expectNoAxeViolations(
 }
 
 test.beforeEach(async ({ page }) => {
+  await page.goto("./lab/");
+});
+
+test("axe finds no violations on the focused homepage", async ({
+  page,
+}, testInfo) => {
   await page.goto("./");
+  const results = await new AxeBuilder({ page }).analyze();
+  await expectNoAxeViolations(results, testInfo, "axe-homepage.json");
 });
 
 test(
   "axe finds no violations across the complete default experience",
   { tag: "@cross-engine" },
   async ({ page }, testInfo) => {
+    await page.getByRole("button", { name: "Open lab sections" }).click();
     await page
       .locator(
         "#ui-native details, #interactions details, #integrate details, #install details",
@@ -40,7 +49,6 @@ test(
     await expect(page.locator("#integrate")).toBeVisible();
     await expect(page.locator("#install")).toBeVisible();
     await expect(page.locator("#libraries")).toBeVisible();
-    await expect(page.locator("#company")).toBeVisible();
     await expect(
       page.locator('[data-icon-lab] usk-icon[role="img"]'),
     ).toHaveAttribute("aria-label", /.+/);
@@ -72,7 +80,7 @@ test(
   },
   async ({ page }, testInfo) => {
     await page.goto(
-      "./?layout=split-screen&ui=maximalist&theme=cyber-lime&mode=contrast",
+      "./lab/?layout=split-screen&ui=maximalist&theme=cyber-lime&mode=contrast",
     );
     await page
       .locator("#ui-native details, #interactions details")

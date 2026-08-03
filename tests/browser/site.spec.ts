@@ -23,6 +23,7 @@ const configurationStorageKey = "interface-systems-lab:configuration:v1";
 const companyUrl = "https://sandersontechnologyenterprises.com";
 const canonicalUrl =
   "https://sanderson-technology-enterprises.github.io/interface-systems-lab/";
+const labUrl = `${canonicalUrl}lab/`;
 const corporateOrganizationId = `${companyUrl}/#organization`;
 const repositoryUrl =
   "https://github.com/Sanderson-Technology-Enterprises/interface-systems-lab";
@@ -31,7 +32,8 @@ const socialImageAlt =
   "Interface Systems Lab social card with the text \u201c4 libraries, 1 interface, and 5,280 possibilities\u201d over layout, identity, iconography, and interaction.";
 const websiteId = `${canonicalUrl}#website`;
 const webpageId = `${canonicalUrl}#webpage`;
-const applicationId = `${canonicalUrl}#application`;
+const labWebpageId = `${labUrl}#webpage`;
+const applicationId = `${labUrl}#application`;
 const packagesId = `${canonicalUrl}#packages`;
 const requiredSectionIds = [
   "top",
@@ -43,7 +45,6 @@ const requiredSectionIds = [
   "integrate",
   "install",
   "libraries",
-  "company",
 ] as const;
 
 type ExpectedConfiguration = {
@@ -142,13 +143,13 @@ async function readStoredConfiguration(page: Page) {
 }
 
 test.beforeEach(async ({ page }) => {
-  await page.goto("./");
+  await page.goto("./lab/");
 });
 
 test("icons follow the selected UI pack and expose frame variants", async ({
   page,
 }) => {
-  await page.goto("./?ui=minimal-saas&theme=midnight-gold&mode=dark");
+  await page.goto("./lab/?ui=minimal-saas&theme=midnight-gold&mode=dark");
 
   const lab = page.locator("[data-icon-lab]");
   const firstIcon = lab.locator("usk-icon").first();
@@ -168,7 +169,7 @@ test("icons follow the selected UI pack and expose frame variants", async ({
     ["retrofuturism", "synthwave", "Synthwave"],
     ["bauhaus", "system", "System"],
   ] as const) {
-    await page.getByLabel("Visual style").selectOption(ui);
+    await page.getByLabel(/02.*Visual style/).selectOption(ui);
     await expect(lab.locator("[data-active-icon-pack]")).toHaveText(label);
     await expect(firstIcon).toHaveAttribute("data-pack", pack);
   }
@@ -330,7 +331,7 @@ test("exported 404 retains branded ecosystem paint @cross-engine", async ({
   expect(paint.actionPaddingEnd).toBeGreaterThan(0);
 });
 
-test("shell scopes the complete experience and balances developer and company paths", async ({
+test("lab shell scopes the complete experience and preserves every section", async ({
   page,
 }) => {
   const runtimeErrors: string[] = [];
@@ -362,18 +363,12 @@ test("shell scopes the complete experience and balances developer and company pa
     await expect(page.locator(`#${id}`)).toHaveCount(1);
     await expect(navigation.locator(`a[href="#${id}"]`)).toHaveCount(1);
   }
-  const companyRegion = page.getByRole("region", {
-    name: "Build with the system or with its studio.",
-  });
-  await expect(companyRegion).toHaveAttribute("id", "company");
-  await expect(companyRegion.locator("h3")).toHaveCount(2);
-
-  const developerAction = page.locator('[data-hero-action="developer"]');
-  const companyAction = page.locator('[data-hero-action="company"]');
+  const developerAction = page.locator('[data-hero-action="primary"]');
+  const installAction = page.locator('[data-hero-action="secondary"]');
   await expect(developerAction).toHaveAttribute("href", "#workbench");
-  await expect(companyAction).toHaveAttribute("href", companyUrl);
+  await expect(installAction).toHaveAttribute("href", "#install");
   const actionGeometry = await Promise.all(
-    [developerAction, companyAction].map((action) =>
+    [developerAction, installAction].map((action) =>
       action.evaluate((element) => {
         const bounds = element.getBoundingClientRect();
         const style = getComputedStyle(element);
@@ -401,25 +396,16 @@ test("shell scopes the complete experience and balances developer and company pa
   expect(
     Math.abs(actionGeometry[0]!.blockSize - actionGeometry[1]!.blockSize),
   ).toBeLessThanOrEqual(1);
-  expect(actionGeometry[0]!.background).toBe(actionGeometry[1]!.background);
-  expect(actionGeometry[0]!.color).toBe(actionGeometry[1]!.color);
+  expect(actionGeometry[0]!.background).not.toBe(actionGeometry[1]!.background);
 
-  for (const [scope, accessibleName] of [
-    [".site-header", /Discover STE/i],
-    [".hero", /Visit Sanderson Technology Enterprises/i],
-    ["#company", /Work with Sanderson Technology Enterprises/i],
-    [".site-footer", /Sanderson Technology Enterprises/i],
-  ] as const) {
-    const corporateLink = page
-      .locator(scope)
-      .getByRole("link", { name: accessibleName, includeHidden: true });
-    await expect(corporateLink).toHaveCount(1);
-    await expect(corporateLink).toHaveAttribute("href", companyUrl);
-    await expect(corporateLink).toHaveAttribute(
-      "rel",
-      /^(?=.*\bnoreferrer\b)(?=.*\bnoopener\b).+$/,
-    );
-  }
+  const corporateLink = page
+    .locator(".site-footer")
+    .getByRole("link", { name: /Sanderson Technology Enterprises/i });
+  await expect(corporateLink).toHaveAttribute("href", companyUrl);
+  await expect(corporateLink).toHaveAttribute(
+    "rel",
+    /^(?=.*\bnoreferrer\b)(?=.*\bnoopener\b).+$/,
+  );
 
   for (const [selector, asset] of [
     [".brand-logo", "favicon-48x48.png"],
@@ -447,15 +433,15 @@ test("compact header discloses every navigation destination without horizontal o
   page,
 }) => {
   await page.setViewportSize({ width: 799, height: 700 });
-  await page.goto("./");
+  await page.goto("./lab/");
 
-  const menu = page.getByRole("button", { name: /navigation menu/i });
+  const menu = page.getByRole("button", { name: /lab sections/i });
   const navigation = page.getByRole("navigation", {
     name: "Primary navigation",
   });
 
   await expect(menu).toBeVisible();
-  await expect(menu).toHaveAccessibleName("Open navigation menu");
+  await expect(menu).toHaveAccessibleName("Open lab sections");
   await expect(menu).toHaveClass(/interactive-surface/);
   await expect(menu).toHaveAttribute("aria-expanded", "false");
   await expect(navigation).toBeHidden();
@@ -463,27 +449,26 @@ test("compact header discloses every navigation destination without horizontal o
 
   await menu.click();
 
-  await expect(menu).toHaveAccessibleName("Close navigation menu");
+  await expect(menu).toHaveAccessibleName("Close lab sections");
   await expect(menu).toHaveAttribute("aria-expanded", "true");
   await expect(navigation).toBeVisible();
   for (const label of [
-    "Home",
+    "Top",
     "Workbench",
     "Layout",
-    "UI + native",
+    "UI & native",
     "Icons",
     "Interactions",
-    "Integrate",
+    "Integration",
     "Install",
-    "Libraries",
-    "Company",
+    "Packages",
   ]) {
     await expect(navigation.getByRole("link", { name: label })).toBeVisible();
   }
   await expect(
     page
       .locator("#primary-navigation-panel")
-      .getByRole("link", { name: /Discover STE/i }),
+      .getByRole("link", { name: /Back to overview/i }),
   ).toBeVisible();
   await expect(
     page
@@ -492,7 +477,7 @@ test("compact header discloses every navigation destination without horizontal o
   ).toBeVisible();
   await expect(
     page.locator("#primary-navigation-panel a.interactive-surface.site-action"),
-  ).toHaveCount(12);
+  ).toHaveCount(11);
 
   const widthContract = await page.evaluate(() => {
     const primaryNavigation =
@@ -530,7 +515,7 @@ test("shell keeps observatory controls clear of the interface core", async ({
     { width: 1440, height: 1000 },
   ]) {
     await page.setViewportSize(viewport);
-    await page.goto("./");
+    await page.goto("./lab/");
 
     const geometry = await page
       .locator(".observatory-stage")
@@ -607,9 +592,9 @@ test("workbench keeps the Layout v3 app-shell bounded on mobile", async ({
   page,
 }) => {
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.goto("./");
+  await page.goto("./lab/");
   await expect(page.locator("#workbench-title")).toHaveText(
-    "One workspace. Four proven layers.",
+    "See all four layers in one workspace.",
   );
 
   const geometry = await page
@@ -657,7 +642,7 @@ test("shell keeps anchored content clear of persistent regions", async ({
   page,
 }) => {
   await page.setViewportSize({ width: 1440, height: 1000 });
-  await page.goto("./");
+  await page.goto("./lab/");
   await expect
     .poll(() =>
       page
@@ -696,9 +681,9 @@ test("shell keeps anchored content clear of persistent regions", async ({
   );
 
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.goto("./");
+  await page.goto("./lab/");
   await page.evaluate(() => document.fonts.ready.then(() => true));
-  const menu = page.getByRole("button", { name: /navigation menu/i });
+  const menu = page.getByRole("button", { name: /lab sections/i });
   const navigation = page.getByRole("navigation", {
     name: "Primary navigation",
   });
@@ -780,7 +765,7 @@ test("configuration console yields scroll space in short desktop viewports @cros
   page,
 }) => {
   await page.setViewportSize({ width: 1280, height: 720 });
-  await page.goto("./");
+  await page.goto("./lab/");
 
   const shell = page.locator(".configuration-shell");
   await expect
@@ -817,7 +802,7 @@ test("primary navigation keeps anchored sections below the sticky header @cross-
   for (const width of [768, 1024, 1248, 1440]) {
     await test.step(`${width}px viewport`, async () => {
       await page.setViewportSize({ width, height: 1000 });
-      await page.goto("./");
+      await page.goto("./lab/");
       await page.evaluate(() => document.fonts.ready.then(() => true));
 
       const anchorContract = await page.evaluate(() => {
@@ -850,19 +835,14 @@ test("primary navigation keeps anchored sections below the sticky header @cross-
         anchorContract.headerHeight + 16,
       );
 
-      const menu = page.getByRole("button", { name: /navigation menu/i });
+      const menu = page.getByRole("button", { name: /lab sections/i });
       const navigation = page.getByRole("navigation", {
         name: "Primary navigation",
       });
-      if (width <= 1248) {
-        await expect(menu).toBeVisible();
-        await expect(navigation).toBeHidden();
-        await menu.click();
-        await expect(navigation).toBeVisible();
-      } else {
-        await expect(menu).toBeHidden();
-        await expect(navigation).toBeVisible();
-      }
+      await expect(menu).toBeVisible();
+      await expect(navigation).toBeHidden();
+      await menu.click();
+      await expect(navigation).toBeVisible();
 
       await page
         .getByRole("navigation", { name: "Primary navigation" })
@@ -871,10 +851,8 @@ test("primary navigation keeps anchored sections below the sticky header @cross-
       await expect
         .poll(() => page.evaluate(() => window.location.hash))
         .toBe("#interactions");
-      if (width <= 1248) {
-        await expect(menu).toHaveAttribute("aria-expanded", "false");
-        await expect(navigation).toBeHidden();
-      }
+      await expect(menu).toHaveAttribute("aria-expanded", "false");
+      await expect(navigation).toBeHidden();
 
       const geometry = await page.evaluate(() => {
         const header = document.querySelector<HTMLElement>(".site-header");
@@ -917,10 +895,10 @@ test("compact header tab order follows the disclosed navigation", async ({
   page,
 }) => {
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.goto("./");
+  await page.goto("./lab/");
 
   const header = page.locator(".site-header");
-  const menu = header.getByRole("button", { name: /navigation menu/i });
+  const menu = header.getByRole("button", { name: /lab sections/i });
   const navigation = header.getByRole("navigation", {
     name: "Primary navigation",
   });
@@ -962,7 +940,7 @@ test("compact header tab order follows the disclosed navigation", async ({
   await expect(navigation).toBeVisible();
 
   const tabOrder: string[] = [];
-  for (let index = 0; index < 12; index += 1) {
+  for (let index = 0; index < 11; index += 1) {
     await page.keyboard.press("Tab");
     tabOrder.push(
       await page.evaluate(
@@ -981,8 +959,7 @@ test("compact header tab order follows the disclosed navigation", async ({
     "#integrate",
     "#install",
     "#libraries",
-    "#company",
-    companyUrl,
+    "/interface-systems-lab/",
     repositoryUrl,
   ]);
 
@@ -998,7 +975,7 @@ test("compact header tab order follows the disclosed navigation", async ({
         };
       }),
     );
-  expect(targetContract).toHaveLength(12);
+  expect(targetContract).toHaveLength(11);
   expect(
     targetContract.every(
       ({ height, textFits, width }) => height >= 44 && textFits && width > 0,
@@ -1010,7 +987,7 @@ test("compact navigation dismisses predictably from keyboard, outside pointer, l
   page,
 }) => {
   await page.setViewportSize({ width: 799, height: 700 });
-  await page.goto("./");
+  await page.goto("./lab/");
 
   const menu = page.locator(".navigation-toggle");
   const navigation = page.getByRole("navigation", {
@@ -1018,15 +995,24 @@ test("compact navigation dismisses predictably from keyboard, outside pointer, l
   });
 
   await menu.click();
-  await navigation.getByRole("link", { name: "Home" }).focus();
+  await navigation.getByRole("link", { name: "Top" }).focus();
   await page.keyboard.press("Escape");
   await expect(menu).toHaveAttribute("aria-expanded", "false");
   await expect(menu).toBeFocused();
   await expect(navigation).toBeHidden();
 
   await menu.click();
-  await navigation.getByRole("link", { name: "Home" }).focus();
-  await page.getByRole("link", { name: "Interface Systems Lab home" }).click();
+  await navigation.getByRole("link", { name: "Top" }).focus();
+  const panelBounds = await page
+    .locator("#primary-navigation-panel")
+    .boundingBox();
+  const viewport = page.viewportSize();
+  if (panelBounds === null || viewport === null) {
+    throw new Error("Expected a measurable disclosure panel and viewport.");
+  }
+  const outsidePointerY = panelBounds.y + panelBounds.height + 8;
+  expect(outsidePointerY).toBeLessThan(viewport.height);
+  await page.mouse.click(8, outsidePointerY);
   await expect(menu).toHaveAttribute("aria-expanded", "false");
   await expect(menu).not.toBeFocused();
   await expect(navigation).toBeHidden();
@@ -1041,9 +1027,11 @@ test("compact navigation dismisses predictably from keyboard, outside pointer, l
 
   await menu.click();
   await page.setViewportSize({ width: 1440, height: 1000 });
-  await expect(menu).toHaveAttribute("aria-expanded", "false");
-  await expect(menu).toBeHidden();
+  await expect(menu).toHaveAttribute("aria-expanded", "true");
+  await expect(menu).toBeVisible();
   await expect(navigation).toBeVisible();
+  await page.keyboard.press("Escape");
+  await expect(navigation).toBeHidden();
 
   await page.setViewportSize({ width: 799, height: 700 });
   await expect(menu).toBeVisible();
@@ -1060,6 +1048,7 @@ test("renders the production metadata and complete resource directory", async ({
   });
   page.on("pageerror", (error) => runtimeErrors.push(error.message));
 
+  await page.goto("./");
   await expect(page).toHaveTitle(/Interface Systems Lab/);
   await expect(page.locator("h1")).toHaveCount(1);
   await expect(page.locator(".brand-logo")).toBeVisible();
@@ -1084,7 +1073,7 @@ test("renders the production metadata and complete resource directory", async ({
     page.getByRole("heading", { name: /Design every layer/i }),
   ).toBeVisible();
   await expect(
-    page.getByRole("heading", { name: /Layout laboratory/i }),
+    page.getByRole("heading", { name: "Use one package or combine all four." }),
   ).toBeVisible();
   await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
     "href",
@@ -1138,15 +1127,10 @@ test("renders the production metadata and complete resource directory", async ({
   const structuredData = await readStructuredData(page);
   const node = (type: string) =>
     structuredData.filter((candidate) => candidate["@type"] === type);
-  for (const type of [
-    "Organization",
-    "WebSite",
-    "WebPage",
-    "SoftwareApplication",
-    "ItemList",
-  ]) {
+  for (const type of ["Organization", "WebSite", "WebPage", "ItemList"]) {
     expect(node(type), type).toHaveLength(1);
   }
+  expect(node("SoftwareApplication")).toHaveLength(0);
   const organization = node("Organization")[0]!;
   expect(organization).toMatchObject({
     "@id": corporateOrganizationId,
@@ -1161,15 +1145,6 @@ test("renders the production metadata and complete resource directory", async ({
     slogan: "Strategic Platform Development",
     url: companyUrl,
   });
-  expect(node("SoftwareApplication")[0]).toMatchObject({
-    "@id": applicationId,
-    codeRepository: repositoryUrl,
-    isAccessibleForFree: true,
-    logo: `${canonicalUrl}android-chrome-512x512.png`,
-    operatingSystem: "Any",
-    publisher: { "@id": corporateOrganizationId },
-    url: canonicalUrl,
-  });
   expect(node("WebSite")[0]).toMatchObject({
     "@id": websiteId,
     publisher: { "@id": corporateOrganizationId },
@@ -1183,7 +1158,7 @@ test("renders the production metadata and complete resource directory", async ({
   });
   expect(node("ItemList")[0]).toMatchObject({
     "@id": packagesId,
-    url: canonicalUrl,
+    url: `${canonicalUrl}#libraries`,
     itemListElement: [
       {
         item: {
@@ -1223,6 +1198,34 @@ test("renders the production metadata and complete resource directory", async ({
       },
     ],
     numberOfItems: 4,
+  });
+
+  await page.goto("./lab/");
+  await expect(
+    page.getByRole("heading", { name: /Test responsive layout recipes/i }),
+  ).toBeVisible();
+  await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
+    "href",
+    labUrl,
+  );
+  const labStructuredData = await readStructuredData(page);
+  const labNode = (type: string) =>
+    labStructuredData.filter((candidate) => candidate["@type"] === type);
+  expect(labNode("ItemList")).toHaveLength(0);
+  expect(labNode("WebPage")[0]).toMatchObject({
+    "@id": labWebpageId,
+    isPartOf: { "@id": websiteId },
+    publisher: { "@id": corporateOrganizationId },
+    url: labUrl,
+  });
+  expect(labNode("SoftwareApplication")[0]).toMatchObject({
+    "@id": applicationId,
+    codeRepository: repositoryUrl,
+    isAccessibleForFree: true,
+    logo: `${canonicalUrl}android-chrome-512x512.png`,
+    operatingSystem: "Any",
+    publisher: { "@id": corporateOrganizationId },
+    url: labUrl,
   });
 
   for (const [name, version] of [
@@ -1274,7 +1277,7 @@ test(
       // WebKit does not abort icon fetches with an immediate second navigation.
       if (index > 0) {
         const query = new URLSearchParams(configuration).toString();
-        await page.goto(`./?${query}`);
+        await page.goto(`./lab/?${query}`);
       }
       await expectRootConfiguration(page, configuration);
       await expect
@@ -1294,7 +1297,7 @@ test(
         .toBe(true);
       await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
         "href",
-        canonicalUrl,
+        labUrl,
       );
       for (const section of [
         ".site-header",
@@ -1305,17 +1308,10 @@ test(
         "#interactions",
         "#integrate",
         "#install",
-        "#company",
         ".site-footer",
       ]) {
         await expect(page.locator(section)).toBeVisible();
       }
-      await expect(
-        page.locator("#company").getByRole("link", {
-          name: /Work with Sanderson Technology Enterprises/i,
-        }),
-      ).toBeVisible();
-
       const paint = await page.locator(".experience").evaluate((element) => {
         const style = getComputedStyle(element);
         return {
@@ -1330,12 +1326,12 @@ test(
       ).toBe(true);
       expect(paint.color).not.toBe("rgba(0, 0, 0, 0)");
 
-      const developerAction = page.locator('[data-hero-action="developer"]');
-      const companyAction = page.locator('[data-hero-action="company"]');
+      const developerAction = page.locator('[data-hero-action="primary"]');
+      const installAction = page.locator('[data-hero-action="secondary"]');
       await developerAction.focus();
       await page.keyboard.press("Tab");
-      await expect(companyAction).toBeFocused();
-      const focusStyle = await companyAction.evaluate((element) => {
+      await expect(installAction).toBeFocused();
+      const focusStyle = await installAction.evaluate((element) => {
         const style = getComputedStyle(element);
         return {
           focusVisible: element.matches(":focus-visible"),
@@ -1356,7 +1352,7 @@ test(
 test("integration fixtures stage icon assets without legacy paths", async ({
   page,
 }) => {
-  await page.goto("./");
+  await page.goto("./lab/");
 
   const integrationLab = page.locator("#integrate");
   await expect(
@@ -1576,7 +1572,7 @@ test("install clipboard failure uses the shared feedback region", async ({
       },
     });
   });
-  await page.goto("./");
+  await page.goto("./lab/");
 
   await page
     .getByRole("button", {
@@ -1620,7 +1616,7 @@ test("configuration query overrides storage and persists across reloads", async 
     mode: "contrast",
   };
   await page.goto(
-    "./?layout=mondrian&ui=retro-glass&theme=rose-quartz&mode=contrast",
+    "./lab/?layout=mondrian&ui=retro-glass&theme=rose-quartz&mode=contrast",
   );
 
   await expectRootConfiguration(page, configured);
@@ -1629,7 +1625,7 @@ test("configuration query overrides storage and persists across reloads", async 
     "?layout=mondrian&ui=retro-glass&theme=rose-quartz&mode=contrast",
   );
 
-  await page.goto("./");
+  await page.goto("./lab/");
   expect(new URL(page.url()).search).toBe("");
   await expectRootConfiguration(page, configured);
   await expect.poll(() => readStoredConfiguration(page)).toEqual(configured);
@@ -1645,7 +1641,9 @@ test("configuration hydration recovers from invalid query and storage data", asy
   await page.evaluate((storageKey) => {
     window.localStorage.setItem(storageKey, "{malformed json");
   }, configurationStorageKey);
-  await page.goto("./?layout=invalid&ui=invalid&theme=invalid&mode=invalid");
+  await page.goto(
+    "./lab/?layout=invalid&ui=invalid&theme=invalid&mode=invalid",
+  );
 
   await expectRootConfiguration(page, defaultConfiguration);
   await expect(page.locator(".configuration-console")).toBeVisible();
@@ -1715,7 +1713,7 @@ test("semantic surfaces declare documented levels and maintain AA contrast", asy
 }) => {
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.goto(
-    "./?layout=split-screen&ui=retro-glass&theme=arctic-indigo&mode=contrast",
+    "./lab/?layout=split-screen&ui=retro-glass&theme=arctic-indigo&mode=contrast",
   );
   await expectRootConfiguration(page, {
     layout: "split-screen",
@@ -1802,7 +1800,7 @@ test("configuration copy and share announce success and clear transient labels",
 }) => {
   await context.grantPermissions(["clipboard-read", "clipboard-write"]);
   await page.goto(
-    "./?layout=mondrian&ui=retro-glass&theme=rose-quartz&mode=contrast",
+    "./lab/?layout=mondrian&ui=retro-glass&theme=rose-quartz&mode=contrast",
   );
   await page.clock.install();
 
@@ -1859,7 +1857,7 @@ test("configuration copy and share expose selected fallback text on clipboard fa
     });
   });
   await page.goto(
-    "./?layout=mondrian&ui=retro-glass&theme=rose-quartz&mode=contrast",
+    "./lab/?layout=mondrian&ui=retro-glass&theme=rose-quartz&mode=contrast",
   );
 
   await page.getByRole("button", { name: "Copy configuration" }).click();
@@ -1988,65 +1986,53 @@ test("stays responsive across mobile portrait, mobile landscape, tablet, and des
 
   for (const viewport of viewports) {
     await page.setViewportSize(viewport);
-    await page.goto("./");
+    await page.goto("./lab/");
 
     await expectNoHorizontalOverflow(page);
 
-    const menu = page.getByRole("button", { name: /navigation menu/i });
+    const menu = page.getByRole("button", { name: /lab sections/i });
     const navigation = page.getByRole("navigation", {
       name: "Primary navigation",
     });
-    if (viewport.width <= 1248) {
-      await expect(menu).toBeVisible();
-      await expect(menu).toHaveAttribute("aria-expanded", "false");
-      await expect(navigation).toBeHidden();
-      await menu.click();
-      await expect(navigation).toBeVisible();
+    await expect(menu).toBeVisible();
+    await expect(menu).toHaveAttribute("aria-expanded", "false");
+    await expect(navigation).toBeHidden();
+    await menu.click();
+    await expect(navigation).toBeVisible();
 
-      const panel = page.locator("#primary-navigation-panel");
-      const panelGeometry = await panel.evaluate((element) => {
-        const bounds = element.getBoundingClientRect();
-        return {
-          bottom: bounds.bottom,
-          canScrollVertically: element.scrollHeight > element.clientHeight,
-          left: bounds.left,
-          right: bounds.right,
-          top: bounds.top,
-          viewportHeight: window.innerHeight,
-          viewportWidth: window.innerWidth,
-        };
-      });
-      expect(panelGeometry.left).toBeGreaterThanOrEqual(0);
-      expect(panelGeometry.right).toBeLessThanOrEqual(
-        panelGeometry.viewportWidth,
-      );
-      expect(panelGeometry.top).toBeGreaterThanOrEqual(0);
-      expect(panelGeometry.bottom).toBeLessThanOrEqual(
-        panelGeometry.viewportHeight,
-      );
-      if (viewport.height === 390) {
-        expect(panelGeometry.canScrollVertically).toBe(true);
-      }
-
-      await page
-        .locator("#primary-navigation-panel")
-        .getByRole("link", { name: /GitHub/i })
-        .scrollIntoViewIfNeeded();
-      await expect(
-        page
-          .locator("#primary-navigation-panel")
-          .getByRole("link", { name: /GitHub/i }),
-      ).toBeVisible();
-      await page.keyboard.press("Escape");
-      await expect(navigation).toBeHidden();
-    } else {
-      await expect(menu).toBeHidden();
-      await expect(navigation).toBeVisible();
+    const panel = page.locator("#primary-navigation-panel");
+    const panelGeometry = await panel.evaluate((element) => {
+      const bounds = element.getBoundingClientRect();
+      return {
+        bottom: bounds.bottom,
+        canScrollVertically: element.scrollHeight > element.clientHeight,
+        left: bounds.left,
+        right: bounds.right,
+        top: bounds.top,
+        viewportHeight: window.innerHeight,
+        viewportWidth: window.innerWidth,
+      };
+    });
+    expect(panelGeometry.left).toBeGreaterThanOrEqual(0);
+    expect(panelGeometry.right).toBeLessThanOrEqual(
+      panelGeometry.viewportWidth,
+    );
+    expect(panelGeometry.top).toBeGreaterThanOrEqual(0);
+    expect(panelGeometry.bottom).toBeLessThanOrEqual(
+      panelGeometry.viewportHeight,
+    );
+    if (viewport.height === 390) {
+      expect(panelGeometry.canScrollVertically).toBe(true);
     }
+
+    await panel.getByRole("link", { name: /GitHub/i }).scrollIntoViewIfNeeded();
+    await expect(panel.getByRole("link", { name: /GitHub/i })).toBeVisible();
+    await page.keyboard.press("Escape");
+    await expect(navigation).toBeHidden();
 
     await expectNoHorizontalOverflow(page);
     await expect(
-      page.getByRole("heading", { name: /Layout laboratory/i }),
+      page.getByRole("heading", { name: /Test responsive layout recipes/i }),
     ).toBeVisible();
 
     const sectionHealth = await page.evaluate(() =>

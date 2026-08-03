@@ -186,6 +186,69 @@
   padding-inline: clamp(0.45rem, 0.65vw, 0.75rem);
 }
 
+.site-header--disclosure .site-header-inner {
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+
+.site-navigation[data-presentation="disclosure"] {
+  inline-size: auto;
+}
+
+.site-navigation[data-presentation="disclosure"] .navigation-toggle {
+  display: inline-flex;
+}
+
+.site-navigation[data-presentation="disclosure"] .navigation-panel {
+  position: absolute;
+  z-index: calc(var(--ly-z-header, 20) + 1);
+  inset-block-start: 100%;
+  inset-inline: 0;
+  display: none;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--ly-space-3);
+  max-block-size: min(40rem, calc(100dvh - 100% - var(--ly-space-1)));
+  padding: var(--ly-space-3);
+  overflow-x: clip;
+  overflow-y: auto;
+  overscroll-behavior-block: contain;
+  border: 1px solid var(--lab-rule);
+  background: rgb(var(--usk-bg-rgb) / 0.98);
+  box-shadow: var(--usk-native-shadow-md, 0 1rem 3rem rgb(0 0 0 / 0.24));
+  -webkit-backdrop-filter: blur(18px);
+  backdrop-filter: blur(18px);
+}
+
+.site-navigation[data-presentation="disclosure"]
+  .navigation-panel[data-open="true"] {
+  display: grid;
+}
+
+.site-navigation[data-presentation="disclosure"] .primary-nav {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr));
+  gap: var(--ly-space-2);
+}
+
+.site-navigation[data-presentation="disclosure"] .navigation-link {
+  justify-content: flex-start;
+  inline-size: 100%;
+  padding-inline: 1rem;
+}
+
+.site-navigation[data-presentation="disclosure"] .navigation-actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  padding-block-start: var(--ly-space-3);
+  border-block-start: 1px solid var(--lab-rule-soft);
+}
+
+.site-navigation[data-presentation="disclosure"]
+  .navigation-actions
+  .site-action {
+  inline-size: 100%;
+  padding-inline: 1rem;
+}
+
 .primary-nav a,
 .site-footer a {
   display: inline-flex;
@@ -200,6 +263,18 @@
 
 .hero {
   padding-block: clamp(3rem, 8vw, 7rem);
+}
+
+.home-hero {
+  padding-block: clamp(2.5rem, 6vh, 4.5rem);
+}
+
+.home-hero h1 {
+  font-size: clamp(3rem, 6.2vw, 5.75rem);
+}
+
+.home-hero .hero-actions > [data-hero-action] {
+  min-block-size: 3.5rem;
 }
 
 .hero-copy {
@@ -218,6 +293,15 @@
 .hero h1 em {
   color: rgb(var(--usk-primary-rgb));
   font-style: normal;
+}
+
+.lab-hero h1 {
+  max-inline-size: 16ch;
+  font-size: clamp(2.8rem, 6vw, 5.5rem);
+}
+
+.lab-hero {
+  --ly-split-min: 28rem;
 }
 
 .hero-actions > [data-hero-action] {
@@ -282,6 +366,97 @@
   font-family: var(--font-display);
   font-size: clamp(1.65rem, 3vw, 2.35rem);
   line-height: 1.1;
+}
+
+.home-system-summary {
+  min-inline-size: min(100%, 22rem);
+  padding: clamp(1.5rem, 4vw, 3rem);
+  border: 1px solid var(--lab-rule);
+  background: rgb(var(--usk-surface-rgb) / 0.72);
+}
+
+.home-system-summary > div {
+  display: grid;
+  gap: var(--ly-space-1);
+  padding-block-end: var(--ly-space-4);
+  border-block-end: 1px solid var(--lab-rule-soft);
+}
+
+.home-system-summary strong {
+  color: rgb(var(--usk-primary-rgb));
+  font-family: var(--font-display);
+  font-size: clamp(2.5rem, 6vw, 4.5rem);
+  line-height: 1;
+}
+
+.home-system-summary span,
+.home-system-summary p {
+  color: rgb(var(--usk-text-muted-rgb));
+}
+
+.package-overview-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--ly-space-6);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.package-overview-card {
+  min-inline-size: 0;
+  padding: clamp(1.25rem, 3vw, 2rem);
+  border: 1px solid var(--lab-rule-soft);
+  background: rgb(var(--usk-surface-rgb) / 0.46);
+}
+
+.package-overview-card h3 {
+  font-family: var(--font-display);
+  font-size: clamp(1.5rem, 3vw, 2.25rem);
+  line-height: 1.1;
+}
+
+.package-overview-card code {
+  overflow-wrap: anywhere;
+}
+
+.package-overview-actions {
+  margin-block-start: auto;
+}
+
+.quick-start-layout,
+.company-overview {
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  align-items: start;
+}
+
+.quick-start-command {
+  min-inline-size: 0;
+  padding: clamp(1.25rem, 3vw, 2rem);
+  border: 1px solid var(--lab-rule);
+  background: rgb(var(--usk-surface-rgb) / 0.62);
+}
+
+.quick-start-command pre {
+  max-inline-size: 100%;
+  margin: 0;
+  overflow-x: auto;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.quick-start-command .copy-button {
+  justify-self: start;
+}
+
+.lab-invitation .section-heading,
+.company-overview .section-heading,
+.quick-start-layout .section-heading {
+  margin-block-end: 0;
+}
+
+.lab-invitation > .site-action {
+  justify-self: end;
 }
 
 .install-step,

@@ -55,7 +55,7 @@ export function LayoutLab() {
         <div className="section-heading ly-split ly-gap-6 ly-items-end">
           <div className="ly-stack ly-gap-2">
             <p className="section-label">Layout laboratory</p>
-            <h2 id="layouts-title">Layout laboratory: geometry with intent</h2>
+            <h2 id="layouts-title">Test responsive layout recipes.</h2>
           </div>
           <p>
             Change the global personality above. The same semantic recipe and
@@ -99,7 +99,7 @@ export function LayoutLab() {
 
         <div className="layout-disclosures ly-stack ly-gap-4">
           <details>
-            <summary>Explore the six supporting recipes</summary>
+            <summary>View six layout recipes</summary>
             <div className="recipe-atlas ly-stack ly-gap-6">
               <article className="recipe-entry ly-stack ly-gap-4">
                 <header className="specimen-heading ly-stack ly-gap-2">
@@ -324,7 +324,7 @@ export function LayoutLab() {
           </details>
 
           <details>
-            <summary>Inspect every composition primitive</summary>
+            <summary>View composition primitives</summary>
             <div className="primitive-atlas ly-grid ly-gap-4">
               <article
                 className={`${cardClass} primitive-specimen ly-stack ly-gap-4 ly-pad-4`}
@@ -506,7 +506,7 @@ export function LayoutLab() {
           </details>
 
           <details>
-            <summary>Review wrappers, breakout lanes, and utilities</summary>
+            <summary>View wrappers and utilities</summary>
             <div className="wrapper-atlas ly-stack ly-gap-4">
               <div className="ly-stack ly-gap-4">
                 <div

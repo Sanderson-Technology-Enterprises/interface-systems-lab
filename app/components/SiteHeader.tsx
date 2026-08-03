@@ -1,17 +1,34 @@
+import type { NavigationItem } from "../data/navigation";
 import { SITE, withBasePath } from "../lib/site";
 import { ResponsiveNavigation } from "./ResponsiveNavigation";
 
 type SiteHeaderProps = {
-  companyUrl: string;
+  actionItems: readonly NavigationItem[];
+  brandHref: string;
+  menuLabel: string;
+  navigationItems: readonly NavigationItem[];
+  presentation: "responsive" | "disclosure";
 };
 
-export function SiteHeader({ companyUrl }: SiteHeaderProps) {
+export function SiteHeader({
+  actionItems,
+  brandHref,
+  menuLabel,
+  navigationItems,
+  presentation,
+}: SiteHeaderProps) {
+  const resolvedBrandHref = brandHref.startsWith("/")
+    ? withBasePath(brandHref)
+    : brandHref;
+
   return (
-    <header className="site-header ly-header ly-header--sticky">
+    <header
+      className={`site-header site-header--${presentation} ly-header ly-header--sticky`}
+    >
       <div className="site-header-inner ly-wrapper">
         <a
           className="brand ly-cluster ly-gap-2"
-          href="#top"
+          href={resolvedBrandHref}
           aria-label="Interface Systems Lab home"
         >
           {/* The explicit helper keeps this rendered asset correct in local and Pages builds. */}
@@ -33,8 +50,10 @@ export function SiteHeader({ companyUrl }: SiteHeaderProps) {
         </a>
 
         <ResponsiveNavigation
-          companyUrl={companyUrl}
-          repositoryUrl={SITE.repository}
+          actionItems={actionItems}
+          items={navigationItems}
+          menuLabel={menuLabel}
+          presentation={presentation}
         />
       </div>
     </header>
