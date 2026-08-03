@@ -204,7 +204,8 @@ export default function Home() {
         presentation="responsive"
       />
 
-      <main id="main-content">
+      {/* A programmatic focus target lets the skip link transfer focus reliably. */}
+      <main id="main-content" tabIndex={-1}>
         <section
           className="hero home-hero ly-wrapper ly-section ly-split ly-gap-8 ly-items-center"
           id="top"

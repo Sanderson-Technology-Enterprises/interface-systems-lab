@@ -78,7 +78,8 @@ export default function Lab() {
         presentation="disclosure"
       />
 
-      <main id="main-content">
+      {/* A programmatic focus target lets the skip link transfer focus reliably. */}
+      <main id="main-content" tabIndex={-1}>
         <section
           className="hero lab-hero ly-wrapper ly-section ly-split ly-gap-8 ly-items-center"
           id="top"

@@ -92,10 +92,13 @@ test("homepage and lab remain collision-free across the responsive matrix", asyn
     for (const route of ["./", "./lab/"]) {
       await page.goto(route);
       await expect(page.locator("h1")).toHaveCount(1);
-      await expect(page.locator("main#main-content")).toHaveCount(1);
+      const mainContent = page.locator("main#main-content");
+      await expect(mainContent).toHaveCount(1);
       const skipLink = page.getByRole("link", { name: "Skip to main content" });
       await skipLink.focus();
       await expect(skipLink).toBeFocused();
+      await skipLink.press("Enter");
+      await expect(mainContent).toBeFocused();
 
       const menu = page.getByRole("button", {
         name: /Open menu|Open lab sections/,
