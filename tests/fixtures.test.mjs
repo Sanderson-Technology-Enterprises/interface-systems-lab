@@ -64,11 +64,11 @@ const expectedPackages = {
 const expectedAssets = {
   "ui-visual": {
     export: "ui-style-kit-css/visual.css",
-    target: "assets/ui-style-kit-css/2.1.0/ui-style-kit.visual.css",
+    target: "assets/ui-style-kit-css/2.2.0/ui-style-kit.visual.css",
   },
   "ui-theme": {
     export: "ui-style-kit-css/interactive-surface-theme.css",
-    target: "assets/ui-style-kit-css/2.1.0/interactive-surface-theme.css",
+    target: "assets/ui-style-kit-css/2.2.0/interactive-surface-theme.css",
   },
   "icon-css": {
     export: "ui-style-kit-icons/css.css",
@@ -76,15 +76,15 @@ const expectedAssets = {
   },
   "interaction-core": {
     export: "interactive-surface-css/state-core.css",
-    target: "assets/interactive-surface-css/1.5.0/state-core.css",
+    target: "assets/interactive-surface-css/1.6.0/state-core.css",
   },
   "interaction-standalone": {
     export: "interactive-surface-css/standalone-preset.css",
-    target: "assets/interactive-surface-css/1.5.0/standalone-preset.css",
+    target: "assets/interactive-surface-css/1.6.0/standalone-preset.css",
   },
   "layout-core": {
     export: "layout-style-css",
-    target: "assets/layout-style-css/3.0.0/layout-style-css.css",
+    target: "assets/layout-style-css/3.0.1/layout-style-css.css",
   },
 };
 
@@ -299,7 +299,7 @@ test("validation rejects unsafe inputs before replacing generated output", async
           "ui-style-kit-css": "9.9.9",
         },
       },
-      pattern: /ui-style-kit-css.*expected 9\.9\.9.*found 2\.1\.0/i,
+      pattern: /ui-style-kit-css.*expected 9\.9\.9.*found 2\.2\.0/i,
     },
     {
       label: "missing export",
@@ -432,10 +432,10 @@ test("copied package styles are byte-identical to their public exports", async (
   }
 
   const expectedVersions = {
-    "ui-style-kit-css": "2.1.0",
+    "ui-style-kit-css": "2.2.0",
     "ui-style-kit-icons": "1.0.0",
-    "interactive-surface-css": "1.5.0",
-    "layout-style-css": "3.0.0",
+    "interactive-surface-css": "1.6.0",
+    "layout-style-css": "3.0.1",
   };
   for (const [packageName, expectedVersion] of Object.entries(
     expectedVersions,
@@ -491,8 +491,11 @@ test("each fixture uses only its ordered local styles and semantic proof hooks",
     assert.doesNotMatch(html, /(?:href|src)="\//i);
     assert.doesNotMatch(
       html,
-      /class="[^"]*saas-button[^"]*interactive-surface|class="[^"]*interactive-surface[^"]*saas-button/,
+      /class="[^"]*ui-button[^"]*interactive-surface|class="[^"]*interactive-surface[^"]*ui-button/,
     );
+    assert.match(html, /class="[^"]*\bui-card\b[^"\n]*"[^>]*data-proof-paint/);
+    assert.match(html, /class="[^"]*\bui-field\b/);
+    assert.match(html, /class="[^"]*\bui-input\b/);
     const uiControl = html.match(
       /<button\b[^>]*data-proof-ui-control[^>]*>/,
     )?.[0];
@@ -501,14 +504,12 @@ test("each fixture uses only its ordered local styles and semantic proof hooks",
     )?.[0];
     const pressed = html.match(/<button\b[^>]*data-proof-pressed[^>]*>/)?.[0];
     assert.ok(uiControl, `${id}: missing UI button proof`);
-    assert.match(
-      uiControl,
-      /class="[^"]*\bsaas-button\b[^"]*\bsaas-button-primary\b/,
-    );
+    assert.match(uiControl, /class="[^"]*\bui-button\b/);
+    assert.match(uiControl, /data-ui-variant="primary"/);
     assert.doesNotMatch(uiControl, /\binteractive-surface\b/);
     assert.ok(interaction, `${id}: missing interaction proof`);
     assert.match(interaction, /class="[^"]*\binteractive-surface\b/);
-    assert.doesNotMatch(interaction, /\bsaas-button(?:-|\b)/);
+    assert.doesNotMatch(interaction, /\bui-button(?:-|\b)/);
     assert.ok(pressed, `${id}: missing pressed proof`);
     assert.match(pressed, /class="[^"]*\binteractive-surface\b/);
     assert.match(pressed, /aria-pressed="true"/);

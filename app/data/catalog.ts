@@ -72,6 +72,56 @@ export type UiTheme =
 
 export type UiMode = "light" | "dark" | "contrast";
 
+export type UiSemanticComponentSuffix =
+  | "button"
+  | "icon-button"
+  | "card"
+  | "field"
+  | "label"
+  | "help-text"
+  | "input"
+  | "select"
+  | "textarea"
+  | "check"
+  | "check-control"
+  | "radio"
+  | "radio-control"
+  | "switch"
+  | "switch-track"
+  | "switch-thumb"
+  | "badge"
+  | "alert"
+  | "alert-title"
+  | "alert-body"
+  | "nav"
+  | "nav-link"
+  | "table"
+  | "table-wrap"
+  | "progress"
+  | "progress-bar"
+  | "toolbar"
+  | "spinner"
+  | "tooltip";
+
+type UiSemanticSelectorEntry = {
+  readonly selector: `.ui-${string}`;
+  readonly sourceSuffix: UiSemanticComponentSuffix;
+};
+
+export type UiSemanticComponentApi = {
+  readonly presetSwitchAttribute: "data-ui";
+  readonly selectorsByRole: Readonly<
+    Record<string, readonly UiSemanticSelectorEntry[]>
+  >;
+  readonly variantAttribute: {
+    readonly name: "data-ui-variant";
+    readonly neutral: "omitted";
+    readonly valuesBySelector: Readonly<
+      Record<`.ui-${string}`, readonly string[]>
+    >;
+  };
+};
+
 type PublishedUiManifest = {
   readonly presets: readonly {
     readonly id: string;
@@ -80,6 +130,7 @@ type PublishedUiManifest = {
   }[];
   readonly themes: readonly string[];
   readonly modes: readonly string[];
+  readonly semanticComponentApi: UiSemanticComponentApi;
 };
 
 type UiPresetEntry = {
@@ -107,6 +158,25 @@ export const UI_THEMES = Object.freeze([
 export const UI_MODES = Object.freeze([
   ...publishedUiManifest.modes,
 ]) as readonly UiMode[];
+
+export const UI_SEMANTIC_COMPONENT_API =
+  publishedUiManifest.semanticComponentApi;
+
+// Stable semantic selectors own cross-preset component paint. Preset-prefixed
+// classes remain available for advanced typography, geometry, and extras.
+export const UI_SEMANTIC_CLASS_BY_SUFFIX = Object.freeze(
+  Object.fromEntries(
+    Object.values(UI_SEMANTIC_COMPONENT_API.selectorsByRole)
+      .flat()
+      .map(({ selector, sourceSuffix }) => [sourceSuffix, selector.slice(1)]),
+  ),
+) as Readonly<Record<UiSemanticComponentSuffix, `ui-${string}`>>;
+
+export function getUiSemanticClass(
+  suffix: UiSemanticComponentSuffix,
+): `ui-${string}` {
+  return UI_SEMANTIC_CLASS_BY_SUFFIX[suffix];
+}
 
 export function getUiPrefix(preset: UiPreset): string {
   const match = UI_PRESETS.find((entry) => entry.id === preset);

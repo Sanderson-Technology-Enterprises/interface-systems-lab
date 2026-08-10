@@ -3,7 +3,11 @@
 import uiManifest from "ui-style-kit-css/manifest.json";
 import { useEffect, useRef, useState, type CSSProperties } from "react";
 
-import { getUiPrefix, type UiPreset } from "../../data/catalog";
+import {
+  getUiPrefix,
+  getUiSemanticClass,
+  type UiPreset,
+} from "../../data/catalog";
 import { NativeDialogDemo } from "../NativeDialogDemo";
 import { useLabConfiguration } from "../LabExperience";
 
@@ -239,6 +243,9 @@ function PresetExtraRecipe({ prefix, preset }: VisualInventoryProps) {
 
 function VisualInventory({ prefix, preset }: VisualInventoryProps) {
   const c = (suffix: string) => uiClass(prefix, suffix);
+  // Semantic classes keep component markup stable across preset switches;
+  // `c()` is reserved for advanced and preset-only visual capabilities.
+  const s = getUiSemanticClass;
   const hasRichChoiceRecipe = richChoicePresets.has(preset);
   const extras = uiManifest.classApi.presetExtras[preset];
   const progressStyle = {
@@ -296,10 +303,10 @@ function VisualInventory({ prefix, preset }: VisualInventoryProps) {
         className="ui-surface-grid"
         data-ui-category="surfaces"
         data-specimen="ui-surfaces"
-        aria-label="Prefixed surfaces"
+        aria-label="Semantic and advanced surfaces"
       >
         <article
-          className={`${c("card")} ui-paint-signature ly-stack ly-gap-2`}
+          className={`${s("card")} ui-paint-signature ly-stack ly-gap-2`}
           data-specimen="ui-paint-signature"
           data-ui-suffix="card"
         >
@@ -338,7 +345,7 @@ function VisualInventory({ prefix, preset }: VisualInventoryProps) {
           Inset
         </div>
         <article
-          className={`${c("card")} ${c("hover-lift")}`}
+          className={`${s("card")} ${c("hover-lift")}`}
           data-ui-suffix="hover-lift"
         >
           Preset hover lift
@@ -351,52 +358,56 @@ function VisualInventory({ prefix, preset }: VisualInventoryProps) {
           className="ui-button-board"
           data-ui-category="buttons"
           data-specimen="ui-buttons"
-          aria-label="Prefixed buttons"
+          aria-label="Semantic buttons"
         >
-          <button className={c("button")} data-ui-suffix="button" type="button">
+          <button className={s("button")} data-ui-suffix="button" type="button">
             Base
           </button>
           <button
-            className={`${c("button")} ${c("button-primary")}`}
+            className={s("button")}
             data-ui-suffix="button-primary"
+            data-ui-variant="primary"
             type="button"
           >
             Primary
           </button>
           <button
-            className={`${c("button")} ${c("button-secondary")}`}
+            className={s("button")}
             data-ui-suffix="button-secondary"
+            data-ui-variant="secondary"
             type="button"
           >
             Secondary
           </button>
           <button
-            className={`${c("button")} ${c("button-danger")}`}
+            className={s("button")}
             data-ui-suffix="button-danger"
+            data-ui-variant="danger"
             type="button"
           >
             Danger
           </button>
           <button
-            className={`${c("button")} ${c("button-ghost")}`}
+            className={s("button")}
             data-ui-suffix="button-ghost"
+            data-ui-variant="ghost"
             type="button"
           >
             Ghost
           </button>
           <button
-            className={c("icon-button")}
+            className={s("icon-button")}
             data-ui-suffix="icon-button"
             type="button"
             aria-label="Add specimen"
           >
             +
           </button>
-          <button className={c("button")} type="button">
+          <button className={s("button")} type="button">
             Copy token
           </button>
           <button
-            className={`${c("button")} ${c("disabled")}`}
+            className={`${s("button")} ${c("disabled")}`}
             data-ui-suffix="disabled"
             type="button"
             disabled
@@ -422,33 +433,36 @@ function VisualInventory({ prefix, preset }: VisualInventoryProps) {
             className="feedback-grid"
             data-ui-category="feedback"
             data-specimen="ui-feedback"
-            aria-label="Prefixed alerts"
+            aria-label="Semantic alerts"
           >
-            <article className={c("alert")} data-ui-suffix="alert">
-              <strong className={c("alert-title")} data-ui-suffix="alert-title">
+            <article className={s("alert")} data-ui-suffix="alert">
+              <strong className={s("alert-title")} data-ui-suffix="alert-title">
                 Informational status
               </strong>
-              <p className={c("alert-body")} data-ui-suffix="alert-body">
+              <p className={s("alert-body")} data-ui-suffix="alert-body">
                 The same semantic structure accepts every active preset.
               </p>
             </article>
             <article
-              className={`${c("alert")} ${c("alert-success")}`}
+              className={s("alert")}
               data-ui-suffix="alert-success"
+              data-ui-variant="success"
             >
               <strong>Success</strong>
               <span>All interface layers agree.</span>
             </article>
             <article
-              className={`${c("alert")} ${c("alert-warning")}`}
+              className={s("alert")}
               data-ui-suffix="alert-warning"
+              data-ui-variant="warning"
             >
               <strong>Warning</strong>
               <span>Review platform-owned behavior.</span>
             </article>
             <article
-              className={`${c("alert")} ${c("alert-danger")}`}
+              className={s("alert")}
               data-ui-suffix="alert-danger"
+              data-ui-variant="danger"
             >
               <strong>Danger</strong>
               <span>Invalid state needs correction.</span>
@@ -459,21 +473,20 @@ function VisualInventory({ prefix, preset }: VisualInventoryProps) {
             className="badge-board"
             data-ui-category="badges"
             data-specimen="ui-badges"
-            aria-label="Prefixed badges"
+            aria-label="Semantic badges"
           >
             {[
-              ["badge", "Base"],
-              ["badge-primary", "Primary"],
-              ["badge-secondary", "Secondary"],
-              ["badge-success", "Success"],
-              ["badge-warning", "Warning"],
-              ["badge-danger", "Danger"],
-            ].map(([suffix, label]) => (
+              ["badge", "Base", undefined],
+              ["badge-primary", "Primary", "primary"],
+              ["badge-secondary", "Secondary", "secondary"],
+              ["badge-success", "Success", "success"],
+              ["badge-warning", "Warning", "warning"],
+              ["badge-danger", "Danger", "danger"],
+            ].map(([suffix, label, variant]) => (
               <span
-                className={
-                  suffix === "badge" ? c("badge") : `${c("badge")} ${c(suffix)}`
-                }
+                className={s("badge")}
                 data-ui-suffix={suffix}
+                data-ui-variant={variant}
                 key={suffix}
               >
                 {label}
@@ -490,25 +503,26 @@ function VisualInventory({ prefix, preset }: VisualInventoryProps) {
             className="ui-field-grid"
             data-ui-category="fields"
             data-specimen="ui-fields"
-            aria-label="Prefixed fields"
+            aria-label="Semantic fields"
           >
-            <label className={c("field")} data-ui-suffix="field">
-              <span className={c("label")} data-ui-suffix="label">
+            <label className={s("field")} data-ui-suffix="field">
+              <span className={s("label")} data-ui-suffix="label">
                 Project name
               </span>
               <input
-                className={c("input")}
+                className={s("input")}
                 data-ui-suffix="input"
                 defaultValue="Interface Systems Lab"
               />
-              <span className={c("help-text")} data-ui-suffix="help-text">
-                Prefixed fields remain optional over the native baseline.
+              <span className={s("help-text")} data-ui-suffix="help-text">
+                Semantic fields keep their markup while the selected preset
+                paints them.
               </span>
             </label>
-            <label className={c("field")}>
-              <span className={c("label")}>Review lane</span>
+            <label className={s("field")}>
+              <span className={s("label")}>Review lane</span>
               <select
-                className={c("select")}
+                className={s("select")}
                 data-ui-suffix="select"
                 defaultValue="qa"
               >
@@ -516,10 +530,10 @@ function VisualInventory({ prefix, preset }: VisualInventoryProps) {
                 <option value="qa">Quality assurance</option>
               </select>
             </label>
-            <label className={c("field")}>
-              <span className={c("label")}>Notes</span>
+            <label className={s("field")}>
+              <span className={s("label")}>Notes</span>
               <textarea
-                className={c("textarea")}
+                className={s("textarea")}
                 data-ui-suffix="textarea"
                 defaultValue="Native semantics, preset paint, and library-owned states."
               />
@@ -539,23 +553,23 @@ function VisualInventory({ prefix, preset }: VisualInventoryProps) {
                   the fully visible native controls below remain the functional
                   cross-preset baseline.
                 </p>
-                <label className={c("check")} data-ui-suffix="check">
+                <label className={s("check")} data-ui-suffix="check">
                   <input type="checkbox" defaultChecked />
                   <span
-                    className={c("check-control")}
+                    className={s("check-control")}
                     data-ui-suffix="check-control"
                     aria-hidden="true"
                   />
                   Include audit notes
                 </label>
-                <label className={c("radio")} data-ui-suffix="radio">
+                <label className={s("radio")} data-ui-suffix="radio">
                   <input
                     type="radio"
                     name="prefixed-review-lane"
                     defaultChecked
                   />
                   <span
-                    className={c("radio-control")}
+                    className={s("radio-control")}
                     data-ui-suffix="radio-control"
                     aria-hidden="true"
                   />
@@ -577,15 +591,15 @@ function VisualInventory({ prefix, preset }: VisualInventoryProps) {
             aria-label="Switch recipe"
           >
             {hasRichChoiceRecipe ? (
-              <label className={c("switch")} data-ui-suffix="switch">
+              <label className={s("switch")} data-ui-suffix="switch">
                 <input type="checkbox" role="switch" defaultChecked />
                 <span
-                  className={c("switch-track")}
+                  className={s("switch-track")}
                   data-ui-suffix="switch-track"
                   aria-hidden="true"
                 >
                   <span
-                    className={c("switch-thumb")}
+                    className={s("switch-thumb")}
                     data-ui-suffix="switch-thumb"
                   />
                 </span>
@@ -608,7 +622,7 @@ function VisualInventory({ prefix, preset }: VisualInventoryProps) {
             aria-label="Custom progress"
           >
             <div
-              className={c("progress")}
+              className={s("progress")}
               data-ui-suffix="progress"
               role="progressbar"
               aria-label="Visual review progress"
@@ -618,7 +632,7 @@ function VisualInventory({ prefix, preset }: VisualInventoryProps) {
               style={progressStyle}
             >
               <span
-                className={c("progress-bar")}
+                className={s("progress-bar")}
                 data-ui-suffix="progress-bar"
               />
             </div>
@@ -631,19 +645,19 @@ function VisualInventory({ prefix, preset }: VisualInventoryProps) {
             aria-label="Loading indicators"
           >
             <span
-              className={c("spinner")}
+              className={s("spinner")}
               data-ui-suffix="spinner"
               role="status"
               aria-label="Loading"
             />
             <span
-              className={`${c("spinner")} ${c("spinner-sm")}`}
+              className={`${s("spinner")} ${c("spinner-sm")}`}
               data-ui-suffix="spinner-sm"
               role="status"
               aria-label="Loading small"
             />
             <span
-              className={`${c("spinner")} ${c("spinner-lg")}`}
+              className={`${s("spinner")} ${c("spinner-lg")}`}
               data-ui-suffix="spinner-lg"
               role="status"
               aria-label="Loading large"
@@ -669,14 +683,14 @@ function VisualInventory({ prefix, preset }: VisualInventoryProps) {
                 data-tooltip-position="top"
               >
                 <button
-                  className={c("button")}
+                  className={s("button")}
                   type="button"
                   aria-describedby="ui-tooltip-top"
                 >
                   Top
                 </button>
                 <span
-                  className={`${c("tooltip")} ${c("tooltip-top")}`}
+                  className={`${s("tooltip")} ${c("tooltip-top")}`}
                   data-ui-suffix="tooltip-top"
                   id="ui-tooltip-top"
                   role="tooltip"
@@ -695,14 +709,14 @@ function VisualInventory({ prefix, preset }: VisualInventoryProps) {
                 data-tooltip-position="right"
               >
                 <button
-                  className={c("button")}
+                  className={s("button")}
                   type="button"
                   aria-describedby="ui-tooltip-right"
                 >
                   Right
                 </button>
                 <span
-                  className={`${c("tooltip")} ${c("tooltip-right")}`}
+                  className={`${s("tooltip")} ${c("tooltip-right")}`}
                   data-ui-suffix="tooltip-right"
                   id="ui-tooltip-right"
                   role="tooltip"
@@ -717,14 +731,14 @@ function VisualInventory({ prefix, preset }: VisualInventoryProps) {
                 data-tooltip-position="bottom"
               >
                 <button
-                  className={c("button")}
+                  className={s("button")}
                   type="button"
                   aria-describedby="ui-tooltip-bottom"
                 >
                   Bottom
                 </button>
                 <span
-                  className={`${c("tooltip")} ${c("tooltip-bottom")}`}
+                  className={`${s("tooltip")} ${c("tooltip-bottom")}`}
                   data-ui-suffix="tooltip-bottom"
                   id="ui-tooltip-bottom"
                   role="tooltip"
@@ -739,14 +753,14 @@ function VisualInventory({ prefix, preset }: VisualInventoryProps) {
                 data-tooltip-position="left"
               >
                 <button
-                  className={c("button")}
+                  className={s("button")}
                   type="button"
                   aria-describedby="ui-tooltip-left"
                 >
                   Left
                 </button>
                 <span
-                  className={`${c("tooltip")} ${c("tooltip-left")}`}
+                  className={`${s("tooltip")} ${c("tooltip-left")}`}
                   data-ui-suffix="tooltip-left"
                   id="ui-tooltip-left"
                   role="tooltip"
@@ -757,7 +771,7 @@ function VisualInventory({ prefix, preset }: VisualInventoryProps) {
               </span>
             </div>
             <span
-              className={c("tooltip")}
+              className={s("tooltip")}
               data-ui-suffix="tooltip"
               role="tooltip"
             >
@@ -776,35 +790,35 @@ function VisualInventory({ prefix, preset }: VisualInventoryProps) {
           aria-label="Navigation and data components"
         >
           <nav
-            className={c("nav")}
+            className={s("nav")}
             data-ui-suffix="nav"
             aria-label="UI specimen navigation"
           >
             <a
-              className={c("nav-link")}
+              className={s("nav-link")}
               data-ui-suffix="nav-link"
               href="#ui-native"
               aria-current="page"
             >
               Components
             </a>
-            <a className={c("nav-link")} href="#interactions">
+            <a className={s("nav-link")} href="#interactions">
               States
             </a>
           </nav>
           <div
-            className={c("toolbar")}
+            className={s("toolbar")}
             data-ui-suffix="toolbar"
             role="toolbar"
             aria-label="Specimen toolbar"
           >
             <strong>Review queue</strong>
-            <button className={c("button")} type="button">
+            <button className={s("button")} type="button">
               Filter
             </button>
           </div>
-          <div className={c("table-wrap")} data-ui-suffix="table-wrap">
-            <table className={c("table")} data-ui-suffix="table">
+          <div className={s("table-wrap")} data-ui-suffix="table-wrap">
+            <table className={s("table")} data-ui-suffix="table">
               <caption>Ownership by layer</caption>
               <thead>
                 <tr>

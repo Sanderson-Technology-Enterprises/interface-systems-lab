@@ -1166,7 +1166,7 @@ test("renders the production metadata and complete resource directory", async ({
           name: "layout-style-css",
           programmingLanguage: "CSS",
           url: "https://www.npmjs.com/package/layout-style-css",
-          version: "3.0.0",
+          version: "3.0.1",
         },
       },
       {
@@ -1175,7 +1175,7 @@ test("renders the production metadata and complete resource directory", async ({
           name: "ui-style-kit-css",
           programmingLanguage: "CSS",
           url: "https://www.npmjs.com/package/ui-style-kit-css",
-          version: "2.1.0",
+          version: "2.2.0",
         },
       },
       {
@@ -1193,7 +1193,7 @@ test("renders the production metadata and complete resource directory", async ({
           name: "interactive-surface-css",
           programmingLanguage: "CSS",
           url: "https://www.npmjs.com/package/interactive-surface-css",
-          version: "1.5.0",
+          version: "1.6.0",
         },
       },
     ],
@@ -1229,10 +1229,10 @@ test("renders the production metadata and complete resource directory", async ({
   });
 
   for (const [name, version] of [
-    ["layout-style-css", "3.0.0"],
-    ["ui-style-kit-css", "2.1.0"],
+    ["layout-style-css", "3.0.1"],
+    ["ui-style-kit-css", "2.2.0"],
     ["ui-style-kit-icons", "1.0.0"],
-    ["interactive-surface-css", "1.5.0"],
+    ["interactive-surface-css", "1.6.0"],
   ]) {
     const packageEntry = page.locator(`[data-package="${name}"]`);
     await expect(packageEntry.getByRole("heading", { name })).toBeAttached();
