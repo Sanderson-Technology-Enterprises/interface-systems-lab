@@ -25,20 +25,20 @@ const defaultGeneratedRoot = path.join(
 );
 
 export const EXPECTED_PACKAGE_VERSIONS = Object.freeze({
-  "interactive-surface-css": "1.5.0",
-  "layout-style-css": "3.0.0",
-  "ui-style-kit-css": "2.1.0",
+  "interactive-surface-css": "1.6.0",
+  "layout-style-css": "3.0.1",
+  "ui-style-kit-css": "2.2.0",
   "ui-style-kit-icons": "1.0.0",
 });
 
 export const FIXTURE_ASSETS = Object.freeze({
   "ui-visual": Object.freeze({
     export: "ui-style-kit-css/visual.css",
-    target: "assets/ui-style-kit-css/2.1.0/ui-style-kit.visual.css",
+    target: "assets/ui-style-kit-css/2.2.0/ui-style-kit.visual.css",
   }),
   "ui-theme": Object.freeze({
     export: "ui-style-kit-css/interactive-surface-theme.css",
-    target: "assets/ui-style-kit-css/2.1.0/interactive-surface-theme.css",
+    target: "assets/ui-style-kit-css/2.2.0/interactive-surface-theme.css",
   }),
   "icon-css": Object.freeze({
     export: "ui-style-kit-icons/css.css",
@@ -46,15 +46,15 @@ export const FIXTURE_ASSETS = Object.freeze({
   }),
   "interaction-core": Object.freeze({
     export: "interactive-surface-css/state-core.css",
-    target: "assets/interactive-surface-css/1.5.0/state-core.css",
+    target: "assets/interactive-surface-css/1.6.0/state-core.css",
   }),
   "interaction-standalone": Object.freeze({
     export: "interactive-surface-css/standalone-preset.css",
-    target: "assets/interactive-surface-css/1.5.0/standalone-preset.css",
+    target: "assets/interactive-surface-css/1.6.0/standalone-preset.css",
   }),
   "layout-core": Object.freeze({
     export: "layout-style-css",
-    target: "assets/layout-style-css/3.0.0/layout-style-css.css",
+    target: "assets/layout-style-css/3.0.1/layout-style-css.css",
   }),
 });
 
@@ -283,13 +283,13 @@ ${iconModuleMarkup}
         <p>${escapeHtml(fixture.summary)}</p>
       </header>
       <section class="ly-grid" data-proof-layout aria-label="Layout proof">
-        <article class="saas-card ly-stack ly-gap-4" data-proof-paint>
+        <article class="ui-card ly-stack ly-gap-4" data-proof-paint>
           <h2 class="saas-heading">Shared semantic specimen</h2>
-          <label class="saas-field" for="fixture-field">
-            <span class="saas-label">Project name</span>
-            <input class="saas-input" id="fixture-field" type="text" placeholder="Interface system">
+          <label class="ui-field" for="fixture-field">
+            <span class="ui-label">Project name</span>
+            <input class="ui-input" id="fixture-field" type="text" placeholder="Interface system">
           </label>
-          <button class="saas-button saas-button-primary" type="button" data-proof-ui-control>
+          <button class="ui-button" type="button" data-ui-variant="primary" data-proof-ui-control>
             UI-owned control
           </button>
         </article>

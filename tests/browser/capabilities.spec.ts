@@ -16,6 +16,16 @@ type PublishedUiManifest = {
   };
   modes: string[];
   presets: { id: string; prefix: string }[];
+  semanticComponentApi: {
+    selectorsByRole: Record<
+      string,
+      { selector: string; sourceSuffix: string }[]
+    >;
+    variantAttribute: {
+      name: string;
+      valuesBySelector: Record<string, string[]>;
+    };
+  };
   themes: string[];
 };
 
@@ -1034,9 +1044,7 @@ test("UI laboratory applies every manifest preset, theme, and mode with computed
   for (const preset of uiManifest.presets) {
     await uiSelect.selectOption(preset.id);
     await expect(root).toHaveAttribute("data-ui", preset.id);
-    await expect(paintSpecimen).toHaveClass(
-      new RegExp(`(?:^|\\s)${preset.prefix}-card(?:\\s|$)`),
-    );
+    await expect(paintSpecimen).toHaveClass(/(?:^|\s)ui-card(?:\s|$)/);
 
     const wrongPrefixClasses = await page
       .locator("#ui-native [class]")
@@ -1125,21 +1133,54 @@ test("UI laboratory renders the universal visual categories and standalone butto
     uiManifest.classApi.universalVisualSuffixes.toSorted(),
   );
 
+  const semanticClassesBySuffix = Object.fromEntries(
+    Object.values(uiManifest.semanticComponentApi.selectorsByRole)
+      .flat()
+      .map(({ selector, sourceSuffix }) => [sourceSuffix, selector.slice(1)]),
+  );
+  for (const [selector, variants] of Object.entries(
+    uiManifest.semanticComponentApi.variantAttribute.valuesBySelector,
+  )) {
+    const semanticClass = selector.slice(1);
+    const sourceSuffix = Object.values(
+      uiManifest.semanticComponentApi.selectorsByRole,
+    )
+      .flat()
+      .find((entry) => entry.selector === selector)?.sourceSuffix;
+    expect(sourceSuffix).toBeTruthy();
+    for (const variant of variants) {
+      semanticClassesBySuffix[`${sourceSuffix}-${variant}`] = semanticClass;
+    }
+  }
+
   const invalidSuffixClasses = await page
     .locator("#ui-native [data-ui-suffix]")
-    .evaluateAll((elements) =>
-      elements
-        .map((element) => {
-          const suffix = element.getAttribute("data-ui-suffix");
-          return {
-            classes: [...element.classList],
-            suffix,
-          };
-        })
-        .filter(
-          ({ classes, suffix }) =>
-            suffix === null || !classes.includes(`saas-${suffix}`),
-        ),
+    .evaluateAll(
+      (elements, semanticClasses) =>
+        elements
+          .map((element) => {
+            const suffix = element.getAttribute("data-ui-suffix");
+            const semanticClass = suffix ? semanticClasses[suffix] : undefined;
+            const expectedClass = semanticClass ?? `saas-${suffix}`;
+            const expectedVariant =
+              semanticClass && suffix?.startsWith(`${semanticClass.slice(3)}-`)
+                ? suffix.slice(semanticClass.length - 2)
+                : null;
+            return {
+              classes: [...element.classList],
+              expectedClass,
+              expectedVariant,
+              suffix,
+              variant: element.getAttribute("data-ui-variant"),
+            };
+          })
+          .filter(
+            ({ classes, expectedClass, expectedVariant, suffix, variant }) =>
+              suffix === null ||
+              !classes.includes(expectedClass) ||
+              (expectedVariant !== null && variant !== expectedVariant),
+          ),
+      semanticClassesBySuffix,
     );
   expect(invalidSuffixClasses).toEqual([]);
 
@@ -1172,6 +1213,55 @@ test("UI laboratory renders the universal visual categories and standalone butto
   expect(pillGeometry.paddingEnd).toBeGreaterThan(0);
 });
 
+test("UI semantic component classes remain stable while preset paint changes", async ({
+  page,
+}) => {
+  const root = page.locator(".experience.ly-root");
+  const uiSelect = page.getByLabel(/02.*Visual style/);
+  const paintSpecimen = page.locator('[data-specimen="ui-paint-signature"]');
+  const stableSuffixes = [
+    "card",
+    "button-primary",
+    "alert-warning",
+    "badge-success",
+    "input",
+    "progress",
+    "nav",
+    "table",
+  ];
+
+  const readStableClasses = () =>
+    Promise.all(
+      stableSuffixes.map(async (suffix) => ({
+        className: await page
+          .locator(`#ui-native [data-ui-suffix="${suffix}"]`)
+          .first()
+          .getAttribute("class"),
+        suffix,
+      })),
+    );
+
+  await page.locator("#ui-native details").evaluateAll((details) => {
+    for (const detail of details) (detail as HTMLDetailsElement).open = true;
+  });
+  await uiSelect.selectOption("minimal-saas");
+  await expect(root).toHaveAttribute("data-ui", "minimal-saas");
+  const initialClasses = await readStableClasses();
+  const initialPaint = await readPaintSignature(paintSpecimen);
+
+  await uiSelect.selectOption("retro-glass");
+  await expect(root).toHaveAttribute("data-ui", "retro-glass");
+  await page.waitForTimeout(180);
+
+  expect(await readStableClasses()).toEqual(initialClasses);
+  expect(await readPaintSignature(paintSpecimen)).not.toEqual(initialPaint);
+  for (const { className } of initialClasses) {
+    expect(className).toMatch(
+      /(?:^|\s)ui-(?:alert|badge|button|card|input|nav|progress|table)(?:\s|$)/,
+    );
+  }
+});
+
 test("UI laboratory positions all four tooltip directions from real anchors", async ({
   page,
 }) => {
@@ -1185,7 +1275,7 @@ test("UI laboratory positions all four tooltip directions from real anchors", as
     );
     const tooltip = anchor.getByRole("tooltip");
     await expect(anchor).toHaveCount(1);
-    await expect(tooltip).toHaveClass(/\bsaas-tooltip\b/);
+    await expect(tooltip).toHaveClass(/\bui-tooltip\b/);
     await expect(tooltip).toHaveClass(
       new RegExp(`(?:^|\\s)saas-tooltip-${position}(?:\\s|$)`),
     );
