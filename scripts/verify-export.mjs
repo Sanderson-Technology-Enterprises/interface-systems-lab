@@ -7,6 +7,9 @@ const repositoryRoot = path.resolve(
   "..",
 );
 const exportRoot = path.join(repositoryRoot, "out");
+const googleVerificationFile = "google5abb0289b99a9f42.html";
+const googleVerificationText =
+  "google-site-verification: google5abb0289b99a9f42.html";
 const basePath = "/interface-systems-lab";
 const siteUrl =
   "https://sanderson-technology-enterprises.github.io/interface-systems-lab/";
@@ -420,7 +423,12 @@ function validateStructuredData(index, lab, notFound, issues) {
   }
 }
 
-/** Validates the exact files GitHub Pages receives, rather than source intent. */
+/**
+ * Validates the exact files GitHub Pages receives, including the root-level
+ * verification resource, rather than relying on source intent.
+ *
+ * @returns {Promise<string[]>} Actionable problems found in the export.
+ */
 export async function collectExportIssues() {
   const issues = [];
   const index = (await readExportFile("index.html", issues)).toString("utf8");
@@ -440,6 +448,9 @@ export async function collectExportIssues() {
     "interface-systems-lab-social-card.png",
     issues,
   );
+  const googleVerification = (
+    await readExportFile(googleVerificationFile, issues)
+  ).toString("utf8");
   const shippingOutput = [
     index,
     lab,
@@ -566,6 +577,12 @@ export async function collectExportIssues() {
     issues,
   );
   requireText(index, "Design every layer.", "primary page content", issues);
+  requireExact(
+    googleVerification,
+    googleVerificationText,
+    "Google verification file contents",
+    issues,
+  );
   requireText(
     lab,
     "Configure the system. Inspect every layer.",

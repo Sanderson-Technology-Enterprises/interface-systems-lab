@@ -17,6 +17,9 @@ const repositoryRoot = path.resolve(
   "..",
 );
 const outRoot = path.join(repositoryRoot, "out");
+const googleVerificationFile = "google5abb0289b99a9f42.html";
+const googleVerificationText =
+  "google-site-verification: google5abb0289b99a9f42.html";
 const canonicalUrl =
   "https://sanderson-technology-enterprises.github.io/interface-systems-lab/";
 const labUrl = `${canonicalUrl}lab/`;
@@ -36,6 +39,15 @@ const staleLabUrls = [
   "https://foscat.github.io/interface-systems-lab/",
   "https://github.com/Foscat/interface-systems-lab",
 ];
+
+test("the Pages artifact publishes the exact Google verification file at its root", async () => {
+  const verificationText = await readFile(
+    path.join(outRoot, googleVerificationFile),
+    "utf8",
+  );
+
+  assert.equal(verificationText, googleVerificationText);
+});
 
 function structuredDataNodes(html) {
   return Array.from(
