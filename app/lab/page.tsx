@@ -59,6 +59,12 @@ const serializedLabStructuredData = serializeStructuredData(
   buildLabStructuredData(),
 );
 
+/**
+ * Renders the configurable package workbench and its focused laboratory
+ * sections under the shared Lab experience provider.
+ *
+ * @returns The exported Interface Systems Lab route.
+ */
 export default function Lab() {
   return (
     <LabExperience>

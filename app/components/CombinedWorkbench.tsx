@@ -12,6 +12,12 @@ function formatLabel(value: string): string {
     .join(" ");
 }
 
+/**
+ * Renders the task-oriented client workspace using the active interface
+ * configuration and Layout Style CSS workspace contracts.
+ *
+ * @returns The combined four-layer workbench section.
+ */
 export function CombinedWorkbench() {
   const { configuration, announce } = useLabConfiguration();
   const [saved, setSaved] = useState(false);

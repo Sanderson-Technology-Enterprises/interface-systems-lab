@@ -178,6 +178,12 @@ function CompanySection() {
   );
 }
 
+/**
+ * Renders the spacious-density overview route for the four-package interface
+ * system and its adoption paths.
+ *
+ * @returns The exported Interface Systems Lab homepage.
+ */
 export default function Home() {
   return (
     <div

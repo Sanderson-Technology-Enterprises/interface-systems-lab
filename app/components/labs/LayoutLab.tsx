@@ -40,6 +40,12 @@ function SpecimenLabel({ children }: SpecimenLabelProps) {
   );
 }
 
+/**
+ * Demonstrates the current Layout Style CSS wrappers, primitives, recipes, and
+ * utilities against the active interface configuration.
+ *
+ * @returns The interactive layout laboratory section.
+ */
 export function LayoutLab() {
   const { configuration } = useLabConfiguration();
   const prefix = getUiPrefix(configuration.ui);
