@@ -20,7 +20,7 @@ export const ECOSYSTEM_PACKAGES: readonly EcosystemPackage[] = [
   {
     name: "layout-style-css",
     displayName: "Layout Style CSS",
-    version: "3.0.1",
+    version: "3.1.0",
     layer: "Structure",
     summary:
       "Responsive shells, wrappers, grids, panes, and switchable layout personalities.",
@@ -88,7 +88,7 @@ export const ECOSYSTEM_PACKAGES: readonly EcosystemPackage[] = [
 ] as const;
 
 export const NPM_INSTALL =
-  "npm install ui-style-kit-css@2.2.0 ui-style-kit-icons@1.0.0 layout-style-css@3.0.1 interactive-surface-css@1.6.0";
+  "npm install ui-style-kit-css@2.2.0 ui-style-kit-icons@1.0.0 layout-style-css@3.1.0 interactive-surface-css@1.6.0";
 
 export const BUNDLER_IMPORTS = [
   'import "ui-style-kit-css/visual.css";',
@@ -136,7 +136,7 @@ export const CDN_LINKS = [
   {
     packageName: "layout-style-css",
     kind: "style",
-    href: "https://cdn.jsdelivr.net/npm/layout-style-css@3.0.1/dist/layout-style-css.min.css",
+    href: "https://cdn.jsdelivr.net/npm/layout-style-css@3.1.0/dist/layout-style-css.min.css",
   },
   iconCssCdn,
   iconRuntimeCdn,
@@ -239,7 +239,7 @@ export const ADOPTION_PATHS = [
     deprecated: false,
     snippets: adoptionSnippets(
       "layout-only",
-      "npm install layout-style-css@3.0.1",
+      "npm install layout-style-css@3.1.0",
       ['import "layout-style-css";'],
       [layoutCdn],
       "Install Layout Style CSS",
@@ -306,7 +306,7 @@ export const ADOPTION_PATHS = [
     deprecated: false,
     snippets: adoptionSnippets(
       "layout-ui",
-      "npm install layout-style-css@3.0.1 ui-style-kit-css@2.2.0",
+      "npm install layout-style-css@3.1.0 ui-style-kit-css@2.2.0",
       ['import "ui-style-kit-css/visual.css";', 'import "layout-style-css";'],
       [uiVisualCdn, layoutCdn],
       "Install Layout and UI",
@@ -342,7 +342,7 @@ export const ADOPTION_PATHS = [
     deprecated: false,
     snippets: adoptionSnippets(
       "layout-interactive",
-      "npm install layout-style-css@3.0.1 interactive-surface-css@1.6.0",
+      "npm install layout-style-css@3.1.0 interactive-surface-css@1.6.0",
       [
         'import "interactive-surface-css/standalone-preset.css";',
         'import "layout-style-css";',

@@ -12,6 +12,12 @@ function formatLabel(value: string): string {
     .join(" ");
 }
 
+/**
+ * Renders the task-oriented client workspace using the active interface
+ * configuration and Layout Style CSS workspace contracts.
+ *
+ * @returns The combined four-layer workbench section.
+ */
 export function CombinedWorkbench() {
   const { configuration, announce } = useLabConfiguration();
   const [saved, setSaved] = useState(false);
@@ -30,7 +36,7 @@ export function CombinedWorkbench() {
       id="workbench"
       aria-labelledby="workbench-title"
     >
-      <div className="ly-wrapper">
+      <div className="ly-wrapper ly-wrapper--workspace">
         <div className="section-heading ly-split ly-gap-6 ly-items-end">
           <div className="ly-stack ly-gap-2">
             <p className="section-label">Live client outcome</p>
@@ -47,6 +53,7 @@ export function CombinedWorkbench() {
           <article
             className="client-workspace"
             data-layout-recipe="app-shell"
+            data-ly-density="compact"
             data-ly-recipe="app-shell"
             aria-label="Northstar client delivery workspace"
           >

@@ -1166,7 +1166,7 @@ test("renders the production metadata and complete resource directory", async ({
           name: "layout-style-css",
           programmingLanguage: "CSS",
           url: "https://www.npmjs.com/package/layout-style-css",
-          version: "3.0.1",
+          version: "3.1.0",
         },
       },
       {
@@ -1229,7 +1229,7 @@ test("renders the production metadata and complete resource directory", async ({
   });
 
   for (const [name, version] of [
-    ["layout-style-css", "3.0.1"],
+    ["layout-style-css", "3.1.0"],
     ["ui-style-kit-css", "2.2.0"],
     ["ui-style-kit-icons", "1.0.0"],
     ["interactive-surface-css", "1.6.0"],

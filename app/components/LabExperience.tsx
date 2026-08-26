@@ -103,6 +103,14 @@ function sameConfiguration(
   return configurationKeys.every((key) => left[key] === right[key]);
 }
 
+/**
+ * Provides the configurable Lab state and the normal-density Layout Style CSS
+ * root shared by every laboratory section.
+ *
+ * @param props Component properties.
+ * @param props.children Laboratory sections rendered inside the shared root.
+ * @returns The configured Interface Systems Lab experience.
+ */
 export function LabExperience({ children }: LabExperienceProps) {
   const [configuration, setConfiguration] = useState<LabConfiguration>(() => ({
     ...DEFAULT_CONFIGURATION,
@@ -254,6 +262,7 @@ export function LabExperience({ children }: LabExperienceProps) {
     <LabConfigurationContext.Provider value={contextValue}>
       <div
         className="experience ly-root ly-page"
+        data-ly-density="normal"
         data-ly-layout={configuration.layout}
         data-ui={configuration.ui}
         data-theme={configuration.theme}

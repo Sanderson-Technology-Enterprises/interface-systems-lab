@@ -104,8 +104,6 @@
   }
 
   .site-header-inner {
-    --ly-cluster-gap: var(--ly-space-2);
-
     align-items: center;
   }
 

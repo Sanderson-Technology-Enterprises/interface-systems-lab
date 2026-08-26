@@ -78,7 +78,7 @@ const primitiveHooks = [
   ["media", ".ly-media"],
   ["reel", ".ly-reel"],
   ["frame", ".ly-frame"],
-  ["scroll", ".ly-scroll"],
+  ["scroll", ".ly-scroll.ly-scroll--bounded"],
   ["breakout", ".ly-wrapper.ly-wrapper--breakout"],
 ] as const;
 
@@ -93,13 +93,14 @@ const wrapperVariants = [
   "compact",
   "prose",
   "content",
+  "workspace",
   "wide",
   "full",
   "breakout",
 ] as const;
 
 const spacingUtilities = [
-  ...Array.from({ length: 5 }, (_, index) => `ly-gap-${index * 2}`),
+  ...Array.from({ length: 10 }, (_, index) => `ly-gap-${index}`),
   ...Array.from({ length: 5 }, (_, index) => `ly-pad-${index * 2}`),
 ];
 

@@ -178,10 +178,17 @@ function CompanySection() {
   );
 }
 
+/**
+ * Renders the spacious-density overview route for the four-package interface
+ * system and its adoption paths.
+ *
+ * @returns The exported Interface Systems Lab homepage.
+ */
 export default function Home() {
   return (
     <div
       className="experience home-experience ly-root ly-page"
+      data-ly-density="spacious"
       data-ly-layout={DEFAULT_CONFIGURATION.layout}
       data-ui={DEFAULT_CONFIGURATION.ui}
       data-theme={DEFAULT_CONFIGURATION.theme}
