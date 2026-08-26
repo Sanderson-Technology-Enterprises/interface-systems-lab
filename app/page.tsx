@@ -182,6 +182,7 @@ export default function Home() {
   return (
     <div
       className="experience home-experience ly-root ly-page"
+      data-ly-density="spacious"
       data-ly-layout={DEFAULT_CONFIGURATION.layout}
       data-ui={DEFAULT_CONFIGURATION.ui}
       data-theme={DEFAULT_CONFIGURATION.theme}

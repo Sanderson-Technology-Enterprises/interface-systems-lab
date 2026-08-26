@@ -387,7 +387,7 @@ function validateStructuredData(index, lab, notFound, issues) {
           name: "layout-style-css",
           programmingLanguage: "CSS",
           url: "https://www.npmjs.com/package/layout-style-css",
-          version: "3.0.1",
+          version: "3.1.0",
         },
         {
           codeRepository: "https://github.com/Foscat/ui-style-kit-css",

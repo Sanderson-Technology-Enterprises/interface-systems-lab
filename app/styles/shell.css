@@ -261,14 +261,6 @@
   white-space: nowrap;
 }
 
-.hero {
-  padding-block: clamp(3rem, 8vw, 7rem);
-}
-
-.home-hero {
-  padding-block: clamp(2.5rem, 6vh, 4.5rem);
-}
-
 .home-hero h1 {
   font-size: clamp(3rem, 6.2vw, 5.75rem);
 }

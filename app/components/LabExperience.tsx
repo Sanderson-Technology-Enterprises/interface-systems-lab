@@ -254,6 +254,7 @@ export function LabExperience({ children }: LabExperienceProps) {
     <LabConfigurationContext.Provider value={contextValue}>
       <div
         className="experience ly-root ly-page"
+        data-ly-density="normal"
         data-ly-layout={configuration.layout}
         data-ui={configuration.ui}
         data-theme={configuration.theme}

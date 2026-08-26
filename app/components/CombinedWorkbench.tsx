@@ -30,7 +30,7 @@ export function CombinedWorkbench() {
       id="workbench"
       aria-labelledby="workbench-title"
     >
-      <div className="ly-wrapper">
+      <div className="ly-wrapper ly-wrapper--workspace">
         <div className="section-heading ly-split ly-gap-6 ly-items-end">
           <div className="ly-stack ly-gap-2">
             <p className="section-label">Live client outcome</p>
@@ -47,6 +47,7 @@ export function CombinedWorkbench() {
           <article
             className="client-workspace"
             data-layout-recipe="app-shell"
+            data-ly-density="compact"
             data-ly-recipe="app-shell"
             aria-label="Northstar client delivery workspace"
           >

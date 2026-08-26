@@ -230,7 +230,7 @@ test("route structured data separates the overview from the configurable lab", a
         name: "layout-style-css",
         programmingLanguage: "CSS",
         url: "https://www.npmjs.com/package/layout-style-css",
-        version: "3.0.1",
+        version: "3.1.0",
       },
       {
         codeRepository: "https://github.com/Foscat/ui-style-kit-css",
@@ -474,7 +474,7 @@ test("the Pages artifact stages the pinned Layout v3 core", async () => {
     exportFixtureRoot,
     "assets",
     "layout-style-css",
-    "3.0.1",
+    "3.1.0",
     "layout-style-css.css",
   );
   const layoutCore = await readFile(layoutCorePath, "utf8");

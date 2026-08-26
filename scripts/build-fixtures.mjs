@@ -26,7 +26,7 @@ const defaultGeneratedRoot = path.join(
 
 export const EXPECTED_PACKAGE_VERSIONS = Object.freeze({
   "interactive-surface-css": "1.6.0",
-  "layout-style-css": "3.0.1",
+  "layout-style-css": "3.1.0",
   "ui-style-kit-css": "2.2.0",
   "ui-style-kit-icons": "1.0.0",
 });
@@ -54,7 +54,7 @@ export const FIXTURE_ASSETS = Object.freeze({
   }),
   "layout-core": Object.freeze({
     export: "layout-style-css",
-    target: "assets/layout-style-css/3.0.1/layout-style-css.css",
+    target: "assets/layout-style-css/3.1.0/layout-style-css.css",
   }),
 });
 

@@ -98,7 +98,10 @@ export default function Lab() {
           <InterfaceObservatory />
         </section>
 
-        <div className="configuration-shell ly-wrapper">
+        <div
+          className="configuration-shell ly-wrapper ly-wrapper--workspace"
+          data-ly-density="compact"
+        >
           <LabControls />
         </div>
 

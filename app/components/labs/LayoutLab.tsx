@@ -4,7 +4,7 @@ import { getUiPrefix } from "../../data/catalog";
 import { useLabConfiguration } from "../LabExperience";
 
 const spacingUtilities = [
-  ...Array.from({ length: 5 }, (_, index) => `ly-gap-${index * 2}`),
+  ...Array.from({ length: 10 }, (_, index) => `ly-gap-${index}`),
   ...Array.from({ length: 5 }, (_, index) => `ly-pad-${index * 2}`),
 ] as const;
 
@@ -23,6 +23,7 @@ const wrapperVariants = [
   "compact",
   "prose",
   "content",
+  "workspace",
   "wide",
   "full",
 ] as const;
@@ -51,7 +52,7 @@ export function LayoutLab() {
       id="layouts"
       aria-labelledby="layouts-title"
     >
-      <div className="ly-wrapper">
+      <div className="ly-wrapper ly-wrapper--workspace">
         <div className="section-heading ly-split ly-gap-6 ly-items-end">
           <div className="ly-stack ly-gap-2">
             <p className="section-label">Layout laboratory</p>
@@ -61,7 +62,7 @@ export function LayoutLab() {
             Change the global personality above. The same semantic recipe and
             primitive hooks recompute their geometry without moving a single
             node in reading or keyboard order. This laboratory targets Layout
-            Style CSS 3.0.1 with intrinsic grids, intrinsic panes, and canonical
+            Style CSS 3.1.0 with intrinsic grids, intrinsic panes, and canonical
             attribute recipes.
           </p>
         </div>
@@ -193,7 +194,7 @@ export function LayoutLab() {
                       className={`${surfaceClass} ly-pad-4`}
                       data-ly-area="footer"
                     >
-                      Version 3.0.1
+                      Version 3.1.0
                     </footer>
                   </section>
                 </div>
@@ -493,7 +494,7 @@ export function LayoutLab() {
               </article>
 
               <article
-                className={`${cardClass} primitive-specimen primitive-scroll ly-scroll ly-pad-4`}
+                className={`${cardClass} primitive-specimen primitive-scroll ly-scroll ly-scroll--bounded ly-pad-4`}
                 data-layout-primitive="scroll"
               >
                 <SpecimenLabel>Scroll region</SpecimenLabel>

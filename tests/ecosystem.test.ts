@@ -53,7 +53,7 @@ test("authored runtime sources do not use removed Layout v2 selectors", () => {
     path.join(repositoryRoot, "scripts"),
   ]);
   const removed =
-    /\bly-(?:grid--auto|panes--[23]|(?:md|lg)-[a-z0-9-]+|order-[a-z0-9-]+|(?:gap|pad)-(?:1|3|5|7|9)|(?:px|py)-(?:4|6|8)|bleed)\b/u;
+    /\bly-(?:grid--auto|panes--[23]|(?:md|lg)-[a-z0-9-]+|order-[a-z0-9-]+|pad-(?:1|3|5|7|9)|(?:px|py)-(?:4|6|8)|bleed)\b/u;
 
   for (const file of sourceFiles) {
     assert.doesNotMatch(
@@ -127,9 +127,9 @@ test("registry exposes every package and resource in ecosystem order", () => {
   );
   assert.deepEqual(
     ECOSYSTEM_PACKAGES.map(({ version }) => version),
-    ["3.0.1", "2.2.0", "1.0.0", "1.6.0"],
+    ["3.1.0", "2.2.0", "1.0.0", "1.6.0"],
   );
-  assert.equal(ECOSYSTEM_PACKAGES[0]?.version, "3.0.1");
+  assert.equal(ECOSYSTEM_PACKAGES[0]?.version, "3.1.0");
   assert.equal(ECOSYSTEM_PACKAGES[2]?.version, "1.0.0");
   assert.equal(
     ECOSYSTEM_PACKAGES.find(({ name }) => name === "layout-style-css")
@@ -210,7 +210,7 @@ test("the pinned UI manifest publishes the stable semantic component contract", 
 test("installation examples pin approved versions and cascade order", () => {
   assert.equal(
     NPM_INSTALL,
-    "npm install ui-style-kit-css@2.2.0 ui-style-kit-icons@1.0.0 layout-style-css@3.0.1 interactive-surface-css@1.6.0",
+    "npm install ui-style-kit-css@2.2.0 ui-style-kit-icons@1.0.0 layout-style-css@3.1.0 interactive-surface-css@1.6.0",
   );
   assert.match(NPM_INSTALL, /ui-style-kit-icons@1\.0\.0/);
   assert.deepEqual(BUNDLER_IMPORTS, [
@@ -240,7 +240,7 @@ test("installation examples pin approved versions and cascade order", () => {
     {
       packageName: "layout-style-css",
       kind: "style",
-      href: "https://cdn.jsdelivr.net/npm/layout-style-css@3.0.1/dist/layout-style-css.min.css",
+      href: "https://cdn.jsdelivr.net/npm/layout-style-css@3.1.0/dist/layout-style-css.min.css",
     },
     {
       packageName: "ui-style-kit-icons",
@@ -259,7 +259,7 @@ test("installation examples pin approved versions and cascade order", () => {
       '<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ui-style-kit-css@2.2.0/dist/ui-style-kit.visual.min.css">',
       '<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ui-style-kit-css@2.2.0/styles/interactive-surface-theme.css">',
       '<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/interactive-surface-css@1.6.0/state-core.css">',
-      '<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/layout-style-css@3.0.1/dist/layout-style-css.min.css">',
+      '<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/layout-style-css@3.1.0/dist/layout-style-css.min.css">',
       '<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ui-style-kit-icons@1.0.0/dist/ui-style-kit-icons.css">',
       '<script type="module" src="https://cdn.jsdelivr.net/npm/ui-style-kit-icons@1.0.0/dist/ui-style-kit-icons.js"></script>',
     ].join("\n"),
@@ -312,7 +312,7 @@ test("adoption paths cover every standalone, pair, and complete-stack fixture", 
   const interactionStandaloneCdn =
     '<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/interactive-surface-css@1.6.0/standalone-preset.css">';
   const layoutCdn =
-    '<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/layout-style-css@3.0.1/dist/layout-style-css.min.css">';
+    '<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/layout-style-css@3.1.0/dist/layout-style-css.min.css">';
   const iconCssCdn =
     '<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ui-style-kit-icons@1.0.0/dist/ui-style-kit-icons.css">';
   const iconRuntimeCdn =
@@ -321,7 +321,7 @@ test("adoption paths cover every standalone, pair, and complete-stack fixture", 
     "layout-only": {
       packages: ["layout-style-css"],
       snippets: [
-        "npm install layout-style-css@3.0.1",
+        "npm install layout-style-css@3.1.0",
         'import "layout-style-css";',
         layoutCdn,
       ],
@@ -356,7 +356,7 @@ test("adoption paths cover every standalone, pair, and complete-stack fixture", 
     "layout-ui": {
       packages: ["layout-style-css", "ui-style-kit-css"],
       snippets: [
-        "npm install layout-style-css@3.0.1 ui-style-kit-css@2.2.0",
+        "npm install layout-style-css@3.1.0 ui-style-kit-css@2.2.0",
         [
           'import "ui-style-kit-css/visual.css";',
           'import "layout-style-css";',
@@ -379,7 +379,7 @@ test("adoption paths cover every standalone, pair, and complete-stack fixture", 
     "layout-interactive": {
       packages: ["layout-style-css", "interactive-surface-css"],
       snippets: [
-        "npm install layout-style-css@3.0.1 interactive-surface-css@1.6.0",
+        "npm install layout-style-css@3.1.0 interactive-surface-css@1.6.0",
         [
           'import "interactive-surface-css/standalone-preset.css";',
           'import "layout-style-css";',
@@ -501,7 +501,7 @@ test("site consumes the CSS libraries as local dependencies", async () => {
     scripts: Record<string, string>;
   };
 
-  assert.equal(manifest.dependencies["layout-style-css"], "3.0.1");
+  assert.equal(manifest.dependencies["layout-style-css"], "3.1.0");
   assert.equal(manifest.dependencies["ui-style-kit-css"], "2.2.0");
   assert.equal(manifest.dependencies["interactive-surface-css"], "1.6.0");
   assert.match(
@@ -533,7 +533,7 @@ test("local README guidance separates global CSS from the icon runtime owner", a
   assert.match(iconSource, /import\("ui-style-kit-icons\/element"\)/);
 });
 
-test("page runtime emits only canonical Layout 3.0 attributes", async () => {
+test("page runtime emits only canonical Layout v3 attributes", async () => {
   const [homeSource, labSource, experienceSource, configurationSource] =
     await Promise.all([
       readFile(new URL("../app/page.tsx", import.meta.url), "utf8"),
@@ -558,6 +558,50 @@ test("page runtime emits only canonical Layout 3.0 attributes", async () => {
     configurationSource,
     /data-ly-layout="\$\{configuration\.layout\}"/,
   );
+});
+
+test("Layout 3.1 contexts replace application-owned spacing workarounds", async () => {
+  const [
+    homeSource,
+    labPageSource,
+    experienceSource,
+    workbenchSource,
+    layoutLabSource,
+    shellStyles,
+    responsiveStyles,
+  ] = await Promise.all([
+    readFile(new URL("../app/page.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/lab/page.tsx", import.meta.url), "utf8"),
+    readFile(
+      new URL("../app/components/LabExperience.tsx", import.meta.url),
+      "utf8",
+    ),
+    readFile(
+      new URL("../app/components/CombinedWorkbench.tsx", import.meta.url),
+      "utf8",
+    ),
+    readFile(
+      new URL("../app/components/labs/LayoutLab.tsx", import.meta.url),
+      "utf8",
+    ),
+    readFile(new URL("../app/styles/shell.css", import.meta.url), "utf8"),
+    readFile(new URL("../app/styles/responsive.css", import.meta.url), "utf8"),
+  ]);
+
+  assert.match(homeSource, /data-ly-density="spacious"/);
+  assert.match(experienceSource, /data-ly-density="normal"/);
+  assert.match(
+    labPageSource,
+    /configuration-shell ly-wrapper ly-wrapper--workspace/,
+  );
+  assert.match(labPageSource, /data-ly-density="compact"/);
+  assert.match(workbenchSource, /ly-wrapper ly-wrapper--workspace/);
+  assert.match(workbenchSource, /data-ly-density="compact"/);
+  assert.match(layoutLabSource, /"workspace"/);
+  assert.match(layoutLabSource, /ly-scroll ly-scroll--bounded/);
+  assert.match(layoutLabSource, /length: 10/);
+  assert.doesNotMatch(shellStyles, /\.hero\s*\{[^}]*padding-block:/);
+  assert.doesNotMatch(responsiveStyles, /--ly-cluster-gap/);
 });
 
 test("install guide tracks restartable copy timers and cleans them on unmount", async () => {
