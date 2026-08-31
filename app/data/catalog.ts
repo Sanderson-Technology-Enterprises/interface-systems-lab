@@ -56,7 +56,16 @@ export type UiPreset =
   | "brutalism"
   | "cyberpunk"
   | "y2k"
-  | "retro-glass";
+  | "retro-glass"
+  | "editorial-luxe"
+  | "organic-modern"
+  | "industrial-utility"
+  | "technical-blueprint"
+  | "art-deco"
+  | "clay"
+  | "data-terminal"
+  | "paper-editorial"
+  | "neo-noir";
 
 export type UiTheme =
   | "midnight-gold"
@@ -68,7 +77,17 @@ export type UiTheme =
   | "desert-sage"
   | "rose-quartz"
   | "cyber-lime"
-  | "arctic-indigo";
+  | "arctic-indigo"
+  | "chrome-navy"
+  | "recycled-emerald"
+  | "industrial-orange"
+  | "performance-red"
+  | "heritage-brass"
+  | "service-blue-red"
+  | "newsprint-crimson"
+  | "foundry-amber"
+  | "soft-orchid"
+  | "electric-noir";
 
 export type UiMode = "light" | "dark" | "contrast";
 

@@ -16,6 +16,8 @@ const repositoryRoot = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
   "..",
 );
+/** Expected CSS ceiling for the complete ui-style-kit-css 2.3 preset matrix. */
+const nextCssBudgetBytes = 1024 * 1024;
 const outRoot = path.join(repositoryRoot, "out");
 const googleVerificationFile = "google5abb0289b99a9f42.html";
 const googleVerificationText =
@@ -29,7 +31,7 @@ const repositoryUrl =
   "https://github.com/Sanderson-Technology-Enterprises/interface-systems-lab";
 const socialImageUrl = `${canonicalUrl}interface-systems-lab-social-card.png`;
 const socialImageAlt =
-  "Interface Systems Lab social card with the text \u201c4 libraries, 1 interface, and 5,280 possibilities\u201d over layout, identity, iconography, and interaction.";
+  "Interface Systems Lab social card with the text \u201c3 libraries, 1 interface, and 134,400 possibilities\u201d over layout, identity, and interaction.";
 const websiteId = `${canonicalUrl}#website`;
 const webpageId = `${canonicalUrl}#webpage`;
 const labWebpageId = `${labUrl}#webpage`;
@@ -237,7 +239,7 @@ test("route structured data separates the overview from the configurable lab", a
         name: "ui-style-kit-css",
         programmingLanguage: "CSS",
         url: "https://www.npmjs.com/package/ui-style-kit-css",
-        version: "2.2.0",
+        version: "2.3.0",
       },
       {
         codeRepository: "https://github.com/Foscat/ui-style-kit-icons",
@@ -392,7 +394,7 @@ test("the homepage and lab stay within separate deterministic budgets", async ()
     ["raw index.html", index.length, 96 * 1024],
     ["raw lab/index.html", lab.length, 256 * 1024],
     ["Next.js JavaScript", totalByExtension(/\.js$/), 1024 * 1024],
-    ["Next.js CSS", totalByExtension(/\.css$/), 512 * 1024],
+    ["Next.js CSS", totalByExtension(/\.css$/), nextCssBudgetBytes],
     ["exported fonts", totalByExtension(/\.(?:woff2?|ttf|otf)$/), 256 * 1024],
   ];
 

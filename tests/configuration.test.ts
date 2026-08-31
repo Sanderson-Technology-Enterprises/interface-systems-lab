@@ -51,6 +51,25 @@ test("valid URL values override stored values one field at a time", () => {
   });
 });
 
+test("new UI Style Kit 2.3 options are accepted from shared URLs", () => {
+  const expandedConfiguration: LabConfiguration = {
+    layout: "bento",
+    ui: "editorial-luxe",
+    theme: "electric-noir",
+    mode: "dark",
+  };
+
+  assert.deepEqual(
+    parseConfiguration(
+      new URLSearchParams({
+        ui: expandedConfiguration.ui,
+        theme: expandedConfiguration.theme,
+      }),
+    ),
+    expandedConfiguration,
+  );
+});
+
 test("invalid URL values fall back independently to validated storage", () => {
   const cases = [
     ["layout", "unknown-layout"],

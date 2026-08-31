@@ -12,7 +12,7 @@
 | Layer       | Package                         | Repository                                                      | Wiki                                                           | npm                                                          | Demo                                                           |
 | ----------- | ------------------------------- | --------------------------------------------------------------- | -------------------------------------------------------------- | ------------------------------------------------------------ | -------------------------------------------------------------- |
 | Structure   | `layout-style-css@3.1.0`        | [Repository](https://github.com/Foscat/Layout-Style-CSS)        | [Wiki](https://github.com/Foscat/Layout-Style-CSS/wiki)        | [npm](https://www.npmjs.com/package/layout-style-css)        | [Live demo](https://foscat.github.io/Layout-Style-CSS/)        |
-| Identity    | `ui-style-kit-css@2.2.0`        | [Repository](https://github.com/Foscat/ui-style-kit-css)        | [Wiki](https://github.com/Foscat/ui-style-kit-css/wiki)        | [npm](https://www.npmjs.com/package/ui-style-kit-css)        | [Live demo](https://foscat.github.io/ui-style-kit-css/)        |
+| Identity    | `ui-style-kit-css@2.3.0`        | [Repository](https://github.com/Foscat/ui-style-kit-css)        | [Wiki](https://github.com/Foscat/ui-style-kit-css/wiki)        | [npm](https://www.npmjs.com/package/ui-style-kit-css)        | [Live demo](https://foscat.github.io/ui-style-kit-css/)        |
 | Iconography | `ui-style-kit-icons@1.0.0`      | [Repository](https://github.com/Foscat/ui-style-kit-icons)      | [Wiki](https://github.com/Foscat/ui-style-kit-icons/wiki)      | [npm](https://www.npmjs.com/package/ui-style-kit-icons)      | [Live demo](https://foscat.github.io/ui-style-kit-icons/)      |
 | Behavior    | `interactive-surface-css@1.6.0` | [Repository](https://github.com/Foscat/Interactive-Surface-CSS) | [Wiki](https://github.com/Foscat/Interactive-Surface-CSS/wiki) | [npm](https://www.npmjs.com/package/interactive-surface-css) | [Live demo](https://foscat.github.io/Interactive-Surface-CSS/) |
 
@@ -39,7 +39,7 @@ layers without changing ownership boundaries.
 Install the exact aligned releases:
 
 ```bash
-npm install ui-style-kit-css@2.2.0 ui-style-kit-icons@1.0.0 layout-style-css@3.1.0 interactive-surface-css@1.6.0
+npm install ui-style-kit-css@2.3.0 ui-style-kit-icons@1.0.0 layout-style-css@3.1.0 interactive-surface-css@1.6.0
 ```
 
 Then load the package entry points in ownership order. UI Style Kit establishes
@@ -58,7 +58,8 @@ import "ui-style-kit-icons/css.css";
 import "ui-style-kit-icons/element";
 ```
 
-UI Style Kit 2.2 components use stable semantic classes such as `.ui-card`,
+UI Style Kit 2.3 exposes 20 visual systems and 20 themes through stable
+semantic classes such as `.ui-card`,
 `.ui-field`, `.ui-input`, and `.ui-button`. Set `data-ui-variant` on semantic
 buttons, badges, and alerts when a contextual treatment is required. Keep
 preset-prefixed classes for advanced typography, placement, sizing, and
@@ -90,11 +91,11 @@ For static HTML consumers, keep this exact order in the document head:
 ```html
 <link
   rel="stylesheet"
-  href="https://cdn.jsdelivr.net/npm/ui-style-kit-css@2.2.0/dist/ui-style-kit.visual.min.css"
+  href="https://cdn.jsdelivr.net/npm/ui-style-kit-css@2.3.0/dist/ui-style-kit.visual.min.css"
 />
 <link
   rel="stylesheet"
-  href="https://cdn.jsdelivr.net/npm/ui-style-kit-css@2.2.0/styles/interactive-surface-theme.css"
+  href="https://cdn.jsdelivr.net/npm/ui-style-kit-css@2.3.0/styles/interactive-surface-theme.css"
 />
 <link
   rel="stylesheet"

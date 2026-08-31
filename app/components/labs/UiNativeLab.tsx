@@ -21,6 +21,20 @@ const richChoicePresets = new Set<UiPreset>([
   "retrofuturism",
 ]);
 
+/** Presets that publish the shared empty-state and metric recipe. */
+const metricExtraPresets = new Set<UiPreset>([
+  "minimal-saas",
+  "editorial-luxe",
+  "organic-modern",
+  "industrial-utility",
+  "technical-blueprint",
+  "art-deco",
+  "clay",
+  "data-terminal",
+  "paper-editorial",
+  "neo-noir",
+]);
+
 const nativeTokenNames = [
   "--usk-native-control-min-block-size",
   "--usk-native-control-padding-block",
@@ -93,27 +107,35 @@ type VisualInventoryProps = {
   preset: UiPreset;
 };
 
+/**
+ * Renders every preset-only class declared by the active manifest entry.
+ *
+ * @param props Active visual inventory configuration.
+ * @returns A representative recipe for the selected preset.
+ */
 function PresetExtraRecipe({ prefix, preset }: VisualInventoryProps) {
   const c = (suffix: string) => uiClass(prefix, suffix);
 
-  switch (preset) {
-    case "minimal-saas":
-      return (
-        <div className="preset-extra-grid">
-          <div className={c("empty-state")} data-ui-extra="empty-state">
-            <strong>Nothing waiting for review</strong>
-            <span>The empty-state helper owns the calm product moment.</span>
-          </div>
-          <article className={c("metric")} data-ui-extra="metric">
-            <span className={c("metric-label")} data-ui-extra="metric-label">
-              Coverage
-            </span>
-            <strong className={c("metric-value")} data-ui-extra="metric-value">
-              100%
-            </strong>
-          </article>
+  if (metricExtraPresets.has(preset)) {
+    return (
+      <div className="preset-extra-grid">
+        <div className={c("empty-state")} data-ui-extra="empty-state">
+          <strong>Nothing waiting for review</strong>
+          <span>The empty-state helper owns the calm product moment.</span>
         </div>
-      );
+        <article className={c("metric")} data-ui-extra="metric">
+          <span className={c("metric-label")} data-ui-extra="metric-label">
+            Coverage
+          </span>
+          <strong className={c("metric-value")} data-ui-extra="metric-value">
+            100%
+          </strong>
+        </article>
+      </div>
+    );
+  }
+
+  switch (preset) {
     case "bento":
       return (
         <div className={c("grid-feature")} data-ui-extra="grid-feature">
@@ -350,6 +372,42 @@ function VisualInventory({ prefix, preset }: VisualInventoryProps) {
         >
           Preset hover lift
         </article>
+        <article
+          className={`${c("card-feature")} ly-stack ly-gap-2`}
+          data-ui-suffix="card-feature"
+        >
+          <p className={c("eyebrow")} data-ui-suffix="eyebrow">
+            Featured system
+          </p>
+          <div className={c("card-media")} data-ui-suffix="card-media">
+            <span className={c("media-scrim")} data-ui-suffix="media-scrim">
+              Media treatment
+            </span>
+          </div>
+          <span
+            aria-hidden="true"
+            className={c("card-accent-edge")}
+            data-ui-suffix="card-accent-edge"
+          />
+          <strong>Feature card composition</strong>
+        </article>
+        <article
+          className={`${c("card-service")} ly-stack ly-gap-2`}
+          data-ui-suffix="card-service"
+        >
+          <span className={c("icon-medallion")} data-ui-suffix="icon-medallion">
+            UI
+          </span>
+          <strong>Service card composition</strong>
+        </article>
+        <div className={c("feature-strip")} data-ui-suffix="feature-strip">
+          <span className={c("feature-item")} data-ui-suffix="feature-item">
+            Stable semantic feature
+          </span>
+        </div>
+        <aside className={c("callout-bar")} data-ui-suffix="callout-bar">
+          Advanced visual helpers remain owned by the active preset.
+        </aside>
       </section>
 
       <details>
@@ -394,6 +452,20 @@ function VisualInventory({ prefix, preset }: VisualInventoryProps) {
             type="button"
           >
             Ghost
+          </button>
+          <button
+            className={`${c("button")} ${c("button-cut")}`}
+            data-ui-suffix="button-cut"
+            type="button"
+          >
+            Cut-corner action
+          </button>
+          <button
+            className={`${c("button")} ${c("button-outline-heavy")}`}
+            data-ui-suffix="button-outline-heavy"
+            type="button"
+          >
+            Heavy outline action
           </button>
           <button
             className={s("icon-button")}
@@ -492,6 +564,9 @@ function VisualInventory({ prefix, preset }: VisualInventoryProps) {
                 {label}
               </span>
             ))}
+            <span className={c("badge-seal")} data-ui-suffix="badge-seal">
+              Verified seal
+            </span>
           </section>
         </div>
       </details>

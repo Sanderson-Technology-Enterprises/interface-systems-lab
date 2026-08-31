@@ -1,11 +1,10 @@
 "use client";
 
 import type { IconFrame, IconName } from "ui-style-kit-icons";
-// Read the data-only registry so rendering never registers the custom element.
-import iconRegistry from "ui-style-kit-icons/registry.json";
 import { useEffect, useRef, useState, type ChangeEvent } from "react";
 
 import { getUiPrefix } from "../../data/catalog";
+import { resolveIconPack } from "../../lib/icon-pack";
 import { UiIcon } from "../UiIcon";
 import { useLabConfiguration } from "../LabExperience";
 
@@ -35,11 +34,7 @@ export function IconLab() {
   const [frame, setFrame] = useState<IconFrame>("auto");
   const [errorMessage, setErrorMessage] = useState("");
   const sectionRef = useRef<HTMLElement | null>(null);
-  const packId = iconRegistry.styleAliases[configuration.ui];
-  const pack = iconRegistry.packs.find(({ id }) => id === packId);
-  if (!pack) {
-    throw new Error(`Missing icon pack metadata for ${configuration.ui}.`);
-  }
+  const pack = resolveIconPack(configuration.ui);
   const uiPrefix = getUiPrefix(configuration.ui);
 
   useEffect(() => {
@@ -140,8 +135,8 @@ export function IconLab() {
         </div>
 
         <p className="muted-copy">
-          Bauhaus intentionally uses the neutral System pack. Retrofuturism uses
-          Synthwave artwork.
+          Bauhaus and visual styles awaiting dedicated icon artwork use the
+          neutral System pack. Retrofuturism uses Synthwave artwork.
         </p>
         <p className="ly-visually-hidden" aria-live="polite">
           {errorMessage}
