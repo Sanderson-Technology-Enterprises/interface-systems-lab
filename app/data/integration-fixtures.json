@@ -18,15 +18,6 @@
     "deprecated": false
   },
   {
-    "id": "icon-only",
-    "title": "UI Style Kit Icons standalone",
-    "group": "one",
-    "summary": "Semantic SVG artwork with readable fallback paint and no required visual-theme dependency.",
-    "packages": ["ui-style-kit-icons"],
-    "styles": ["icon-css"],
-    "deprecated": false
-  },
-  {
     "id": "interactive-only",
     "title": "Interactive Surface CSS standalone",
     "group": "one",
@@ -42,15 +33,6 @@
     "summary": "Intrinsic layout geometry and visual identity remain complementary without richer surface mechanics.",
     "packages": ["ui-style-kit-css", "layout-style-css"],
     "styles": ["ui-visual", "layout-core"],
-    "deprecated": false
-  },
-  {
-    "id": "ui-icons",
-    "title": "UI plus icons",
-    "group": "pair",
-    "summary": "The selected UI preset supplies icon artwork while palette and mode supply coordinated paint.",
-    "packages": ["ui-style-kit-css", "ui-style-kit-icons"],
-    "styles": ["ui-visual", "icon-css"],
     "deprecated": false
   },
   {
@@ -73,22 +55,15 @@
   },
   {
     "id": "all-canonical",
-    "title": "Complete four-package stack",
+    "title": "Complete three-library stack",
     "group": "all",
-    "summary": "Paint, iconography, state mechanics, and intrinsic structure compose in the documented ownership order.",
+    "summary": "Paint, state mechanics, and intrinsic structure compose in the documented ownership order.",
     "packages": [
       "ui-style-kit-css",
-      "ui-style-kit-icons",
       "interactive-surface-css",
       "layout-style-css"
     ],
-    "styles": [
-      "ui-visual",
-      "ui-theme",
-      "interaction-core",
-      "layout-core",
-      "icon-css"
-    ],
+    "styles": ["ui-visual", "ui-theme", "interaction-core", "layout-core"],
     "deprecated": false
   }
 ]

@@ -28,7 +28,6 @@ export const EXPECTED_PACKAGE_VERSIONS = Object.freeze({
   "interactive-surface-css": "1.6.0",
   "layout-style-css": "3.1.0",
   "ui-style-kit-css": "2.3.0",
-  "ui-style-kit-icons": "1.0.0",
 });
 
 export const FIXTURE_ASSETS = Object.freeze({
@@ -39,10 +38,6 @@ export const FIXTURE_ASSETS = Object.freeze({
   "ui-theme": Object.freeze({
     export: "ui-style-kit-css/interactive-surface-theme.css",
     target: "assets/ui-style-kit-css/2.3.0/interactive-surface-theme.css",
-  }),
-  "icon-css": Object.freeze({
-    export: "ui-style-kit-icons/css.css",
-    target: "assets/ui-style-kit-icons/1.0.0/ui-style-kit-icons.css",
   }),
   "interaction-core": Object.freeze({
     export: "interactive-surface-css/state-core.css",
@@ -222,7 +217,6 @@ export async function assertSafeGeneratedPath(
 }
 
 function fixtureMarkup(fixture, assets) {
-  const usesIcons = fixture.packages.includes("ui-style-kit-icons");
   const stylesheetMarkup = fixture.styles
     .map(
       (key) =>
@@ -231,32 +225,6 @@ function fixtureMarkup(fixture, assets) {
         )}">`,
     )
     .join("\n");
-  const iconModuleMarkup = usesIcons
-    ? `
-    <script
-      type="module"
-      src="../../assets/ui-style-kit-icons/1.0.0/ui-style-kit-icons.js"
-    ></script>`
-    : "";
-  const iconSpecimenMarkup = usesIcons
-    ? `
-      <article class="ly-stack ly-gap-4" data-proof-icons>
-        <h2>Theme-aware iconography</h2>
-        <div class="ly-cluster ly-gap-4">
-          <usk-icon
-            name="dashboard"
-            label="Dashboard"
-            asset-base="../../assets/ui-style-kit-icons/1.0.0/"
-          ></usk-icon>
-          <usk-icon
-            name="palette"
-            label="Palette"
-            asset-base="../../assets/ui-style-kit-icons/1.0.0/"
-          ></usk-icon>
-        </div>
-      </article>`
-    : "";
-
   return `<!doctype html>
 <html lang="en">
   <head>
@@ -265,7 +233,6 @@ function fixtureMarkup(fixture, assets) {
     <meta name="robots" content="noindex,nofollow">
     <title>${escapeHtml(fixture.title)} | Interface Systems Lab integration proof</title>
 ${stylesheetMarkup}
-${iconModuleMarkup}
   </head>
   <body
     class="ly-root"
@@ -317,7 +284,7 @@ ${iconModuleMarkup}
             </button>
           </div>
         </article>
-      </section>${iconSpecimenMarkup}
+      </section>
     </main>
   </body>
 </html>

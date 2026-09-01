@@ -25,13 +25,14 @@ const googleVerificationText =
 const canonicalUrl =
   "https://sanderson-technology-enterprises.github.io/interface-systems-lab/";
 const labUrl = `${canonicalUrl}lab/`;
-const corporateUrl = "https://sandersontechnologyenterprises.com";
-const corporateOrganizationId = `${corporateUrl}/#organization`;
+const componentsUrl = `${canonicalUrl}components/`;
+const corporateUrl = "https://sandersontechnologyenterprises.com/";
+const corporateOrganizationId = `${corporateUrl}#organization`;
 const repositoryUrl =
   "https://github.com/Sanderson-Technology-Enterprises/interface-systems-lab";
 const socialImageUrl = `${canonicalUrl}interface-systems-lab-social-card.png`;
 const socialImageAlt =
-  "Interface Systems Lab social card with the text \u201c3 libraries, 1 interface, and 134,400 possibilities\u201d over layout, identity, and interaction.";
+  "Interface Systems Lab social card with the text \u201c3 libraries, 1 interface, and 44,800 possibilities\u201d over layout, identity, and interaction.";
 const websiteId = `${canonicalUrl}#website`;
 const webpageId = `${canonicalUrl}#webpage`;
 const labWebpageId = `${labUrl}#webpage`;
@@ -71,6 +72,8 @@ function localAssetReferences(html) {
   ).filter(
     (reference) =>
       !reference.startsWith("https://") &&
+      !reference.startsWith("http://") &&
+      !reference.startsWith("data:") &&
       !reference.startsWith("#") &&
       !reference.startsWith("mailto:") &&
       !reference.startsWith("tel:"),
@@ -91,10 +94,11 @@ async function artifactFiles(directory) {
 }
 
 test("the Pages artifact publishes the transferred canonical identity", async () => {
-  const [index, lab, notFound, robots, sitemap] = await Promise.all(
+  const [index, lab, components, notFound, robots, sitemap] = await Promise.all(
     [
       "index.html",
       "lab/index.html",
+      "components/index.html",
       "404.html",
       "robots.txt",
       "sitemap.xml",
@@ -102,13 +106,24 @@ test("the Pages artifact publishes the transferred canonical identity", async ()
       readFile(path.join(repositoryRoot, "out", fileName), "utf8"),
     ),
   );
-  const shippingOutput = [index, lab, notFound, robots, sitemap].join("\n");
+  const shippingOutput = [
+    index,
+    lab,
+    components,
+    notFound,
+    robots,
+    sitemap,
+  ].join("\n");
 
   assert.match(
     index,
     new RegExp(`<link rel="canonical" href="${canonicalUrl}"`),
   );
   assert.match(lab, new RegExp(`<link rel="canonical" href="${labUrl}"`));
+  assert.match(
+    components,
+    new RegExp(`<link rel="canonical" href="${componentsUrl}"`),
+  );
   assert.match(
     index,
     new RegExp(`property="og:url" content="${canonicalUrl}"`),
@@ -147,13 +162,18 @@ test("the Pages artifact publishes the transferred canonical identity", async ()
   }
 });
 
-test("route structured data separates the overview from the configurable lab", async () => {
-  const [index, lab] = await Promise.all([
+test("route structured data separates the overview, lab, and atlas", async () => {
+  const [index, lab, components] = await Promise.all([
     readFile(path.join(repositoryRoot, "out", "index.html"), "utf8"),
     readFile(path.join(repositoryRoot, "out", "lab", "index.html"), "utf8"),
+    readFile(
+      path.join(repositoryRoot, "out", "components", "index.html"),
+      "utf8",
+    ),
   ]);
   const nodes = structuredDataNodes(index);
   const labNodes = structuredDataNodes(lab);
+  const atlasNodes = structuredDataNodes(components);
   const requiredTypes = ["Organization", "WebSite", "WebPage", "ItemList"];
 
   for (const type of requiredTypes) {
@@ -213,11 +233,16 @@ test("route structured data separates the overview from the configurable lab", a
   assert.equal(application.isAccessibleForFree, true);
   assert.equal(application.operatingSystem, "Any");
   assert.equal(application.logo, `${canonicalUrl}android-chrome-512x512.png`);
+  assert.equal(nodesOfType(atlasNodes, "WebPage")[0].url, componentsUrl);
+  assert.equal(
+    nodesOfType(atlasNodes, "SoftwareApplication")[0].url,
+    componentsUrl,
+  );
 
   const packages = nodesOfType(nodes, "ItemList")[0];
   assert.equal(packages["@id"], packagesId);
   assert.equal(packages.url, `${canonicalUrl}#libraries`);
-  assert.equal(packages.numberOfItems, 4);
+  assert.equal(packages.numberOfItems, 3);
   assert.deepEqual(
     packages.itemListElement.map((entry) => ({
       codeRepository: entry.item.codeRepository,
@@ -242,13 +267,6 @@ test("route structured data separates the overview from the configurable lab", a
         version: "2.3.0",
       },
       {
-        codeRepository: "https://github.com/Foscat/ui-style-kit-icons",
-        name: "ui-style-kit-icons",
-        programmingLanguage: "JavaScript, SVG",
-        url: "https://www.npmjs.com/package/ui-style-kit-icons",
-        version: "1.0.0",
-      },
-      {
         codeRepository: "https://github.com/Foscat/Interactive-Surface-CSS",
         name: "interactive-surface-css",
         programmingLanguage: "CSS",
@@ -260,9 +278,13 @@ test("route structured data separates the overview from the configurable lab", a
 });
 
 test("exported documents separate 404 identity and keep local assets Pages-safe", async () => {
-  const [index, lab, notFound] = await Promise.all([
+  const [index, lab, components, notFound] = await Promise.all([
     readFile(path.join(repositoryRoot, "out", "index.html"), "utf8"),
     readFile(path.join(repositoryRoot, "out", "lab", "index.html"), "utf8"),
+    readFile(
+      path.join(repositoryRoot, "out", "components", "index.html"),
+      "utf8",
+    ),
     readFile(path.join(repositoryRoot, "out", "404.html"), "utf8"),
   ]);
   const nodeTypes = structuredDataNodes(notFound).map((node) => node["@type"]);
@@ -277,6 +299,7 @@ test("exported documents separate 404 identity and keep local assets Pages-safe"
   for (const [documentName, html] of [
     ["index", index],
     ["lab", lab],
+    ["components", components],
     ["404", notFound],
   ]) {
     for (const reference of localAssetReferences(html)) {
@@ -321,9 +344,10 @@ test("crawler routes and manifest remain stable and Pages-aware", async () => {
     assert.equal(parsedHost.search, "");
     assert.equal(parsedHost.hash, "");
   }
-  assert.equal((sitemap.match(/<loc>/g) ?? []).length, 2);
+  assert.equal((sitemap.match(/<loc>/g) ?? []).length, 3);
   assert.match(sitemap, new RegExp(`<loc>${canonicalUrl}</loc>`));
   assert.match(sitemap, new RegExp(`<loc>${labUrl}</loc>`));
+  assert.match(sitemap, new RegExp(`<loc>${componentsUrl}</loc>`));
   assert.doesNotMatch(sitemap, /<lastmod>/);
   for (const key of ["id", "start_url", "scope"]) {
     assert.equal(manifest[key], "/interface-systems-lab/", key);
@@ -378,10 +402,11 @@ test("crawler routes and manifest remain stable and Pages-aware", async () => {
   }
 });
 
-test("the homepage and lab stay within separate deterministic budgets", async () => {
-  const [index, lab] = await Promise.all([
+test("the exported routes stay within separate deterministic budgets", async () => {
+  const [index, lab, components] = await Promise.all([
     readFile(path.join(repositoryRoot, "out", "index.html")),
     readFile(path.join(repositoryRoot, "out", "lab", "index.html")),
+    readFile(path.join(repositoryRoot, "out", "components", "index.html")),
   ]);
   const staticFiles = await artifactFiles(
     path.join(repositoryRoot, "out", "_next", "static"),
@@ -393,6 +418,7 @@ test("the homepage and lab stay within separate deterministic budgets", async ()
   const budgets = [
     ["raw index.html", index.length, 96 * 1024],
     ["raw lab/index.html", lab.length, 256 * 1024],
+    ["raw components/index.html", components.length, 768 * 1024],
     ["Next.js JavaScript", totalByExtension(/\.js$/), 1024 * 1024],
     ["Next.js CSS", totalByExtension(/\.css$/), nextCssBudgetBytes],
     ["exported fonts", totalByExtension(/\.(?:woff2?|ttf|otf)$/), 256 * 1024],
@@ -412,10 +438,8 @@ const exportFixtureRoot = path.join(
 const fixtureIds = [
   "layout-only",
   "ui-only",
-  "icon-only",
   "interactive-only",
   "layout-ui",
-  "ui-icons",
   "layout-interactive",
   "ui-interactive",
   "all-canonical",
@@ -456,12 +480,7 @@ test("the package directory links to Pages-prefixed standalone fixtures", async 
     "utf8",
   );
 
-  for (const id of [
-    "layout-only",
-    "ui-only",
-    "icon-only",
-    "interactive-only",
-  ]) {
+  for (const id of ["layout-only", "ui-only", "interactive-only"]) {
     assert.match(
       page,
       new RegExp(
@@ -484,31 +503,8 @@ test("the Pages artifact stages the pinned Layout v3 core", async () => {
   assert.match(layoutCore, /--ly-pane-min/);
 });
 
-test("the Pages artifact stages versioned icon assets without private or retired paths", async () => {
-  const [lab, runtime, cyberpunkDashboard] = await Promise.all([
-    readFile(path.join(outRoot, "lab", "index.html"), "utf8"),
-    stat(
-      path.join(
-        outRoot,
-        "assets",
-        "ui-style-kit-icons",
-        "1.0.0",
-        "ui-style-kit-icons.js",
-      ),
-    ),
-    stat(
-      path.join(
-        outRoot,
-        "assets",
-        "ui-style-kit-icons",
-        "1.0.0",
-        "packs",
-        "cyberpunk",
-        "icons",
-        "dashboard.svg",
-      ),
-    ),
-  ]);
+test("the Pages artifact keeps generated fixtures free of private paths", async () => {
+  const lab = await readFile(path.join(outRoot, "lab", "index.html"), "utf8");
   const exportedFixtureHtml = await Promise.all(
     fixtureIds.map((id) =>
       readFile(path.join(exportFixtureRoot, `${id}.html`), "utf8"),
@@ -516,12 +512,6 @@ test("the Pages artifact stages versioned icon assets without private or retired
   );
   const exportedHtml = [lab, ...exportedFixtureHtml].join("\n");
 
-  assert.equal(runtime.isFile(), true);
-  assert.equal(cyberpunkDashboard.isFile(), true);
-  assert.match(
-    lab,
-    /asset-base="\/interface-systems-lab\/assets\/ui-style-kit-icons\/1\.0\.0\/"/,
-  );
   assert.doesNotMatch(exportedHtml, /node_modules/);
   assert.doesNotMatch(
     exportedHtml,

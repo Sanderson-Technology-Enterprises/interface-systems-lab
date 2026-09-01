@@ -5,7 +5,6 @@ import "ui-style-kit-css/visual.css";
 import "ui-style-kit-css/interactive-surface-theme.css";
 import "interactive-surface-css/state-core.css";
 import "layout-style-css";
-import "ui-style-kit-icons/css.css";
 
 import {
   absoluteSiteAsset,
@@ -17,6 +16,7 @@ import "./globals.css";
 import "./styles/shell.css";
 import "./styles/observatory.css";
 import "./styles/labs.css";
+import "./styles/atlas.css";
 import "./styles/responsive.css";
 
 const geistSans = Geist({

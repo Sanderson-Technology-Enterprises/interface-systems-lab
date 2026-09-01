@@ -16,18 +16,22 @@ const basePath = "/interface-systems-lab";
 const siteUrl =
   "https://sanderson-technology-enterprises.github.io/interface-systems-lab/";
 const labUrl = `${siteUrl}lab/`;
-const corporateUrl = "https://sandersontechnologyenterprises.com";
-const corporateOrganizationId = `${corporateUrl}/#organization`;
+const componentsUrl = `${siteUrl}components/`;
+const corporateUrl = "https://sandersontechnologyenterprises.com/";
+const customizedPlatformsUrl = "https://customizedplatforms.com/";
+const corporateOrganizationId = `${corporateUrl}#organization`;
 const corporateGithub = "https://github.com/Sanderson-Technology-Enterprises";
 const repositoryUrl = `${corporateGithub}/interface-systems-lab`;
 const socialImageUrl = `${siteUrl}interface-systems-lab-social-card.png`;
 const socialImageAlt =
-  "Interface Systems Lab social card with the text \u201c3 libraries, 1 interface, and 134,400 possibilities\u201d over layout, identity, and interaction.";
+  "Interface Systems Lab social card with the text \u201c3 libraries, 1 interface, and 44,800 possibilities\u201d over layout, identity, and interaction.";
 const labLogoUrl = `${siteUrl}android-chrome-512x512.png`;
 const websiteId = `${siteUrl}#website`;
 const webpageId = `${siteUrl}#webpage`;
 const labWebpageId = `${labUrl}#webpage`;
 const applicationId = `${labUrl}#application`;
+const atlasWebpageId = `${componentsUrl}#webpage`;
+const atlasApplicationId = `${componentsUrl}#application`;
 const packagesId = `${siteUrl}#packages`;
 const corporateDescription =
   "Founder-led software studio building creator-owned web platforms, private content systems, admin dashboards, and operational workflows for adult entertainment businesses.";
@@ -45,10 +49,6 @@ const resourceUrls = [
   "https://github.com/Foscat/ui-style-kit-css/wiki",
   "https://www.npmjs.com/package/ui-style-kit-css",
   "https://foscat.github.io/ui-style-kit-css/",
-  "https://github.com/Foscat/ui-style-kit-icons",
-  "https://github.com/Foscat/ui-style-kit-icons/wiki",
-  "https://www.npmjs.com/package/ui-style-kit-icons",
-  "https://foscat.github.io/ui-style-kit-icons/",
   "https://github.com/Foscat/Interactive-Surface-CSS",
   "https://github.com/Foscat/Interactive-Surface-CSS/wiki",
   "https://www.npmjs.com/package/interactive-surface-css",
@@ -184,9 +184,14 @@ function enforceArtifactBudget(actual, budget, label, issues) {
   }
 }
 
-function validateStructuredData(index, lab, notFound, issues) {
+function validateStructuredData(index, lab, components, notFound, issues) {
   const indexNodes = readStructuredDataNodes(index, "index.html", issues);
   const labNodes = readStructuredDataNodes(lab, "lab/index.html", issues);
+  const atlasNodes = readStructuredDataNodes(
+    components,
+    "components/index.html",
+    issues,
+  );
   const notFoundNodes = readStructuredDataNodes(notFound, "404.html", issues);
   const organization = requireSingleSchemaNode(
     indexNodes,
@@ -216,6 +221,18 @@ function validateStructuredData(index, lab, notFound, issues) {
     labNodes,
     "SoftwareApplication",
     "lab/index.html",
+    issues,
+  );
+  const atlasWebpage = requireSingleSchemaNode(
+    atlasNodes,
+    "WebPage",
+    "components/index.html",
+    issues,
+  );
+  const atlasApplication = requireSingleSchemaNode(
+    atlasNodes,
+    "SoftwareApplication",
+    "components/index.html",
     issues,
   );
   const packages = requireSingleSchemaNode(
@@ -270,13 +287,13 @@ function validateStructuredData(index, lab, notFound, issues) {
     requireExact(organization.url, corporateUrl, "Organization URL", issues);
     requireExact(
       organization.logo,
-      `${corporateUrl}/assets/icon-512.png`,
+      `${corporateUrl}assets/icon-512.png`,
       "Organization logo",
       issues,
     );
     requireExact(
       organization.image,
-      `${corporateUrl}/assets/social-preview.png`,
+      `${corporateUrl}assets/social-preview.png`,
       "Organization image",
       issues,
     );
@@ -370,10 +387,33 @@ function validateStructuredData(index, lab, notFound, issues) {
       issues,
     );
   }
+  if (atlasWebpage) {
+    requireExact(
+      atlasWebpage["@id"],
+      atlasWebpageId,
+      "Atlas WebPage @id",
+      issues,
+    );
+    requireExact(atlasWebpage.url, componentsUrl, "Atlas WebPage URL", issues);
+  }
+  if (atlasApplication) {
+    requireExact(
+      atlasApplication["@id"],
+      atlasApplicationId,
+      "Atlas SoftwareApplication @id",
+      issues,
+    );
+    requireExact(
+      atlasApplication.url,
+      componentsUrl,
+      "Atlas SoftwareApplication URL",
+      issues,
+    );
+  }
   if (packages) {
     requireExact(packages["@id"], packagesId, "ItemList @id", issues);
     requireExact(packages.url, `${siteUrl}#libraries`, "ItemList URL", issues);
-    requireExact(packages.numberOfItems, 4, "ItemList count", issues);
+    requireExact(packages.numberOfItems, 3, "ItemList count", issues);
     const packageContracts = (packages.itemListElement ?? []).map((entry) => ({
       codeRepository: entry.item?.codeRepository,
       name: entry.item?.name,
@@ -397,13 +437,6 @@ function validateStructuredData(index, lab, notFound, issues) {
           programmingLanguage: "CSS",
           url: "https://www.npmjs.com/package/ui-style-kit-css",
           version: "2.3.0",
-        },
-        {
-          codeRepository: "https://github.com/Foscat/ui-style-kit-icons",
-          name: "ui-style-kit-icons",
-          programmingLanguage: "JavaScript, SVG",
-          url: "https://www.npmjs.com/package/ui-style-kit-icons",
-          version: "1.0.0",
         },
         {
           codeRepository: "https://github.com/Foscat/Interactive-Surface-CSS",
@@ -435,6 +468,9 @@ export async function collectExportIssues() {
   const issues = [];
   const index = (await readExportFile("index.html", issues)).toString("utf8");
   const lab = (await readExportFile("lab/index.html", issues)).toString("utf8");
+  const components = (
+    await readExportFile("components/index.html", issues)
+  ).toString("utf8");
   const notFound = (await readExportFile("404.html", issues)).toString("utf8");
   const robots = (await readExportFile("robots.txt", issues)).toString("utf8");
   const sitemap = (await readExportFile("sitemap.xml", issues)).toString(
@@ -456,6 +492,7 @@ export async function collectExportIssues() {
   const shippingOutput = [
     index,
     lab,
+    components,
     notFound,
     robots,
     sitemap,
@@ -483,6 +520,12 @@ export async function collectExportIssues() {
     Buffer.byteLength(lab),
     256 * 1024,
     "Raw lab/index.html",
+    issues,
+  );
+  enforceArtifactBudget(
+    Buffer.byteLength(components),
+    768 * 1024,
+    "Raw components/index.html",
     issues,
   );
   enforceArtifactBudget(
@@ -515,6 +558,12 @@ export async function collectExportIssues() {
     lab,
     `<link rel="canonical" href="${labUrl}"`,
     "lab canonical URL",
+    issues,
+  );
+  requireText(
+    components,
+    `<link rel="canonical" href="${componentsUrl}"`,
+    "component atlas canonical URL",
     issues,
   );
   requireText(
@@ -592,6 +641,12 @@ export async function collectExportIssues() {
     issues,
   );
   requireText(
+    components,
+    "Every contract. Live, inspectable, and ready to copy.",
+    "component atlas primary content",
+    issues,
+  );
+  requireText(
     notFound,
     "This interface is outside the system.",
     "custom 404 content",
@@ -606,6 +661,12 @@ export async function collectExportIssues() {
       `Expected at least two corporate links, found ${companyLinkCount}`,
     );
   }
+  requireText(
+    index,
+    `href="${customizedPlatformsUrl}"`,
+    "Customized Platforms link",
+    issues,
+  );
 
   for (const staleUrl of staleLabUrls) {
     rejectText(shippingOutput, staleUrl, "superseded Lab URL", issues);
@@ -633,6 +694,10 @@ export async function collectExportIssues() {
   requireExact(headingCount, 1, "home h1 count", issues);
   const labHeadingCount = (lab.match(/<h1(?:\s|>)/g) ?? []).length;
   requireExact(labHeadingCount, 1, "lab h1 count", issues);
+  const atlasTitleCount = (
+    components.match(/<h1\s+id="atlas-title"(?:\s|>)/g) ?? []
+  ).length;
+  requireExact(atlasTitleCount, 1, "component atlas title count", issues);
 
   for (const url of resourceUrls) {
     requireText(lab, `href="${url}"`, "library resource link", issues);
@@ -640,8 +705,9 @@ export async function collectExportIssues() {
 
   await validateLocalAssets(index, "index.html", issues);
   await validateLocalAssets(lab, "lab/index.html", issues);
+  await validateLocalAssets(components, "components/index.html", issues);
   await validateLocalAssets(notFound, "404.html", issues);
-  validateStructuredData(index, lab, notFound, issues);
+  validateStructuredData(index, lab, components, notFound, issues);
 
   // Absolute metadata URLs still need a corresponding file in the Pages artifact.
   for (const metadataIcon of [
@@ -666,12 +732,18 @@ export async function collectExportIssues() {
   }
   requireExact(
     (sitemap.match(/<loc>/g) ?? []).length,
-    2,
+    3,
     "sitemap location count",
     issues,
   );
   requireText(sitemap, `<loc>${siteUrl}</loc>`, "sitemap location", issues);
   requireText(sitemap, `<loc>${labUrl}</loc>`, "lab sitemap location", issues);
+  requireText(
+    sitemap,
+    `<loc>${componentsUrl}</loc>`,
+    "component atlas sitemap location",
+    issues,
+  );
   rejectText(sitemap, "<lastmod>", "unstable sitemap lastmod", issues);
 
   for (const [name, expected] of [

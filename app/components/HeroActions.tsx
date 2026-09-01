@@ -21,10 +21,10 @@ export function HomeHeroActions() {
         data-hero-action="secondary"
         data-surface-variant="subtle"
         data-surface-level="1"
-        href="#libraries"
+        href={withBasePath(SITE.componentsPath)}
         tabIndex={0}
       >
-        Explore the packages
+        Explore every component
       </a>
     </div>
   );

@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 
-test("Turbopack development hydrates UiIcon before custom-element upgrade", async ({
+test("Turbopack development hydrates the interactive routes cleanly", async ({
   page,
 }) => {
   const hydrationDiagnostics: string[] = [];
@@ -14,25 +14,15 @@ test("Turbopack development hydrates UiIcon before custom-element upgrade", asyn
       hydrationDiagnostics.push(message.text());
     }
   });
-  page.on("pageerror", (error) => {
-    pageErrors.push(error.message);
+  page.on("pageerror", (error) => pageErrors.push(error.message));
+
+  await page.goto("/components/");
+  const search = page.getByRole("searchbox", {
+    name: "Search components and contracts",
   });
-
-  await page.goto("/lab/");
-
-  const icons = page.locator("#icons usk-icon");
-  await expect(icons).toHaveCount(14);
-  await expect
-    .poll(() =>
-      icons
-        .first()
-        .evaluate(
-          (icon) =>
-            Boolean(customElements.get("usk-icon")) &&
-            Boolean(icon.shadowRoot?.querySelector("svg")),
-        ),
-    )
-    .toBe(true);
+  await expect(search).toBeVisible();
+  await search.fill("button");
+  await expect(page.locator("[data-atlas-specimen]").first()).toBeVisible();
 
   expect(hydrationDiagnostics).toEqual([]);
   expect(pageErrors).toEqual([]);

@@ -2,6 +2,7 @@ const basePath = "/interface-systems-lab";
 const origin = "https://sanderson-technology-enterprises.github.io";
 const productionUrl = `${origin}${basePath}/`;
 const labPath = "/lab/";
+const componentsPath = "/components/";
 
 export const SITE = {
   basePath,
@@ -9,15 +10,18 @@ export const SITE = {
   name: "Interface Systems Lab",
   title: "Interface Systems Lab | Accessible CSS Interface Systems",
   description:
-    "Explore and combine layout-style-css, ui-style-kit-css, ui-style-kit-icons, and interactive-surface-css in a live accessible interface workbench.",
+    "Explore and combine layout-style-css, ui-style-kit-css, and interactive-surface-css in a live accessible interface workbench.",
   url: productionUrl,
   labPath,
   labUrl: new URL(labPath.replace(/^\/+/, ""), productionUrl).href,
+  componentsPath,
+  componentsUrl: new URL(componentsPath.replace(/^\/+/, ""), productionUrl)
+    .href,
   repository:
     "https://github.com/Sanderson-Technology-Enterprises/interface-systems-lab",
   socialImage: `${productionUrl}interface-systems-lab-social-card.png`,
   socialImageAlt:
-    "Interface Systems Lab social card with the text \u201c3 libraries, 1 interface, and 134,400 possibilities\u201d over layout, identity, and interaction.",
+    "Interface Systems Lab social card with the text \u201c3 libraries, 1 interface, and 44,800 possibilities\u201d over layout, identity, and interaction.",
   brandLogoPath: "android-chrome-512x512.png",
   brandLogo: `${productionUrl}android-chrome-512x512.png`,
   brandLogoAlt: "Interface Systems Lab logo",
@@ -25,7 +29,7 @@ export const SITE = {
     name: "Sanderson Technology Enterprises",
     title: "Sanderson Technology Enterprises | Strategic Platform Development",
     slogan: "Strategic Platform Development",
-    url: "https://sandersontechnologyenterprises.com",
+    url: "https://sandersontechnologyenterprises.com/",
     github: "https://github.com/Sanderson-Technology-Enterprises",
     organizationId: "https://sandersontechnologyenterprises.com/#organization",
     logo: "https://sandersontechnologyenterprises.com/assets/icon-512.png",
@@ -33,6 +37,10 @@ export const SITE = {
       "https://sandersontechnologyenterprises.com/assets/social-preview.png",
     description:
       "Founder-led software studio building creator-owned web platforms, private content systems, admin dashboards, and operational workflows for adult entertainment businesses.",
+  },
+  customizedPlatforms: {
+    name: "Customized Platforms",
+    url: "https://customizedplatforms.com/",
   },
   productLine: "A Sanderson Technology Enterprises product",
   locale: "en_US",

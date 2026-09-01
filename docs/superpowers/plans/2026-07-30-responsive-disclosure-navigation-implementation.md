@@ -13,7 +13,7 @@ through a nonmodal disclosure panel at or below `78rem`. Use local CSS only for
 geometry while `interactive-surface-css` owns interactive state paint.
 
 **Tech Stack:** Next.js 16, React 19, TypeScript, layout-style-css 3,
-ui-style-kit-css, ui-style-kit-icons, interactive-surface-css, CSS media
+ui-style-kit-css, interactive-surface-css, application-owned SVG utilities, CSS media
 queries, Playwright, ESLint, Prettier
 
 ## Global Constraints
@@ -24,7 +24,7 @@ queries, Playwright, ESLint, Prettier
 - Follow test-driven development: add and observe a focused failing browser
   regression before production changes.
 - Keep one navigation DOM; do not duplicate mobile and desktop link lists.
-- Use the typed `UiIcon` component for the menu icon.
+- Use the local decorative `MenuIcon` component for the menu glyph.
 - Use professional comments only where behavior or ownership is non-obvious.
 - Do not add local hover, focus, active, or pressed overrides to the navigation
   controls.
