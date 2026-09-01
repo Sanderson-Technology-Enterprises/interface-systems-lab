@@ -7,6 +7,8 @@ const repositoryRoot = path.resolve(
   "..",
 );
 const exportRoot = path.join(repositoryRoot, "out");
+/** Maximum CSS payload for the complete ui-style-kit-css 2.3 preset matrix. */
+const nextCssBudgetBytes = 1024 * 1024;
 const googleVerificationFile = "google5abb0289b99a9f42.html";
 const googleVerificationText =
   "google-site-verification: google5abb0289b99a9f42.html";
@@ -20,7 +22,7 @@ const corporateGithub = "https://github.com/Sanderson-Technology-Enterprises";
 const repositoryUrl = `${corporateGithub}/interface-systems-lab`;
 const socialImageUrl = `${siteUrl}interface-systems-lab-social-card.png`;
 const socialImageAlt =
-  "Interface Systems Lab social card with the text \u201c4 libraries, 1 interface, and 5,280 possibilities\u201d over layout, identity, iconography, and interaction.";
+  "Interface Systems Lab social card with the text \u201c3 libraries, 1 interface, and 134,400 possibilities\u201d over layout, identity, and interaction.";
 const labLogoUrl = `${siteUrl}android-chrome-512x512.png`;
 const websiteId = `${siteUrl}#website`;
 const webpageId = `${siteUrl}#webpage`;
@@ -394,7 +396,7 @@ function validateStructuredData(index, lab, notFound, issues) {
           name: "ui-style-kit-css",
           programmingLanguage: "CSS",
           url: "https://www.npmjs.com/package/ui-style-kit-css",
-          version: "2.2.0",
+          version: "2.3.0",
         },
         {
           codeRepository: "https://github.com/Foscat/ui-style-kit-icons",
@@ -491,7 +493,7 @@ export async function collectExportIssues() {
   );
   enforceArtifactBudget(
     totalByExtension(/\.css$/),
-    512 * 1024,
+    nextCssBudgetBytes,
     "Total Next.js CSS",
     issues,
   );

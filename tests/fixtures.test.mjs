@@ -64,11 +64,11 @@ const expectedPackages = {
 const expectedAssets = {
   "ui-visual": {
     export: "ui-style-kit-css/visual.css",
-    target: "assets/ui-style-kit-css/2.2.0/ui-style-kit.visual.css",
+    target: "assets/ui-style-kit-css/2.3.0/ui-style-kit.visual.css",
   },
   "ui-theme": {
     export: "ui-style-kit-css/interactive-surface-theme.css",
-    target: "assets/ui-style-kit-css/2.2.0/interactive-surface-theme.css",
+    target: "assets/ui-style-kit-css/2.3.0/interactive-surface-theme.css",
   },
   "icon-css": {
     export: "ui-style-kit-icons/css.css",
@@ -299,7 +299,7 @@ test("validation rejects unsafe inputs before replacing generated output", async
           "ui-style-kit-css": "9.9.9",
         },
       },
-      pattern: /ui-style-kit-css.*expected 9\.9\.9.*found 2\.2\.0/i,
+      pattern: /ui-style-kit-css.*expected 9\.9\.9.*found 2\.3\.0/i,
     },
     {
       label: "missing export",
@@ -432,7 +432,7 @@ test("copied package styles are byte-identical to their public exports", async (
   }
 
   const expectedVersions = {
-    "ui-style-kit-css": "2.2.0",
+    "ui-style-kit-css": "2.3.0",
     "ui-style-kit-icons": "1.0.0",
     "interactive-surface-css": "1.6.0",
     "layout-style-css": "3.1.0",

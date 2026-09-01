@@ -29,7 +29,7 @@ const repositoryUrl =
   "https://github.com/Sanderson-Technology-Enterprises/interface-systems-lab";
 const socialImageUrl = `${canonicalUrl}interface-systems-lab-social-card.png`;
 const socialImageAlt =
-  "Interface Systems Lab social card with the text \u201c4 libraries, 1 interface, and 5,280 possibilities\u201d over layout, identity, iconography, and interaction.";
+  "Interface Systems Lab social card with the text \u201c3 libraries, 1 interface, and 134,400 possibilities\u201d over layout, identity, and interaction.";
 const websiteId = `${canonicalUrl}#website`;
 const webpageId = `${canonicalUrl}#webpage`;
 const labWebpageId = `${labUrl}#webpage`;
@@ -168,6 +168,7 @@ test("icons follow the selected UI pack and expose frame variants", async ({
     ["cyberpunk", "cyberpunk", "Cyberpunk"],
     ["retrofuturism", "synthwave", "Synthwave"],
     ["bauhaus", "system", "System"],
+    ["editorial-luxe", "system", "System"],
   ] as const) {
     await page.getByLabel(/02.*Visual style/).selectOption(ui);
     await expect(lab.locator("[data-active-icon-pack]")).toHaveText(label);
@@ -1175,7 +1176,7 @@ test("renders the production metadata and complete resource directory", async ({
           name: "ui-style-kit-css",
           programmingLanguage: "CSS",
           url: "https://www.npmjs.com/package/ui-style-kit-css",
-          version: "2.2.0",
+          version: "2.3.0",
         },
       },
       {
@@ -1230,7 +1231,7 @@ test("renders the production metadata and complete resource directory", async ({
 
   for (const [name, version] of [
     ["layout-style-css", "3.1.0"],
-    ["ui-style-kit-css", "2.2.0"],
+    ["ui-style-kit-css", "2.3.0"],
     ["ui-style-kit-icons", "1.0.0"],
     ["interactive-surface-css", "1.6.0"],
   ]) {
@@ -1697,14 +1698,14 @@ test("configuration randomize persists a catalog-valid combination", async ({
 
   const configured: ExpectedConfiguration = {
     layout: "split-screen",
-    ui: "retro-glass",
-    theme: "arctic-indigo",
+    ui: "neo-noir",
+    theme: "electric-noir",
     mode: "contrast",
   };
   await expectRootConfiguration(page, configured);
   await expect.poll(() => readStoredConfiguration(page)).toEqual(configured);
   expect(new URL(page.url()).search).toBe(
-    "?layout=split-screen&ui=retro-glass&theme=arctic-indigo&mode=contrast",
+    "?layout=split-screen&ui=neo-noir&theme=electric-noir&mode=contrast",
   );
 });
 

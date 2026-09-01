@@ -3,6 +3,7 @@ import { createHash } from "node:crypto";
 import { readFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
+import sharp from "sharp";
 import test from "node:test";
 
 const repositoryRoot = path.resolve(
@@ -78,10 +79,6 @@ const pngDimensions = new Map([
   ["public/maskable-icon-512x512.png", [512, 512]],
   ["public/mstile-150x150.png", [150, 150]],
   ["public/interface-systems-lab-social-card.png", [1200, 630]],
-  [
-    "assets/brand/interface-systems-lab-social-card-background.png",
-    [1200, 630],
-  ],
 ]);
 
 function sha256(buffer) {
@@ -122,6 +119,29 @@ test("brand PNG outputs retain their public dimensions", async () => {
       relativePath,
     );
   }
+});
+
+test("generated social card preserves the supplied artwork without overlays", async () => {
+  const sourcePath = path.join(
+    repositoryRoot,
+    "assets/brand/interface-systems-lab-social-card-source.png",
+  );
+  const outputPath = path.join(
+    repositoryRoot,
+    "public/interface-systems-lab-social-card.png",
+  );
+  const expected = await sharp(sourcePath)
+    .resize(1200, 630, { fit: "cover", position: "centre" })
+    .removeAlpha()
+    .raw()
+    .toBuffer();
+  const actual = await sharp(outputPath).removeAlpha().raw().toBuffer();
+
+  assert.equal(
+    actual.equals(expected),
+    true,
+    "generated social-card pixels must match the approved source artwork",
+  );
 });
 
 test("logo source files preserve transparent and chroma-ready formats", async () => {
