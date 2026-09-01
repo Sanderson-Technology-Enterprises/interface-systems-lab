@@ -1,18 +1,14 @@
 export type ResourceLink = "repository" | "wiki" | "npm" | "demo";
 
 export type EcosystemPackage = {
-  name:
-    | "layout-style-css"
-    | "ui-style-kit-css"
-    | "ui-style-kit-icons"
-    | "interactive-surface-css";
+  name: "layout-style-css" | "ui-style-kit-css" | "interactive-surface-css";
   displayName: string;
   version: string;
   layer: string;
   summary: string;
   attribute: string;
   recommendedEntryPoint: string;
-  fixture: "layout-only" | "ui-only" | "icon-only" | "interactive-only";
+  fixture: "layout-only" | "ui-only" | "interactive-only";
   links: Record<ResourceLink, string>;
 };
 
@@ -52,23 +48,6 @@ export const ECOSYSTEM_PACKAGES: readonly EcosystemPackage[] = [
     },
   },
   {
-    name: "ui-style-kit-icons",
-    displayName: "UI Style Kit Icons",
-    version: "1.0.0",
-    layer: "Iconography",
-    summary:
-      "Semantic SVG artwork that automatically follows the selected UI style.",
-    attribute: '<usk-icon name="dashboard">',
-    recommendedEntryPoint: "ui-style-kit-icons/element",
-    fixture: "icon-only",
-    links: {
-      repository: "https://github.com/Foscat/ui-style-kit-icons",
-      wiki: "https://github.com/Foscat/ui-style-kit-icons/wiki",
-      npm: "https://www.npmjs.com/package/ui-style-kit-icons",
-      demo: "https://foscat.github.io/ui-style-kit-icons/",
-    },
-  },
-  {
     name: "interactive-surface-css",
     displayName: "Interactive Surface CSS",
     version: "1.6.0",
@@ -88,33 +67,19 @@ export const ECOSYSTEM_PACKAGES: readonly EcosystemPackage[] = [
 ] as const;
 
 export const NPM_INSTALL =
-  "npm install ui-style-kit-css@2.3.0 ui-style-kit-icons@1.0.0 layout-style-css@3.1.0 interactive-surface-css@1.6.0";
+  "npm install ui-style-kit-css@2.3.0 layout-style-css@3.1.0 interactive-surface-css@1.6.0";
 
 export const BUNDLER_IMPORTS = [
   'import "ui-style-kit-css/visual.css";',
   'import "ui-style-kit-css/interactive-surface-theme.css";',
   'import "interactive-surface-css/state-core.css";',
   'import "layout-style-css";',
-  'import "ui-style-kit-icons/css.css";',
-  'import "ui-style-kit-icons/element";',
 ] as const;
 
 type CdnAsset = {
   readonly packageName: EcosystemPackage["name"];
   readonly kind: "module" | "style";
   readonly href: string;
-};
-
-const iconCssCdn: CdnAsset = {
-  packageName: "ui-style-kit-icons",
-  kind: "style",
-  href: "https://cdn.jsdelivr.net/npm/ui-style-kit-icons@1.0.0/dist/ui-style-kit-icons.css",
-};
-
-const iconRuntimeCdn: CdnAsset = {
-  packageName: "ui-style-kit-icons",
-  kind: "module",
-  href: "https://cdn.jsdelivr.net/npm/ui-style-kit-icons@1.0.0/dist/ui-style-kit-icons.js",
 };
 
 export const CDN_LINKS = [
@@ -138,8 +103,6 @@ export const CDN_LINKS = [
     kind: "style",
     href: "https://cdn.jsdelivr.net/npm/layout-style-css@3.1.0/dist/layout-style-css.min.css",
   },
-  iconCssCdn,
-  iconRuntimeCdn,
 ] as const satisfies readonly CdnAsset[];
 
 function cdnMarkup(assets: readonly CdnAsset[]): string {
@@ -157,10 +120,8 @@ export const CDN_MARKUP = cdnMarkup(CDN_LINKS);
 export type AdoptionPathId =
   | "layout-only"
   | "ui-only"
-  | "icons-only"
   | "interactive-only"
   | "layout-ui"
-  | "ui-icons"
   | "layout-interactive"
   | "ui-interactive"
   | "all-canonical";
@@ -262,25 +223,6 @@ export const ADOPTION_PATHS = [
     ),
   },
   {
-    id: "icons-only",
-    scope: "one",
-    title: "UI Style Kit Icons",
-    summary:
-      "Adopt semantic SVG artwork that follows the selected UI style without a layout dependency.",
-    packages: ["ui-style-kit-icons"],
-    deprecated: false,
-    snippets: adoptionSnippets(
-      "icons-only",
-      "npm install ui-style-kit-icons@1.0.0",
-      [
-        'import "ui-style-kit-icons/css.css";',
-        'import "ui-style-kit-icons/element";',
-      ],
-      [iconCssCdn, iconRuntimeCdn],
-      "Install UI Style Kit Icons",
-    ),
-  },
-  {
     id: "interactive-only",
     scope: "one",
     title: "Interactive Surface CSS",
@@ -310,26 +252,6 @@ export const ADOPTION_PATHS = [
       ['import "ui-style-kit-css/visual.css";', 'import "layout-style-css";'],
       [uiVisualCdn, layoutCdn],
       "Install Layout and UI",
-    ),
-  },
-  {
-    id: "ui-icons",
-    scope: "pair",
-    title: "UI plus icons",
-    summary:
-      "Pair UI style tokens with semantic SVG artwork that inherits the selected visual language.",
-    packages: ["ui-style-kit-css", "ui-style-kit-icons"],
-    deprecated: false,
-    snippets: adoptionSnippets(
-      "ui-icons",
-      "npm install ui-style-kit-css@2.3.0 ui-style-kit-icons@1.0.0",
-      [
-        'import "ui-style-kit-css/visual.css";',
-        'import "ui-style-kit-icons/css.css";',
-        'import "ui-style-kit-icons/element";',
-      ],
-      [uiVisualCdn, iconCssCdn, iconRuntimeCdn],
-      "Install UI and Icons",
     ),
   },
   {
@@ -374,13 +296,12 @@ export const ADOPTION_PATHS = [
   {
     id: "all-canonical",
     scope: "all",
-    title: "The canonical all-four stack",
+    title: "The canonical three-library stack",
     summary:
       "Use the complete ownership-separated stack demonstrated by the flagship page.",
     packages: [
       "layout-style-css",
       "ui-style-kit-css",
-      "ui-style-kit-icons",
       "interactive-surface-css",
     ],
     deprecated: false,
@@ -389,7 +310,7 @@ export const ADOPTION_PATHS = [
       NPM_INSTALL,
       BUNDLER_IMPORTS,
       CDN_LINKS,
-      "Install all four",
+      "Install all three",
     ),
   },
 ] as const satisfies readonly AdoptionPath[];

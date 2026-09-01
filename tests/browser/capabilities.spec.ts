@@ -129,10 +129,8 @@ const interactionLevels = ["1", "2", "3"] as const;
 const integrationFixtures = [
   "layout-only",
   "ui-only",
-  "icon-only",
   "interactive-only",
   "layout-ui",
-  "ui-icons",
   "layout-interactive",
   "ui-interactive",
   "all-canonical",
@@ -142,10 +140,8 @@ const integrationFixtureDomOrder = [
   "all-canonical",
   "layout-only",
   "ui-only",
-  "icon-only",
   "interactive-only",
   "layout-ui",
-  "ui-icons",
   "layout-interactive",
   "ui-interactive",
 ] as const;
@@ -154,10 +150,8 @@ const adoptionDomOrder = [
   "all-canonical",
   "layout-only",
   "ui-only",
-  "icons-only",
   "interactive-only",
   "layout-ui",
-  "ui-icons",
   "layout-interactive",
   "ui-interactive",
 ] as const;
@@ -165,10 +159,8 @@ const adoptionDomOrder = [
 const integrationTruth = {
   "layout-only": { interaction: false, layout: true, ui: false },
   "ui-only": { interaction: false, layout: false, ui: true },
-  "icon-only": { interaction: false, layout: false, ui: false },
   "interactive-only": { interaction: true, layout: false, ui: false },
   "layout-ui": { interaction: false, layout: true, ui: true },
-  "ui-icons": { interaction: false, layout: false, ui: true },
   "layout-interactive": { interaction: true, layout: true, ui: false },
   "ui-interactive": { interaction: true, layout: false, ui: true },
   "all-canonical": { interaction: true, layout: true, ui: true },
@@ -2171,7 +2163,7 @@ test("review contract renders distinct variant and level treatments", async ({
   expect(new Set(levelSignatures).size).toBe(interactionLevels.length);
 });
 
-test("integration laboratory progressively discloses exactly nine isolated fixtures", async ({
+test("integration laboratory progressively discloses exactly seven isolated fixtures", async ({
   page,
 }) => {
   await expect(page.locator("#integrate")).toHaveCount(1);
@@ -2182,10 +2174,10 @@ test("integration laboratory progressively discloses exactly nine isolated fixtu
   ).toBeVisible();
   await expect(
     page.locator('[data-integration-group="one"] [data-integration-fixture]'),
-  ).toHaveCount(4);
+  ).toHaveCount(3);
   await expect(
     page.locator('[data-integration-group="pair"] [data-integration-fixture]'),
-  ).toHaveCount(4);
+  ).toHaveCount(3);
 
   const frames = page.locator("#integrate iframe[data-integration-fixture]");
   await expect(frames).toHaveCount(integrationFixtures.length);
@@ -2217,7 +2209,7 @@ test("integration laboratory progressively discloses exactly nine isolated fixtu
   const standaloneProofs = page.locator(
     "#libraries [data-package] [data-standalone-fixture]",
   );
-  await expect(standaloneProofs).toHaveCount(4);
+  await expect(standaloneProofs).toHaveCount(3);
   expect(
     await standaloneProofs.evaluateAll((links) =>
       links.map((link) => ({
@@ -2240,11 +2232,6 @@ test("integration laboratory progressively discloses exactly nine isolated fixtu
       packageName: "ui-style-kit-css",
     },
     {
-      fixture: "icon-only",
-      href: "/interface-systems-lab/fixtures/generated/icon-only.html",
-      packageName: "ui-style-kit-icons",
-    },
-    {
       fixture: "interactive-only",
       href: "/interface-systems-lab/fixtures/generated/interactive-only.html",
       packageName: "interactive-surface-css",
@@ -2253,7 +2240,6 @@ test("integration laboratory progressively discloses exactly nine isolated fixtu
   for (const displayName of [
     "Layout Style CSS",
     "UI Style Kit CSS",
-    "UI Style Kit Icons",
     "Interactive Surface CSS",
   ]) {
     await expect(
@@ -2386,7 +2372,7 @@ test("installation guidance renders all current adoption paths", async ({
   ).toHaveCount(0);
   await expect(
     page.locator('[data-adoption-path="all-canonical"]'),
-  ).toContainText("Install all four");
+  ).toContainText("Install all three");
 
   // The repeated snippet titles remain distinguishable when every supported
   // path is visible to assistive technology at the same time.

@@ -1,5 +1,6 @@
 node_modules/
 .next/
+next-env.d.ts
 out/
 .preview/
 .qa/
@@ -9,7 +10,6 @@ test-results/
 .playwright-cli/
 output/
 /public/fixtures/generated/
-public/assets/ui-style-kit-icons/
 .superpowers/
 *.tsbuildinfo
 .env*

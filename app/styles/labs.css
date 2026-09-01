@@ -557,25 +557,3 @@
 .collision-surface {
   min-inline-size: min(100%, 15rem);
 }
-
-.icon-lab-toolbar,
-.icon-accessibility-proof {
-  justify-content: space-between;
-}
-
-.icon-lab-toolbar label {
-  display: grid;
-  gap: 0.5rem;
-}
-
-.icon-specimen-grid {
-  --ly-grid-min: min(100%, 10rem);
-}
-
-.icon-specimen {
-  min-inline-size: 0;
-}
-
-.icon-frame-action usk-icon {
-  flex: none;
-}

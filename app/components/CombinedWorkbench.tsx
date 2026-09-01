@@ -16,7 +16,7 @@ function formatLabel(value: string): string {
  * Renders the task-oriented client workspace using the active interface
  * configuration and Layout Style CSS workspace contracts.
  *
- * @returns The combined four-layer workbench section.
+ * @returns The combined three-library workbench section.
  */
 export function CombinedWorkbench() {
   const { configuration, announce } = useLabConfiguration();
@@ -40,7 +40,7 @@ export function CombinedWorkbench() {
         <div className="section-heading ly-split ly-gap-6 ly-items-end">
           <div className="ly-stack ly-gap-2">
             <p className="section-label">Live client outcome</p>
-            <h2 id="workbench-title">See all four layers in one workspace.</h2>
+            <h2 id="workbench-title">See all three layers in one workspace.</h2>
           </div>
           <p>
             A realistic delivery workspace doubles as a developer proof: the

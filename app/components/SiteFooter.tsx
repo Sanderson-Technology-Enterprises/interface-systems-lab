@@ -26,15 +26,22 @@ export function SiteFooter({ companyUrl }: SiteFooterProps) {
           <p className="ly-stack ly-gap-2">
             <strong>{SITE.name}</strong>
             <small>{SITE.productLine}</small>
-            <small>
-              One semantic interface. Four focused ecosystem layers.
-            </small>
+            <small>One semantic interface. Three focused CSS libraries.</small>
           </p>
         </div>
 
         <div className="ly-cluster ly-gap-4 ly-items-start">
           <a href={companyUrl} target="_blank" rel="noreferrer noopener">
             Sanderson Technology Enterprises
+            <ExternalLinkIcon />
+            <span className="ly-visually-hidden"> (opens in a new tab)</span>
+          </a>
+          <a
+            href={SITE.customizedPlatforms.url}
+            target="_blank"
+            rel="noreferrer noopener"
+          >
+            {SITE.customizedPlatforms.name}
             <ExternalLinkIcon />
             <span className="ly-visually-hidden"> (opens in a new tab)</span>
           </a>

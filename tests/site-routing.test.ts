@@ -3,7 +3,7 @@ import test from "node:test";
 
 import { SITE, withBasePath } from "../app/lib/site";
 
-test("site URLs expose the Pages-safe lab route", () => {
+test("site URLs expose the Pages-safe lab and component routes", () => {
   assert.equal(SITE.labPath, "/lab/");
   assert.equal(
     SITE.labUrl,
@@ -12,6 +12,15 @@ test("site URLs expose the Pages-safe lab route", () => {
   assert.equal(
     withBasePath(SITE.labPath, "interface-systems-lab"),
     "/interface-systems-lab/lab/",
+  );
+  assert.equal(SITE.componentsPath, "/components/");
+  assert.equal(
+    SITE.componentsUrl,
+    "https://sanderson-technology-enterprises.github.io/interface-systems-lab/components/",
+  );
+  assert.equal(
+    withBasePath(SITE.componentsPath, "interface-systems-lab"),
+    "/interface-systems-lab/components/",
   );
 });
 

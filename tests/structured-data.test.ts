@@ -8,6 +8,9 @@ type StructuredDataModule = {
   buildLabStructuredData?: () => {
     "@graph": Array<Record<string, unknown>>;
   };
+  buildAtlasStructuredData?: () => {
+    "@graph": Array<Record<string, unknown>>;
+  };
   serializeStructuredData?: (value: unknown) => string;
 };
 
@@ -33,7 +36,25 @@ test("homepage structured data describes the overview and package list", async (
     packages?.url,
     "https://sanderson-technology-enterprises.github.io/interface-systems-lab/#libraries",
   );
-  assert.equal(packages?.numberOfItems, 4);
+  assert.equal(packages?.numberOfItems, 3);
+});
+
+test("atlas structured data assigns the application to the component route", async () => {
+  const structuredData = await loadStructuredDataModule();
+
+  assert.equal(typeof structuredData.buildAtlasStructuredData, "function");
+  if (structuredData.buildAtlasStructuredData === undefined) return;
+
+  const graph = structuredData.buildAtlasStructuredData()["@graph"];
+  const webPage = graph.find((node) => node["@type"] === "WebPage");
+  const application = graph.find(
+    (node) => node["@type"] === "SoftwareApplication",
+  );
+
+  const expectedUrl =
+    "https://sanderson-technology-enterprises.github.io/interface-systems-lab/components/";
+  assert.equal(webPage?.url, expectedUrl);
+  assert.equal(application?.url, expectedUrl);
 });
 
 test("lab structured data assigns the application to the lab route", async () => {
