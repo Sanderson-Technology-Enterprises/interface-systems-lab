@@ -1,20 +1,20 @@
 # Interface Systems Lab
 
-[Interface Systems Lab](https://sanderson-technology-enterprises.github.io/interface-systems-lab/) is an interactive observatory for four coordinated, independently useful interface packages. It demonstrates how structure, visual identity, iconography, and interaction can share one semantic HTML contract.
+[Interface Systems Lab](https://sanderson-technology-enterprises.github.io/interface-systems-lab/) is an interactive observatory for three coordinated, independently useful CSS libraries. It demonstrates how structure, visual identity, and interaction can share one semantic HTML contract.
 
-- Product owner: [Sanderson Technology Enterprises](https://sandersontechnologyenterprises.com)
+- Product owner: [Sanderson Technology Enterprises](https://sandersontechnologyenterprises.com/)
+- Custom platform work: [Customized Platforms](https://customizedplatforms.com/)
 - Live site: [sanderson-technology-enterprises.github.io/interface-systems-lab](https://sanderson-technology-enterprises.github.io/interface-systems-lab/)
 - Source: [Sanderson-Technology-Enterprises/interface-systems-lab](https://github.com/Sanderson-Technology-Enterprises/interface-systems-lab)
 - Deployment target: GitHub Pages
 
 ## Ecosystem resources
 
-| Layer       | Package                         | Repository                                                      | Wiki                                                           | npm                                                          | Demo                                                           |
-| ----------- | ------------------------------- | --------------------------------------------------------------- | -------------------------------------------------------------- | ------------------------------------------------------------ | -------------------------------------------------------------- |
-| Structure   | `layout-style-css@3.1.0`        | [Repository](https://github.com/Foscat/Layout-Style-CSS)        | [Wiki](https://github.com/Foscat/Layout-Style-CSS/wiki)        | [npm](https://www.npmjs.com/package/layout-style-css)        | [Live demo](https://foscat.github.io/Layout-Style-CSS/)        |
-| Identity    | `ui-style-kit-css@2.3.0`        | [Repository](https://github.com/Foscat/ui-style-kit-css)        | [Wiki](https://github.com/Foscat/ui-style-kit-css/wiki)        | [npm](https://www.npmjs.com/package/ui-style-kit-css)        | [Live demo](https://foscat.github.io/ui-style-kit-css/)        |
-| Iconography | `ui-style-kit-icons@1.0.0`      | [Repository](https://github.com/Foscat/ui-style-kit-icons)      | [Wiki](https://github.com/Foscat/ui-style-kit-icons/wiki)      | [npm](https://www.npmjs.com/package/ui-style-kit-icons)      | [Live demo](https://foscat.github.io/ui-style-kit-icons/)      |
-| Behavior    | `interactive-surface-css@1.6.0` | [Repository](https://github.com/Foscat/Interactive-Surface-CSS) | [Wiki](https://github.com/Foscat/Interactive-Surface-CSS/wiki) | [npm](https://www.npmjs.com/package/interactive-surface-css) | [Live demo](https://foscat.github.io/Interactive-Surface-CSS/) |
+| Layer     | Package                         | Repository                                                      | Wiki                                                           | npm                                                          | Demo                                                           |
+| --------- | ------------------------------- | --------------------------------------------------------------- | -------------------------------------------------------------- | ------------------------------------------------------------ | -------------------------------------------------------------- |
+| Structure | `layout-style-css@3.1.0`        | [Repository](https://github.com/Foscat/Layout-Style-CSS)        | [Wiki](https://github.com/Foscat/Layout-Style-CSS/wiki)        | [npm](https://www.npmjs.com/package/layout-style-css)        | [Live demo](https://foscat.github.io/Layout-Style-CSS/)        |
+| Identity  | `ui-style-kit-css@2.3.0`        | [Repository](https://github.com/Foscat/ui-style-kit-css)        | [Wiki](https://github.com/Foscat/ui-style-kit-css/wiki)        | [npm](https://www.npmjs.com/package/ui-style-kit-css)        | [Live demo](https://foscat.github.io/ui-style-kit-css/)        |
+| Behavior  | `interactive-surface-css@1.6.0` | [Repository](https://github.com/Foscat/Interactive-Surface-CSS) | [Wiki](https://github.com/Foscat/Interactive-Surface-CSS/wiki) | [npm](https://www.npmjs.com/package/interactive-surface-css) | [Live demo](https://foscat.github.io/Interactive-Surface-CSS/) |
 
 ## Adoption matrix
 
@@ -22,29 +22,27 @@ Every package is independently useful. The showcase documents and renders all
 supported combinations so teams can begin with one responsibility and add
 layers without changing ownership boundaries.
 
-| Path                 | Packages                       | Recommended entry points                                                                                                                                                                                  |
-| -------------------- | ------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Layout only          | Layout                         | `layout-style-css`                                                                                                                                                                                        |
-| UI only              | UI                             | `ui-style-kit-css/visual.css`                                                                                                                                                                             |
-| Icons only           | Icons                          | `ui-style-kit-icons/css.css`, `ui-style-kit-icons/element`                                                                                                                                                |
-| Interaction only     | Interaction                    | `interactive-surface-css/standalone-preset.css`                                                                                                                                                           |
-| Layout + UI          | Layout, UI                     | `ui-style-kit-css/visual.css`, `layout-style-css`                                                                                                                                                         |
-| UI + icons           | UI, icons                      | `ui-style-kit-css/visual.css`, `ui-style-kit-icons/css.css`, `ui-style-kit-icons/element`                                                                                                                 |
-| Layout + interaction | Layout, interaction            | `interactive-surface-css/standalone-preset.css`, `layout-style-css`                                                                                                                                       |
-| UI + interaction     | UI, interaction                | `ui-style-kit-css/visual.css`, `ui-style-kit-css/interactive-surface-theme.css`, `interactive-surface-css/state-core.css`                                                                                 |
-| Canonical all-four   | Layout, UI, icons, interaction | `ui-style-kit-css/visual.css`, `ui-style-kit-css/interactive-surface-theme.css`, `interactive-surface-css/state-core.css`, `layout-style-css`, `ui-style-kit-icons/css.css`, `ui-style-kit-icons/element` |
+| Path                 | Libraries               | Recommended entry points                                                                                                                      |
+| -------------------- | ----------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
+| Layout only          | Layout                  | `layout-style-css`                                                                                                                            |
+| UI only              | UI                      | `ui-style-kit-css/visual.css`                                                                                                                 |
+| Interaction only     | Interaction             | `interactive-surface-css/standalone-preset.css`                                                                                               |
+| Layout + UI          | Layout, UI              | `ui-style-kit-css/visual.css`, `layout-style-css`                                                                                             |
+| Layout + interaction | Layout, interaction     | `interactive-surface-css/standalone-preset.css`, `layout-style-css`                                                                           |
+| UI + interaction     | UI, interaction         | `ui-style-kit-css/visual.css`, `ui-style-kit-css/interactive-surface-theme.css`, `interactive-surface-css/state-core.css`                     |
+| Complete stack       | Layout, UI, interaction | `ui-style-kit-css/visual.css`, `ui-style-kit-css/interactive-surface-theme.css`, `interactive-surface-css/state-core.css`, `layout-style-css` |
 
 ## Install with npm
 
 Install the exact aligned releases:
 
 ```bash
-npm install ui-style-kit-css@2.3.0 ui-style-kit-icons@1.0.0 layout-style-css@3.1.0 interactive-surface-css@1.6.0
+npm install ui-style-kit-css@2.3.0 layout-style-css@3.1.0 interactive-surface-css@1.6.0
 ```
 
 Then load the package entry points in ownership order. UI Style Kit establishes
-paint and theme tokens, UI Style Kit Icons supplies semantic SVG artwork,
-Interactive Surface adds state mechanics, and Layout Style owns final geometry.
+paint and theme tokens, Interactive Surface adds state mechanics, and Layout
+Style owns final geometry.
 Layout Style CSS 3.1.0 uses the v3 structural contract: use its intrinsic
 grid and pane primitives, canonical recipe and area attributes, and
 application-owned container queries for product-specific topology.
@@ -54,8 +52,6 @@ import "ui-style-kit-css/visual.css";
 import "ui-style-kit-css/interactive-surface-theme.css";
 import "interactive-surface-css/state-core.css";
 import "layout-style-css";
-import "ui-style-kit-icons/css.css";
-import "ui-style-kit-icons/element";
 ```
 
 UI Style Kit 2.3 exposes 20 visual systems and 20 themes through stable
@@ -69,19 +65,13 @@ component classes.
 ## Use the libraries locally
 
 The site itself installs the libraries as direct dependencies. Global CSS entry
-points load from `app/layout.tsx`, while `app/components/UiIcon.tsx` registers
-the UI Style Kit Icons custom-element runtime.
+points load from `app/layout.tsx`.
 
 ```ts
 import "ui-style-kit-css/visual.css";
 import "ui-style-kit-css/interactive-surface-theme.css";
 import "interactive-surface-css/state-core.css";
 import "layout-style-css";
-import "ui-style-kit-icons/css.css";
-```
-
-```ts
-import "ui-style-kit-icons/element";
 ```
 
 ## Use the CDN
@@ -105,14 +95,6 @@ For static HTML consumers, keep this exact order in the document head:
   rel="stylesheet"
   href="https://cdn.jsdelivr.net/npm/layout-style-css@3.1.0/dist/layout-style-css.min.css"
 />
-<link
-  rel="stylesheet"
-  href="https://cdn.jsdelivr.net/npm/ui-style-kit-icons@1.0.0/dist/ui-style-kit-icons.css"
-/>
-<script
-  type="module"
-  src="https://cdn.jsdelivr.net/npm/ui-style-kit-icons@1.0.0/dist/ui-style-kit-icons.js"
-></script>
 ```
 
 The versions are intentionally pinned so production interfaces do not change when a package publishes a new release.
@@ -172,9 +154,10 @@ https://sanderson-technology-enterprises.github.io/interface-systems-lab/sitemap
 
 The developer path leads directly to the source, package resources, and exact
 adoption recipes. Organizations can work with
-[Sanderson Technology Enterprises](https://sandersontechnologyenterprises.com)
+[Sanderson Technology Enterprises](https://sandersontechnologyenterprises.com/)
 on creator-owned platforms, private systems, admin tools, and operational
-workflows.
+workflows, or visit [Customized Platforms](https://customizedplatforms.com/)
+for tailored platform delivery.
 
 The static showcase currently includes no analytics or tracking integration and
 sets no first-party cookies. It stores only the selected Lab UI configuration in
@@ -183,7 +166,7 @@ transmitted by the site.
 
 ## Local CSS policy
 
-This project exists to demonstrate four packages, so local CSS should stay
+This project exists to demonstrate three CSS libraries, so local CSS should stay
 small. Prefer library classes such as `ly-wrapper`, `ly-section`, `ly-grid`,
 `ly-card-grid`, `ly-stack`, `ly-cluster`, `ly-surface`, `ly-app-shell`, and
 `interactive-surface` before adding a project-specific class.

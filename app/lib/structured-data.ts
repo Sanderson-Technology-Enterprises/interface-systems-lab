@@ -11,8 +11,7 @@ const packageItems = ECOSYSTEM_PACKAGES.map((pkg, index) => ({
     version: pkg.version,
     codeRepository: pkg.links.repository,
     url: pkg.links.npm,
-    programmingLanguage:
-      pkg.name === "ui-style-kit-icons" ? "JavaScript, SVG" : "CSS",
+    programmingLanguage: "CSS",
   },
 }));
 
@@ -52,7 +51,7 @@ export function buildLabStructuredData() {
         name: `Live interface lab | ${SITE.name}`,
         url: SITE.labUrl,
         description:
-          "Configure and inspect all four Interface Systems Lab packages on one semantic interface.",
+          "Configure and inspect all three Interface Systems Lab CSS libraries on one semantic interface.",
         isPartOf: { "@id": `${SITE.url}#website` },
         publisher: { "@id": SITE.owner.organizationId },
         inLanguage: "en-US",
@@ -63,13 +62,44 @@ export function buildLabStructuredData() {
         name: `${SITE.name} live lab`,
         url: SITE.labUrl,
         description:
-          "A configurable interface workbench for layout, visual identity, iconography, and interaction states.",
+          "A configurable interface workbench for layout, visual identity, and interaction states.",
         applicationCategory: "DeveloperApplication",
         operatingSystem: "Any",
         isAccessibleForFree: true,
         codeRepository: SITE.repository,
         publisher: { "@id": SITE.owner.organizationId },
         logo: SITE.brandLogo,
+      },
+    ],
+  };
+}
+
+/** Builds schema metadata for the exhaustive, manifest-backed component route. */
+export function buildAtlasStructuredData() {
+  return {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "WebPage",
+        "@id": `${SITE.componentsUrl}#webpage`,
+        name: `Component Atlas | ${SITE.name}`,
+        url: SITE.componentsUrl,
+        description:
+          "An exhaustive atlas of the layout, visual, native-element, and interaction contracts published by the three Interface Systems Lab CSS libraries.",
+        isPartOf: { "@id": `${SITE.url}#website` },
+        publisher: { "@id": SITE.owner.organizationId },
+        inLanguage: "en-US",
+      },
+      {
+        "@type": "SoftwareApplication",
+        "@id": `${SITE.componentsUrl}#application`,
+        name: `${SITE.name} Component Atlas`,
+        url: SITE.componentsUrl,
+        applicationCategory: "DeveloperApplication",
+        operatingSystem: "Any",
+        isAccessibleForFree: true,
+        codeRepository: SITE.repository,
+        publisher: { "@id": SITE.owner.organizationId },
       },
     ],
   };

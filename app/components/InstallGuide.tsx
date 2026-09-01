@@ -183,7 +183,7 @@ export function InstallGuide() {
 
   const canonical = ADOPTION_PATHS.find((path) => path.id === "all-canonical");
   if (canonical === undefined) {
-    throw new Error("The canonical all-four adoption path is missing.");
+    throw new Error("The canonical three-library adoption path is missing.");
   }
 
   const pathsFor = (scope: AdoptionScope) =>
@@ -205,7 +205,7 @@ export function InstallGuide() {
           </div>
           <p>
             Every path pins the aligned releases and preserves ownership across
-            identity, iconography, behavior, and structure.
+            identity, behavior, and structure.
           </p>
         </div>
 

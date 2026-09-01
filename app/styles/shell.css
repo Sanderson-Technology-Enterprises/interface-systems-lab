@@ -9,6 +9,27 @@
   font-family: var(--font-copy);
 }
 
+.home-experience {
+  background:
+    radial-gradient(
+      circle at 78% 10%,
+      rgb(var(--usk-primary-rgb) / 0.14),
+      transparent 30rem
+    ),
+    linear-gradient(rgb(var(--usk-primary-rgb) / 0.035) 1px, transparent 1px),
+    linear-gradient(
+      90deg,
+      rgb(var(--usk-primary-rgb) / 0.035) 1px,
+      transparent 1px
+    ),
+    rgb(var(--usk-bg-rgb));
+  background-size:
+    auto,
+    56px 56px,
+    56px 56px,
+    auto;
+}
+
 .experience :where(h1, h2, h3, h4, p, figure, pre, dl, dd) {
   margin-block: 0;
 }
@@ -261,10 +282,6 @@
   white-space: nowrap;
 }
 
-.home-hero h1 {
-  font-size: clamp(3rem, 6.2vw, 5.75rem);
-}
-
 .home-hero .hero-actions > [data-hero-action] {
   min-block-size: 3.5rem;
 }
@@ -280,6 +297,14 @@
   font-weight: 680;
   line-height: 0.96;
   text-wrap: balance;
+}
+
+.hero.home-hero h1 {
+  font-size: clamp(3rem, 6.2vw, 4.4rem);
+}
+
+.hero.home-hero .hero-copy {
+  gap: 1.25rem;
 }
 
 .hero h1 em {
@@ -388,7 +413,7 @@
 
 .package-overview-grid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: var(--ly-space-6);
   margin: 0;
   padding: 0;
@@ -400,6 +425,17 @@
   padding: clamp(1.25rem, 3vw, 2rem);
   border: 1px solid var(--lab-rule-soft);
   background: rgb(var(--usk-surface-rgb) / 0.46);
+  transition:
+    transform 180ms ease,
+    border-color 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.package-overview-card:hover,
+.package-overview-card:focus-within {
+  transform: translateY(-0.4rem);
+  border-color: rgb(var(--usk-primary-rgb));
+  box-shadow: 0 1.5rem 3rem rgb(0 0 0 / 0.22);
 }
 
 .package-overview-card h3 {
@@ -492,6 +528,35 @@
 
 .site-footer-inner {
   padding-block: clamp(2rem, 5vw, 4rem);
+}
+
+@supports (animation-timeline: view()) {
+  .home-experience .section-band {
+    animation: home-section-reveal both linear;
+    animation-range: entry 5% cover 28%;
+    animation-timeline: view();
+  }
+}
+
+@keyframes home-section-reveal {
+  from {
+    opacity: 0;
+    transform: translateY(2rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .package-overview-card {
+    transition: none;
+  }
+
+  .home-experience .section-band {
+    animation: none;
+  }
 }
 
 .footer-brand small {

@@ -6,7 +6,6 @@ import { InstallGuide } from "../components/InstallGuide";
 import { InterfaceObservatory } from "../components/InterfaceObservatory";
 import { LabControls } from "../components/LabControls";
 import { LabExperience } from "../components/LabExperience";
-import { IconLab } from "../components/labs/IconLab";
 import { InteractionLab } from "../components/labs/InteractionLab";
 import { IntegrationLab } from "../components/labs/IntegrationLab";
 import { LayoutLab } from "../components/labs/LayoutLab";
@@ -25,7 +24,7 @@ import {
 } from "../lib/structured-data";
 
 const labDescription =
-  "Configure layout, visual style, palette, and mode, then inspect all four Interface Systems Lab packages on shared semantic markup.";
+  "Configure layout, visual style, palette, and mode, then inspect all three Interface Systems Lab CSS libraries on shared semantic markup.";
 
 export const metadata: Metadata = {
   title: "Configurable CSS workbench",
@@ -96,7 +95,7 @@ export default function Lab() {
             <h1 id="lab-title">Configure the system. Inspect every layer.</h1>
             <p className="lede">
               Change layout, visual style, palette, and mode, then inspect how
-              all four packages behave on the same semantic markup.
+              all three libraries behave on the same semantic markup.
             </p>
             <LabHeroActions />
           </div>
@@ -114,7 +113,6 @@ export default function Lab() {
         <CombinedWorkbench />
         <LayoutLab />
         <UiNativeLab />
-        <IconLab />
         <InteractionLab />
         <IntegrationLab />
         <InstallGuide />

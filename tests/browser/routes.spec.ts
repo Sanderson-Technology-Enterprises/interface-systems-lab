@@ -16,7 +16,9 @@ test("homepage presents a concise developer portal", async ({ page }) => {
     "/interface-systems-lab/lab/",
   );
   await expect(
-    page.getByRole("heading", { name: "Use one package or combine all four." }),
+    page.getByRole("heading", {
+      name: "Use one library or combine all three.",
+    }),
   ).toBeVisible();
   await expect(
     page.getByRole("heading", { name: "Install the complete stack." }),
@@ -65,6 +67,18 @@ test("lab route retains the complete configurable experience", async ({
   ).toBeVisible();
 });
 
+test("component route exposes the searchable atlas", async ({ page }) => {
+  await page.goto("./components/");
+
+  await expect(
+    page.getByRole("heading", { level: 1, name: /Component Atlas/i }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("searchbox", { name: "Search components and contracts" }),
+  ).toBeVisible();
+  await expect(page.locator("[data-atlas-specimen]").first()).toBeVisible();
+});
+
 test("homepage and lab remain collision-free across the responsive matrix", async ({
   page,
 }) => {
@@ -89,9 +103,11 @@ test("homepage and lab remain collision-free across the responsive matrix", asyn
   for (const viewport of viewports) {
     await page.setViewportSize(viewport);
 
-    for (const route of ["./", "./lab/"]) {
+    for (const route of ["./", "./lab/", "./components/"]) {
       await page.goto(route);
-      await expect(page.locator("h1")).toHaveCount(1);
+      await expect(
+        page.locator(route === "./components/" ? "h1#atlas-title" : "h1"),
+      ).toHaveCount(1);
       const mainContent = page.locator("main#main-content");
       await expect(mainContent).toHaveCount(1);
       const skipLink = page.getByRole("link", { name: "Skip to main content" });
@@ -101,7 +117,7 @@ test("homepage and lab remain collision-free across the responsive matrix", asyn
       await expect(mainContent).toBeFocused();
 
       const menu = page.getByRole("button", {
-        name: /Open menu|Open lab sections/,
+        name: /Open menu|Open lab sections|Open atlas sections/,
       });
       if (await menu.isVisible()) await menu.click();
 

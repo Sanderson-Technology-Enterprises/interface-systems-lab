@@ -17,7 +17,7 @@ interactions:
 
 - `layout-style-css` owns structural layout primitives;
 - `ui-style-kit-css` owns theme and visual paint;
-- `ui-style-kit-icons` supplies the typed menu icon;
+- the application-owned inline SVG utilities supply the decorative menu glyph;
 - `interactive-surface-css` owns interactive states.
 
 Local site CSS may position and size those pieces, but it must not override the
@@ -66,7 +66,7 @@ Create a focused client component:
 
 The component contains:
 
-1. one typed `<UiIcon name="menu" />` toggle;
+1. one local `<MenuIcon />` toggle;
 2. one primary `<nav>` containing every in-page section link;
 3. one external action group containing `Discover STE` and `GitHub`.
 
@@ -173,7 +173,7 @@ markup or token inspection.
 - Compact widths show one disclosure control and a usable responsive panel.
 - Desktop shows one clean inline navigation row.
 - There is only one navigation destination structure in the DOM.
-- The menu icon uses the typed `UiIcon` API.
+- The menu glyph uses the local decorative `MenuIcon` component.
 - `interactive-surface-css` owns all menu and link interaction states.
 - Local CSS contains no competing state overrides for these controls.
 - Keyboard, outside-click, resize, and hash-navigation behaviors match this

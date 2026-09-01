@@ -183,14 +183,6 @@
   }
 }
 
-@media (max-width: 42rem) {
-  .icon-lab-toolbar,
-  .icon-accessibility-proof {
-    align-items: stretch;
-    flex-direction: column;
-  }
-}
-
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;

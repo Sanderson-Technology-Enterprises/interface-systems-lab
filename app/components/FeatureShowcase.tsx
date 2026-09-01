@@ -8,7 +8,6 @@ const packageLabAnchors: Record<
 > = {
   "layout-style-css": "layouts",
   "ui-style-kit-css": "ui-native",
-  "ui-style-kit-icons": "icons",
   "interactive-surface-css": "interactions",
 };
 
@@ -21,8 +20,8 @@ export function FeatureShowcase() {
     >
       <div className="ly-wrapper">
         <div className="section-heading ly-stack ly-gap-4">
-          <p className="section-label">Four focused interface libraries</p>
-          <h2 id="libraries-title">Use one package or combine all four.</h2>
+          <p className="section-label">Three focused CSS libraries</p>
+          <h2 id="libraries-title">Use one library or combine all three.</h2>
           <p>
             Each package owns one interface layer and remains useful on its own.
             Combine them when you need the complete system.
@@ -67,6 +66,20 @@ export function FeatureShowcase() {
                   rel="noreferrer noopener"
                 >
                   npm
+                  <ExternalLinkIcon />
+                  <span className="ly-visually-hidden">
+                    {` for ${pkg.displayName} (opens in a new tab)`}
+                  </span>
+                </a>
+                <a
+                  className="interactive-surface site-action"
+                  data-surface-variant="subtle"
+                  data-surface-level="1"
+                  href={pkg.links.demo}
+                  target="_blank"
+                  rel="noreferrer noopener"
+                >
+                  Live demo
                   <ExternalLinkIcon />
                   <span className="ly-visually-hidden">
                     {` for ${pkg.displayName} (opens in a new tab)`}

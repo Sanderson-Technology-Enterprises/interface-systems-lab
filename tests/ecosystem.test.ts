@@ -25,7 +25,6 @@ import {
   SITE,
   withBasePath,
 } from "../app/lib/site";
-import { resolveIconPack } from "../app/lib/icon-pack";
 
 const repositoryRoot = fileURLToPath(new URL("../", import.meta.url));
 
@@ -65,45 +64,6 @@ test("authored runtime sources do not use removed Layout v2 selectors", () => {
   }
 });
 
-test("UiIcon owns the typed deferred custom-element and asset-base contract", () => {
-  const source = readFileSync(
-    path.join(repositoryRoot, "app", "components", "UiIcon.tsx"),
-    "utf8",
-  );
-
-  assert.doesNotMatch(source, /^import "ui-style-kit-icons\/element";$/mu);
-  assert.match(source, /import\("ui-style-kit-icons\/element"\)/);
-  assert.match(source, /React\.createElement\("usk-icon"/);
-  assert.match(source, /NEXT_PUBLIC_PAGES_BASE_PATH/);
-  assert.match(source, /decorative: true/);
-  assert.match(source, /label: string/);
-});
-
-test("the Icon Lab follows UI and precedes interaction", () => {
-  const pageSource = readFileSync(
-    path.join(repositoryRoot, "app", "lab", "page.tsx"),
-    "utf8",
-  );
-  assert.ok(
-    pageSource.indexOf("<UiNativeLab") < pageSource.indexOf("<IconLab"),
-  );
-  assert.ok(
-    pageSource.indexOf("<IconLab") < pageSource.indexOf("<InteractionLab"),
-  );
-});
-
-test("icon packs preserve aliases and use the neutral fallback for new UI presets", () => {
-  assert.equal(resolveIconPack("retrofuturism").id, "synthwave");
-  const fallback = resolveIconPack("editorial-luxe");
-  assert.deepEqual(
-    { id: fallback.id, label: fallback.label },
-    {
-      id: "system",
-      label: "System",
-    },
-  );
-});
-
 async function readShippingSources(directory: URL): Promise<string[]> {
   const sources: string[] = [];
   const supportedExtensions =
@@ -129,7 +89,6 @@ async function readShippingSources(directory: URL): Promise<string[]> {
 const expectedNames = [
   "layout-style-css",
   "ui-style-kit-css",
-  "ui-style-kit-icons",
   "interactive-surface-css",
 ];
 
@@ -140,10 +99,10 @@ test("registry exposes every package and resource in ecosystem order", () => {
   );
   assert.deepEqual(
     ECOSYSTEM_PACKAGES.map(({ version }) => version),
-    ["3.1.0", "2.3.0", "1.0.0", "1.6.0"],
+    ["3.1.0", "2.3.0", "1.6.0"],
   );
   assert.equal(ECOSYSTEM_PACKAGES[0]?.version, "3.1.0");
-  assert.equal(ECOSYSTEM_PACKAGES[2]?.version, "1.0.0");
+  assert.equal(ECOSYSTEM_PACKAGES[2]?.version, "1.6.0");
   assert.equal(
     ECOSYSTEM_PACKAGES.find(({ name }) => name === "layout-style-css")
       ?.attribute,
@@ -223,16 +182,13 @@ test("the pinned UI manifest publishes the stable semantic component contract", 
 test("installation examples pin approved versions and cascade order", () => {
   assert.equal(
     NPM_INSTALL,
-    "npm install ui-style-kit-css@2.3.0 ui-style-kit-icons@1.0.0 layout-style-css@3.1.0 interactive-surface-css@1.6.0",
+    "npm install ui-style-kit-css@2.3.0 layout-style-css@3.1.0 interactive-surface-css@1.6.0",
   );
-  assert.match(NPM_INSTALL, /ui-style-kit-icons@1\.0\.0/);
   assert.deepEqual(BUNDLER_IMPORTS, [
     'import "ui-style-kit-css/visual.css";',
     'import "ui-style-kit-css/interactive-surface-theme.css";',
     'import "interactive-surface-css/state-core.css";',
     'import "layout-style-css";',
-    'import "ui-style-kit-icons/css.css";',
-    'import "ui-style-kit-icons/element";',
   ]);
   assert.deepEqual(CDN_LINKS, [
     {
@@ -255,16 +211,6 @@ test("installation examples pin approved versions and cascade order", () => {
       kind: "style",
       href: "https://cdn.jsdelivr.net/npm/layout-style-css@3.1.0/dist/layout-style-css.min.css",
     },
-    {
-      packageName: "ui-style-kit-icons",
-      kind: "style",
-      href: "https://cdn.jsdelivr.net/npm/ui-style-kit-icons@1.0.0/dist/ui-style-kit-icons.css",
-    },
-    {
-      packageName: "ui-style-kit-icons",
-      kind: "module",
-      href: "https://cdn.jsdelivr.net/npm/ui-style-kit-icons@1.0.0/dist/ui-style-kit-icons.js",
-    },
   ]);
   assert.equal(
     CDN_MARKUP,
@@ -273,17 +219,7 @@ test("installation examples pin approved versions and cascade order", () => {
       '<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ui-style-kit-css@2.3.0/styles/interactive-surface-theme.css">',
       '<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/interactive-surface-css@1.6.0/state-core.css">',
       '<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/layout-style-css@3.1.0/dist/layout-style-css.min.css">',
-      '<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ui-style-kit-icons@1.0.0/dist/ui-style-kit-icons.css">',
-      '<script type="module" src="https://cdn.jsdelivr.net/npm/ui-style-kit-icons@1.0.0/dist/ui-style-kit-icons.js"></script>',
     ].join("\n"),
-  );
-  assert.match(
-    CDN_MARKUP,
-    /<script type="module" src="[^\"]+ui-style-kit-icons\.js"><\/script>/,
-  );
-  assert.doesNotMatch(
-    CDN_MARKUP,
-    /stylesheet" href="[^\"]+ui-style-kit-icons\.js/,
   );
 });
 
@@ -293,10 +229,8 @@ test("adoption paths cover every standalone, pair, and complete-stack fixture", 
     [
       "layout-only",
       "ui-only",
-      "icons-only",
       "interactive-only",
       "layout-ui",
-      "ui-icons",
       "layout-interactive",
       "ui-interactive",
       "all-canonical",
@@ -313,7 +247,7 @@ test("adoption paths cover every standalone, pair, and complete-stack fixture", 
       counts[path.scope] = (counts[path.scope] ?? 0) + 1;
       return counts;
     }, {}),
-    { one: 4, pair: 4, all: 1 },
+    { one: 3, pair: 3, all: 1 },
   );
 
   const uiVisualCdn =
@@ -326,10 +260,6 @@ test("adoption paths cover every standalone, pair, and complete-stack fixture", 
     '<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/interactive-surface-css@1.6.0/standalone-preset.css">';
   const layoutCdn =
     '<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/layout-style-css@3.1.0/dist/layout-style-css.min.css">';
-  const iconCssCdn =
-    '<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ui-style-kit-icons@1.0.0/dist/ui-style-kit-icons.css">';
-  const iconRuntimeCdn =
-    '<script type="module" src="https://cdn.jsdelivr.net/npm/ui-style-kit-icons@1.0.0/dist/ui-style-kit-icons.js"></script>';
   const expectedMatrix = {
     "layout-only": {
       packages: ["layout-style-css"],
@@ -345,17 +275,6 @@ test("adoption paths cover every standalone, pair, and complete-stack fixture", 
         "npm install ui-style-kit-css@2.3.0",
         'import "ui-style-kit-css/visual.css";',
         uiVisualCdn,
-      ],
-    },
-    "icons-only": {
-      packages: ["ui-style-kit-icons"],
-      snippets: [
-        "npm install ui-style-kit-icons@1.0.0",
-        [
-          'import "ui-style-kit-icons/css.css";',
-          'import "ui-style-kit-icons/element";',
-        ].join("\n"),
-        [iconCssCdn, iconRuntimeCdn].join("\n"),
       ],
     },
     "interactive-only": {
@@ -375,18 +294,6 @@ test("adoption paths cover every standalone, pair, and complete-stack fixture", 
           'import "layout-style-css";',
         ].join("\n"),
         [uiVisualCdn, layoutCdn].join("\n"),
-      ],
-    },
-    "ui-icons": {
-      packages: ["ui-style-kit-css", "ui-style-kit-icons"],
-      snippets: [
-        "npm install ui-style-kit-css@2.3.0 ui-style-kit-icons@1.0.0",
-        [
-          'import "ui-style-kit-css/visual.css";',
-          'import "ui-style-kit-icons/css.css";',
-          'import "ui-style-kit-icons/element";',
-        ].join("\n"),
-        [uiVisualCdn, iconCssCdn, iconRuntimeCdn].join("\n"),
       ],
     },
     "layout-interactive": {
@@ -416,7 +323,6 @@ test("adoption paths cover every standalone, pair, and complete-stack fixture", 
       packages: [
         "layout-style-css",
         "ui-style-kit-css",
-        "ui-style-kit-icons",
         "interactive-surface-css",
       ],
       snippets: [NPM_INSTALL, BUNDLER_IMPORTS.join("\n"), CDN_MARKUP],
@@ -457,7 +363,7 @@ test("canonical adoption preserves each package's ownership boundary", () => {
   assert.ok(canonical);
 
   assert.equal(canonical.deprecated, false);
-  assert.equal(canonical.snippets[0].title, "Install all four");
+  assert.equal(canonical.snippets[0].title, "Install all three");
   assert.equal(canonical.snippets[1].code, BUNDLER_IMPORTS.join("\n"));
   assert.equal(canonical.snippets[2].code, CDN_MARKUP);
 
@@ -489,11 +395,6 @@ test("package directory exposes independent entrypoints and fixture anchors", ()
         fixture: "ui-only",
         name: "ui-style-kit-css",
         recommendedEntryPoint: "ui-style-kit-css/visual.css",
-      },
-      {
-        fixture: "icon-only",
-        name: "ui-style-kit-icons",
-        recommendedEntryPoint: "ui-style-kit-icons/element",
       },
       {
         fixture: "interactive-only",
@@ -529,21 +430,18 @@ test("site consumes the CSS libraries as local dependencies", async () => {
   assert.match(manifest.scripts.quality, /npm run test:browser/);
 });
 
-test("local README guidance separates global CSS from the icon runtime owner", async () => {
-  const [readme, layoutSource, iconSource] = await Promise.all([
+test("local README guidance documents the global CSS entry points", async () => {
+  const [readme, layoutSource] = await Promise.all([
     readFile(new URL("../README.md", import.meta.url), "utf8"),
     readFile(new URL("../app/layout.tsx", import.meta.url), "utf8"),
-    readFile(new URL("../app/components/UiIcon.tsx", import.meta.url), "utf8"),
   ]);
 
   assert.match(
     readme,
-    /Global CSS entry\s+points load from `app\/layout\.tsx`, while `app\/components\/UiIcon\.tsx` registers\s+the UI Style Kit Icons custom-element runtime\./,
+    /Global CSS entry\s+points load from `app\/layout\.tsx`/,
   );
-  assert.match(layoutSource, /import "ui-style-kit-icons\/css\.css";/);
-  assert.doesNotMatch(layoutSource, /ui-style-kit-icons\/element/);
-  assert.doesNotMatch(iconSource, /^import "ui-style-kit-icons\/element";$/mu);
-  assert.match(iconSource, /import\("ui-style-kit-icons\/element"\)/);
+  assert.equal(ECOSYSTEM_PACKAGES.length, 3);
+  assert.doesNotMatch(layoutSource, /custom-element runtime/);
 });
 
 test("page runtime emits only canonical Layout v3 attributes", async () => {
@@ -973,7 +871,7 @@ test("site identity targets the transferred organization", () => {
   );
   assert.equal(
     site.socialImageAlt,
-    "Interface Systems Lab social card with the text \u201c3 libraries, 1 interface, and 134,400 possibilities\u201d over layout, identity, and interaction.",
+    "Interface Systems Lab social card with the text \u201c3 libraries, 1 interface, and 44,800 possibilities\u201d over layout, identity, and interaction.",
   );
   assert.equal(site.brandLogoPath, "android-chrome-512x512.png");
   assert.equal(
@@ -984,7 +882,7 @@ test("site identity targets the transferred organization", () => {
     name: "Sanderson Technology Enterprises",
     title: "Sanderson Technology Enterprises | Strategic Platform Development",
     slogan: "Strategic Platform Development",
-    url: "https://sandersontechnologyenterprises.com",
+    url: "https://sandersontechnologyenterprises.com/",
     github: "https://github.com/Sanderson-Technology-Enterprises",
     organizationId: "https://sandersontechnologyenterprises.com/#organization",
     logo: "https://sandersontechnologyenterprises.com/assets/icon-512.png",
@@ -1230,7 +1128,7 @@ test("Task 3 sources omit dormant local hooks and keep FeatureShowcase static", 
     featureShowcase,
     /getUiPrefix|useLabConfiguration|LabExperience/,
   );
-  assert.doesNotMatch(featureShowcase, /ly-wrapper--xl|\bicon-only\b/);
+  assert.doesNotMatch(featureShowcase, /ly-wrapper--xl/);
   assert.match(featureShowcase, /interactive-surface site-action/);
 });
 

@@ -49,21 +49,6 @@ test(
     await expect(page.locator("#integrate")).toBeVisible();
     await expect(page.locator("#install")).toBeVisible();
     await expect(page.locator("#libraries")).toBeVisible();
-    await expect(
-      page.locator('[data-icon-lab] usk-icon[role="img"]'),
-    ).toHaveAttribute("aria-label", /.+/);
-    await expect(
-      page.locator("[data-icon-lab] [data-icon-specimen] usk-icon").first(),
-    ).toHaveAttribute("aria-hidden", "true");
-    const iconAction = page
-      .locator("[data-icon-lab]")
-      .getByRole("button", { name: "Restore authored frame" });
-    await expect(iconAction).toBeVisible();
-    await expect(iconAction.locator("usk-icon")).toHaveAttribute(
-      "aria-hidden",
-      "true",
-    );
-
     const results = await new AxeBuilder({ page }).analyze();
     await expectNoAxeViolations(
       results,
@@ -103,7 +88,6 @@ test(
 
     const extremeResults = await new AxeBuilder({ page })
       .include("#ui-native")
-      .include("#icons")
       .include("#interactions")
       .analyze();
     await expectNoAxeViolations(
@@ -125,3 +109,23 @@ test(
     );
   },
 );
+
+test("axe finds no violations in the component atlas", async ({
+  page,
+}, testInfo) => {
+  await page.goto("./components/");
+  await expect(page.locator("[data-atlas-specimen]").first()).toBeVisible();
+
+  /**
+   * The atlas intentionally renders multiple nested `<main>` specimens to
+   * demonstrate the package's real element contract outside document context.
+   */
+  const results = await new AxeBuilder({ page })
+    .disableRules([
+      "landmark-main-is-top-level",
+      "landmark-no-duplicate-main",
+      "landmark-unique",
+    ])
+    .analyze();
+  await expectNoAxeViolations(results, testInfo, "axe-component-atlas.json");
+});
