@@ -21,9 +21,9 @@
     "lint": "eslint .",
     "test:unit": "node --import tsx --test tests/*.test.ts tests/unit/*.test.mjs",
     "fixtures:build": "node scripts/build-fixtures.mjs",
-    "assets:build": "node scripts/build-icon-assets.mjs && npm run fixtures:build",
+    "assets:build": "npm run fixtures:build",
     "assets:brand": "node scripts/build-brand-assets.mjs",
-    "test:fixtures": "node --test tests/fixtures.test.mjs tests/icon-assets.test.mjs",
+    "test:fixtures": "node --test tests/fixtures.test.mjs",
     "test:brand": "node --test tests/brand-assets.test.mjs",
     "test:export": "node --test tests/export.test.mjs",
     "test:browser": "playwright test",
@@ -35,11 +35,10 @@
   "dependencies": {
     "interactive-surface-css": "1.6.0",
     "layout-style-css": "3.1.0",
-    "next": "16.2.12",
+    "next": "16.3.4",
     "react": "19.2.6",
     "react-dom": "19.2.6",
-    "ui-style-kit-css": "2.3.0",
-    "ui-style-kit-icons": "1.0.0"
+    "ui-style-kit-css": "2.3.0"
   },
   "overrides": {
     "postcss": "8.5.25"
@@ -52,9 +51,9 @@
     "@types/react-dom": "19.2.3",
     "cross-env": "10.1.0",
     "eslint": "9.39.5",
-    "eslint-config-next": "16.2.12",
+    "eslint-config-next": "16.3.4",
     "prettier": "3.9.5",
-    "sharp": "0.34.5",
+    "sharp": "0.35.4",
     "tsx": "4.23.1",
     "typescript": "5.9.3"
   },

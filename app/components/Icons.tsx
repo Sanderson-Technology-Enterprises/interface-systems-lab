@@ -2,6 +2,8 @@ type IconProps = {
   className?: string;
 };
 
+/** Renders a decorative arrow for forward navigation actions. */
+
 export function ArrowRightIcon({ className }: IconProps) {
   return (
     <svg
@@ -41,6 +43,25 @@ export function ExternalLinkIcon({ className }: IconProps) {
         stroke="currentColor"
         strokeLinecap="round"
         strokeLinejoin="round"
+        strokeWidth="1.8"
+      />
+    </svg>
+  );
+}
+
+/** Renders a decorative menu glyph without a package runtime dependency. */
+export function MenuIcon({ className }: IconProps) {
+  return (
+    <svg
+      aria-hidden="true"
+      className={className}
+      fill="none"
+      viewBox="0 0 24 24"
+    >
+      <path
+        d="M4 7h16M4 12h16M4 17h16"
+        stroke="currentColor"
+        strokeLinecap="round"
         strokeWidth="1.8"
       />
     </svg>

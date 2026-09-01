@@ -5,7 +5,6 @@ const legacyLabHashes = new Set([
   "#workbench",
   "#layouts",
   "#ui-native",
-  "#icons",
   "#interactions",
   "#integrate",
   "#install",

@@ -9,10 +9,6 @@ const resourceUrls = [
   "https://github.com/Foscat/ui-style-kit-css/wiki",
   "https://www.npmjs.com/package/ui-style-kit-css",
   "https://foscat.github.io/ui-style-kit-css/",
-  "https://github.com/Foscat/ui-style-kit-icons",
-  "https://github.com/Foscat/ui-style-kit-icons/wiki",
-  "https://www.npmjs.com/package/ui-style-kit-icons",
-  "https://foscat.github.io/ui-style-kit-icons/",
   "https://github.com/Foscat/Interactive-Surface-CSS",
   "https://github.com/Foscat/Interactive-Surface-CSS/wiki",
   "https://www.npmjs.com/package/interactive-surface-css",
@@ -20,16 +16,17 @@ const resourceUrls = [
 ];
 
 const configurationStorageKey = "interface-systems-lab:configuration:v1";
-const companyUrl = "https://sandersontechnologyenterprises.com";
+const companyUrl = "https://sandersontechnologyenterprises.com/";
+const customizedPlatformsUrl = "https://customizedplatforms.com/";
 const canonicalUrl =
   "https://sanderson-technology-enterprises.github.io/interface-systems-lab/";
 const labUrl = `${canonicalUrl}lab/`;
-const corporateOrganizationId = `${companyUrl}/#organization`;
+const corporateOrganizationId = `${companyUrl}#organization`;
 const repositoryUrl =
   "https://github.com/Sanderson-Technology-Enterprises/interface-systems-lab";
 const socialImageUrl = `${canonicalUrl}interface-systems-lab-social-card.png`;
 const socialImageAlt =
-  "Interface Systems Lab social card with the text \u201c3 libraries, 1 interface, and 134,400 possibilities\u201d over layout, identity, and interaction.";
+  "Interface Systems Lab social card with the text \u201c3 libraries, 1 interface, and 44,800 possibilities\u201d over layout, identity, and interaction.";
 const websiteId = `${canonicalUrl}#website`;
 const webpageId = `${canonicalUrl}#webpage`;
 const labWebpageId = `${labUrl}#webpage`;
@@ -40,7 +37,6 @@ const requiredSectionIds = [
   "workbench",
   "layouts",
   "ui-native",
-  "icons",
   "interactions",
   "integrate",
   "install",
@@ -144,115 +140,6 @@ async function readStoredConfiguration(page: Page) {
 
 test.beforeEach(async ({ page }) => {
   await page.goto("./lab/");
-});
-
-test("icons follow the selected UI pack and expose frame variants", async ({
-  page,
-}) => {
-  await page.goto("./lab/?ui=minimal-saas&theme=midnight-gold&mode=dark");
-
-  const lab = page.locator("[data-icon-lab]");
-  const firstIcon = lab.locator("usk-icon").first();
-  const meaningfulIcon = lab.locator('usk-icon[role="img"]');
-  await expect(lab).toBeVisible();
-  await expect
-    .poll(() =>
-      firstIcon.evaluate((element) =>
-        Boolean(element.shadowRoot?.querySelector("svg")),
-      ),
-    )
-    .toBe(true);
-
-  for (const [ui, pack, label] of [
-    ["minimal-saas", "minimal-saas", "Minimal SaaS"],
-    ["cyberpunk", "cyberpunk", "Cyberpunk"],
-    ["retrofuturism", "synthwave", "Synthwave"],
-    ["bauhaus", "system", "System"],
-    ["editorial-luxe", "system", "System"],
-  ] as const) {
-    await page.getByLabel(/02.*Visual style/).selectOption(ui);
-    await expect(lab.locator("[data-active-icon-pack]")).toHaveText(label);
-    await expect(firstIcon).toHaveAttribute("data-pack", pack);
-  }
-
-  const initialMeaning = await meaningfulIcon.getAttribute("name");
-  const initialPaint = await meaningfulIcon.evaluate(
-    (element) => getComputedStyle(element).color,
-  );
-  await page.getByLabel(/03.*Palette/).selectOption("arctic-indigo");
-  await page.getByRole("radio", { name: "High contrast" }).check();
-  await expect(meaningfulIcon).toHaveAttribute("name", initialMeaning ?? "");
-  await expect
-    .poll(() =>
-      meaningfulIcon.evaluate((element) => getComputedStyle(element).color),
-    )
-    .not.toBe(initialPaint);
-
-  for (const [option, frame] of [
-    ["auto", "auto"],
-    ["soft", "soft"],
-    ["none", "none"],
-  ] as const) {
-    await page.getByLabel("Icon frame").selectOption(option);
-    await expect(firstIcon).toHaveAttribute("frame", frame);
-  }
-});
-
-test("the Icon Lab action restores the authored frame without naming its icon", async ({
-  page,
-}) => {
-  const lab = page.locator("[data-icon-lab]");
-  const frameControl = page.getByLabel("Icon frame");
-  const specimenIcon = lab.locator("[data-icon-specimen] usk-icon").first();
-  const action = lab.getByRole("button", {
-    name: "Restore authored frame",
-  });
-
-  await frameControl.selectOption("none");
-  await expect(specimenIcon).toHaveAttribute("frame", "none");
-  await expect(action).toBeVisible();
-  await expect(action.locator("usk-icon")).toHaveAttribute(
-    "aria-hidden",
-    "true",
-  );
-
-  await action.click();
-  await expect(frameControl).toHaveValue("auto");
-  await expect
-    .poll(() =>
-      specimenIcon.evaluate(
-        (element) => (element as HTMLElement & { frame: string }).frame,
-      ),
-    )
-    .toBe("auto");
-});
-
-test("an icon asset failure reports once without disabling labeled actions", async ({
-  page,
-}) => {
-  const runtimeErrors: string[] = [];
-  page.on("pageerror", (error) => runtimeErrors.push(error.message));
-  await page.route("**/icons/dashboard.svg", (route) => route.abort());
-  await page.reload();
-
-  const failedIcon = page.locator('[data-icon-specimen="dashboard"] usk-icon');
-  await expect(failedIcon).toHaveAttribute("data-error", "");
-  await expect(
-    page.getByText(
-      "One or more icon assets could not load. Text labels remain available.",
-    ),
-  ).toBeAttached();
-  await expect(
-    page
-      .locator('[data-icon-specimen="dashboard"]')
-      .getByText("Dashboard", { exact: true }),
-  ).toBeVisible();
-
-  const copy = page.getByRole("button", { name: "Copy configuration" });
-  await expect(copy).toBeEnabled();
-  await copy.click();
-  await expect(copy).toHaveText(/Copied|Select markup/);
-  expect(runtimeErrors).toEqual([]);
 });
 
 async function expectNoHorizontalOverflow(page: Page) {
@@ -407,6 +294,11 @@ test("lab shell scopes the complete experience and preserves every section", asy
     "rel",
     /^(?=.*\bnoreferrer\b)(?=.*\bnoopener\b).+$/,
   );
+  await expect(
+    page
+      .locator(".site-footer")
+      .getByRole("link", { name: /Customized Platforms/i }),
+  ).toHaveAttribute("href", customizedPlatformsUrl);
 
   for (const [selector, asset] of [
     [".brand-logo", "favicon-48x48.png"],
@@ -458,7 +350,6 @@ test("compact header discloses every navigation destination without horizontal o
     "Workbench",
     "Layout",
     "UI & native",
-    "Icons",
     "Interactions",
     "Integration",
     "Install",
@@ -466,6 +357,11 @@ test("compact header discloses every navigation destination without horizontal o
   ]) {
     await expect(navigation.getByRole("link", { name: label })).toBeVisible();
   }
+  await expect(
+    page
+      .locator("#primary-navigation-panel")
+      .getByRole("link", { name: /Component atlas/i }),
+  ).toBeVisible();
   await expect(
     page
       .locator("#primary-navigation-panel")
@@ -506,7 +402,7 @@ test("shell keeps observatory controls clear of the interface core", async ({
   page,
 }) => {
   await expect(page.locator("#observatory-caption")).toContainText(
-    /structure, identity, iconography, or behavior/i,
+    /structure, identity, or behavior/i,
   );
 
   for (const viewport of [
@@ -570,15 +466,9 @@ test("shell keeps observatory controls clear of the interface core", async ({
         withinStage: true,
       },
       {
-        label: "Iconography",
-        overlapsCore: false,
-        variant: "secondary",
-        withinStage: true,
-      },
-      {
         label: "Behavior",
         overlapsCore: false,
-        variant: "subtle",
+        variant: "secondary",
         withinStage: true,
       },
     ]);
@@ -595,7 +485,7 @@ test("workbench keeps the Layout v3 app-shell bounded on mobile", async ({
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto("./lab/");
   await expect(page.locator("#workbench-title")).toHaveText(
-    "See all four layers in one workspace.",
+    "See all three layers in one workspace.",
   );
 
   const geometry = await page
@@ -631,11 +521,11 @@ test("workbench keeps the Layout v3 app-shell bounded on mobile", async ({
   expect(geometry.mainHeight).toBeLessThan(1_800);
 });
 
-test("footer closes with the complete four-layer ecosystem", async ({
+test("footer closes with the complete three-library ecosystem", async ({
   page,
 }) => {
   await expect(page.locator(".site-footer")).toContainText(
-    "One semantic interface. Four focused ecosystem layers.",
+    "One semantic interface. Three focused CSS libraries.",
   );
 });
 
@@ -955,11 +845,11 @@ test("compact header tab order follows the disclosed navigation", async ({
     "#workbench",
     "#layouts",
     "#ui-native",
-    "#icons",
     "#interactions",
     "#integrate",
     "#install",
     "#libraries",
+    "/interface-systems-lab/components/",
     "/interface-systems-lab/",
     repositoryUrl,
   ]);
@@ -1074,7 +964,9 @@ test("renders the production metadata and complete resource directory", async ({
     page.getByRole("heading", { name: /Design every layer/i }),
   ).toBeVisible();
   await expect(
-    page.getByRole("heading", { name: "Use one package or combine all four." }),
+    page.getByRole("heading", {
+      name: "Use one library or combine all three.",
+    }),
   ).toBeVisible();
   await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
     "href",
@@ -1181,15 +1073,6 @@ test("renders the production metadata and complete resource directory", async ({
       },
       {
         item: {
-          codeRepository: "https://github.com/Foscat/ui-style-kit-icons",
-          name: "ui-style-kit-icons",
-          programmingLanguage: "JavaScript, SVG",
-          url: "https://www.npmjs.com/package/ui-style-kit-icons",
-          version: "1.0.0",
-        },
-      },
-      {
-        item: {
           codeRepository: "https://github.com/Foscat/Interactive-Surface-CSS",
           name: "interactive-surface-css",
           programmingLanguage: "CSS",
@@ -1198,7 +1081,7 @@ test("renders the production metadata and complete resource directory", async ({
         },
       },
     ],
-    numberOfItems: 4,
+    numberOfItems: 3,
   });
 
   await page.goto("./lab/");
@@ -1232,7 +1115,6 @@ test("renders the production metadata and complete resource directory", async ({
   for (const [name, version] of [
     ["layout-style-css", "3.1.0"],
     ["ui-style-kit-css", "2.3.0"],
-    ["ui-style-kit-icons", "1.0.0"],
     ["interactive-surface-css", "1.6.0"],
   ]) {
     const packageEntry = page.locator(`[data-package="${name}"]`);
@@ -1274,28 +1156,15 @@ test(
     ];
 
     for (const [index, configuration] of configurations.entries()) {
-      // The shared setup already loads the default configuration. Reuse it so
-      // WebKit does not abort icon fetches with an immediate second navigation.
+      // The shared setup already loads the default configuration.
       if (index > 0) {
         const query = new URLSearchParams(configuration).toString();
         await page.goto(`./lab/?${query}`);
       }
       await expectRootConfiguration(page, configuration);
-      await expect
-        .poll(() =>
-          page
-            .locator("[data-icon-lab] usk-icon")
-            .evaluateAll(
-              (elements) =>
-                elements.length > 0 &&
-                elements.every(
-                  (element) =>
-                    !element.hasAttribute("data-error") &&
-                    Boolean(element.shadowRoot?.querySelector("svg")),
-                ),
-            ),
-        )
-        .toBe(true);
+      await expect(
+        page.locator("#ui-native [data-ui-category]").first(),
+      ).toBeVisible();
       await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
         "href",
         labUrl,
@@ -1305,7 +1174,6 @@ test(
         "#workbench",
         "#layouts",
         "#ui-native",
-        "#icons",
         "#interactions",
         "#integrate",
         "#install",
@@ -1350,7 +1218,7 @@ test(
   },
 );
 
-test("integration fixtures stage icon assets without legacy paths", async ({
+test("integration fixtures expose every three-library ownership combination", async ({
   page,
 }) => {
   await page.goto("./lab/");
@@ -1358,7 +1226,7 @@ test("integration fixtures stage icon assets without legacy paths", async ({
   const integrationLab = page.locator("#integrate");
   await expect(
     integrationLab.getByRole("heading", {
-      name: "Complete four-package stack",
+      name: "Complete three-library stack",
     }),
   ).toBeVisible();
   await expect(
@@ -1371,52 +1239,25 @@ test("integration fixtures stage icon assets without legacy paths", async ({
     for (const detail of details) (detail as HTMLDetailsElement).open = true;
   });
 
-  const iconFixture = integrationLab.locator(
-    '[data-integration-fixture="icon-only"]',
-  );
-  const uiIconsFixture = integrationLab.locator(
-    '[data-integration-fixture="ui-icons"]',
-  );
-  const completeFixture = integrationLab.locator(
-    '[data-integration-fixture="all-canonical"]',
-  );
-  for (const fixture of [iconFixture, uiIconsFixture, completeFixture]) {
-    await expect(fixture).toBeVisible();
-  }
-  for (const fixtureId of ["icon-only", "ui-icons", "all-canonical"]) {
-    await test.step(`${fixtureId} upgrades rendered icons`, async () => {
-      const fixture = integrationLab.locator(
-        `[data-integration-fixture="${fixtureId}"]`,
-      );
-      await fixture.scrollIntoViewIfNeeded();
-      const icons = page
-        .frameLocator(`[data-integration-fixture="${fixtureId}"]`)
-        .locator("usk-icon");
-      await expect(icons).toHaveCount(2);
-      await expect
-        .poll(
-          () =>
-            icons
-              .first()
-              .evaluate((element) =>
-                Boolean(element.shadowRoot?.querySelector("svg")),
-              ),
-          {
-            message: `${fixtureId} should render its staged SVG`,
-            timeout: 10_000,
-          },
-        )
-        .toBe(true);
-    });
-  }
-
-  for (const asset of [
-    "assets/ui-style-kit-icons/1.0.0/ui-style-kit-icons.js",
-    "assets/ui-style-kit-icons/1.0.0/icons/dashboard.svg",
+  for (const fixtureId of [
+    "layout-only",
+    "ui-only",
+    "interactive-only",
+    "layout-ui",
+    "layout-interactive",
+    "ui-interactive",
+    "all-canonical",
   ]) {
-    // Exercise the deployed repository base instead of a root-hosted local URL.
-    const response = await page.request.get(`/interface-systems-lab/${asset}`);
-    expect(response.status(), asset).toBe(200);
+    const fixture = integrationLab.locator(
+      `[data-integration-fixture="${fixtureId}"]`,
+    );
+    await fixture.scrollIntoViewIfNeeded();
+    await expect(fixture).toBeVisible();
+    await expect(
+      page
+        .frameLocator(`[data-integration-fixture="${fixtureId}"]`)
+        .locator("[data-fixture-root]"),
+    ).toHaveAttribute("data-fixture-id", fixtureId);
   }
 });
 
@@ -1488,11 +1329,11 @@ test("one atomic polite region announces configuration, observatory, and install
 
   await page
     .getByRole("button", {
-      name: "Copy Install all four code for The canonical all-four stack",
+      name: "Copy Install all three code for The canonical three-library stack",
     })
     .click();
   await expect(liveRegion).toHaveText(
-    "Install all four code for The canonical all-four stack copied to the clipboard.",
+    "Install all three code for The canonical three-library stack copied to the clipboard.",
   );
 });
 
@@ -1536,11 +1377,11 @@ test("install copy feedback restarts its timer", async ({ page, context }) => {
 
   await page
     .getByRole("button", {
-      name: "Copy Install all four code for The canonical all-four stack",
+      name: "Copy Install all three code for The canonical three-library stack",
     })
     .click();
   let copyButton = page.getByRole("button", {
-    name: "Copied Install all four code for The canonical all-four stack",
+    name: "Copied Install all three code for The canonical three-library stack",
   });
   await expect(copyButton).toBeVisible();
 
@@ -1548,14 +1389,14 @@ test("install copy feedback restarts its timer", async ({ page, context }) => {
   await copyButton.click();
   await page.waitForTimeout(1_000);
   copyButton = page.getByRole("button", {
-    name: "Copied Install all four code for The canonical all-four stack",
+    name: "Copied Install all three code for The canonical three-library stack",
   });
   await expect(copyButton).toBeVisible();
 
   await page.waitForTimeout(900);
   await expect(
     page.getByRole("button", {
-      name: "Copy Install all four code for The canonical all-four stack",
+      name: "Copy Install all three code for The canonical three-library stack",
     }),
   ).toBeVisible();
 });
@@ -1577,18 +1418,18 @@ test("install clipboard failure uses the shared feedback region", async ({
 
   await page
     .getByRole("button", {
-      name: "Copy Install all four code for The canonical all-four stack",
+      name: "Copy Install all three code for The canonical three-library stack",
     })
     .click();
   const retryCopy = page.getByRole("button", {
-    name: "Retry copy Install all four code for The canonical all-four stack",
+    name: "Retry copy Install all three code for The canonical three-library stack",
   });
   await expect(retryCopy).toHaveText("Retry copy");
   await expect(retryCopy).toHaveAccessibleName(
-    "Retry copy Install all four code for The canonical all-four stack",
+    "Retry copy Install all three code for The canonical three-library stack",
   );
   await expect(page.locator(".configuration-status")).toHaveText(
-    "Clipboard access failed. Copy the visible Install all four code for The canonical all-four stack manually.",
+    "Clipboard access failed. Copy the visible Install all three code for The canonical three-library stack manually.",
   );
 });
 

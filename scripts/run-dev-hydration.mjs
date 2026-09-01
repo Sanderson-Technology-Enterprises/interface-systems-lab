@@ -1,5 +1,5 @@
 import { spawn } from "node:child_process";
-import { readFile, writeFile } from "node:fs/promises";
+import { readFile, rm, writeFile } from "node:fs/promises";
 import { createServer } from "node:net";
 import { createRequire } from "node:module";
 import path from "node:path";
@@ -15,10 +15,39 @@ const protectedFiles = ["next-env.d.ts", "tsconfig.json"].map((fileName) =>
 const require = createRequire(import.meta.url);
 const playwrightCli = require.resolve("@playwright/test/cli");
 
+/**
+ * Reads a generated file when present without requiring it in a fresh clone.
+ *
+ * @param {string} filePath Absolute path to the generated file.
+ * @returns {Promise<Buffer | null>} Existing bytes, or `null` when absent.
+ */
+async function readOptionalFile(filePath) {
+  try {
+    return await readFile(filePath);
+  } catch (error) {
+    if (
+      error !== null &&
+      typeof error === "object" &&
+      "code" in error &&
+      error.code === "ENOENT"
+    ) {
+      return null;
+    }
+    throw error;
+  }
+}
+
+/**
+ * Runs a task while restoring Next.js-generated files to their prior state.
+ *
+ * @param {readonly string[]} filePaths Files Next.js may rewrite during dev.
+ * @param {() => Promise<number>} task Development-browser task to execute.
+ * @returns {Promise<number>} The task exit code.
+ */
 async function withRestoredFiles(filePaths, task) {
   const snapshots = await Promise.all(
     filePaths.map(async (filePath) => ({
-      contents: await readFile(filePath),
+      contents: await readOptionalFile(filePath),
       filePath,
     })),
   );
@@ -28,7 +57,11 @@ async function withRestoredFiles(filePaths, task) {
   } finally {
     // Next rewrites these files during dev; preserve the checkout byte-for-byte.
     await Promise.all(
-      snapshots.map(({ contents, filePath }) => writeFile(filePath, contents)),
+      snapshots.map(({ contents, filePath }) =>
+        contents === null
+          ? rm(filePath, { force: true })
+          : writeFile(filePath, contents),
+      ),
     );
   }
 }

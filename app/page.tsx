@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 
 import { FeatureShowcase } from "./components/FeatureShowcase";
 import { HomeHeroActions } from "./components/HeroActions";
+import { HomeObservatory } from "./components/HomeObservatory";
 import { ExternalLinkIcon } from "./components/Icons";
 import { LegacyLabRedirect } from "./components/LegacyLabRedirect";
 import { QuickStartCopy } from "./components/QuickStartCopy";
@@ -11,6 +12,7 @@ import {
   HOME_NAVIGATION_ACTIONS,
   HOME_NAVIGATION_ITEMS,
 } from "./data/navigation";
+import { SUPPORTED_COMBINATIONS_LABEL } from "./data/atlas";
 import { NPM_INSTALL } from "./data/ecosystem";
 import { DEFAULT_CONFIGURATION } from "./lib/configuration";
 import { SITE, withBasePath } from "./lib/site";
@@ -118,8 +120,9 @@ function LabInvitationSection() {
           <p className="section-label">Interactive lab</p>
           <h2 id="lab-title">Configure once. Inspect every layer.</h2>
           <p>
-            Explore 5,280 supported configurations across layout, visual style,
-            palette, and mode without changing the semantic markup.
+            Explore {SUPPORTED_COMBINATIONS_LABEL} supported combinations across
+            layout personalities, recipes, visual styles, and themes. Built-in
+            display modes are not counted.
           </p>
         </div>
         <a
@@ -172,6 +175,18 @@ function CompanySection() {
             <ExternalLinkIcon />
             <span className="ly-visually-hidden"> (opens in a new tab)</span>
           </a>
+          <a
+            className="interactive-surface site-action"
+            data-surface-variant="subtle"
+            data-surface-level="1"
+            href={SITE.customizedPlatforms.url}
+            target="_blank"
+            rel="noreferrer noopener"
+          >
+            Explore {SITE.customizedPlatforms.name}
+            <ExternalLinkIcon />
+            <span className="ly-visually-hidden"> (opens in a new tab)</span>
+          </a>
         </article>
       </div>
     </section>
@@ -179,7 +194,7 @@ function CompanySection() {
 }
 
 /**
- * Renders the spacious-density overview route for the four-package interface
+ * Renders the spacious-density overview route for the three-library interface
  * system and its adoption paths.
  *
  * @returns The exported Interface Systems Lab homepage.
@@ -219,33 +234,20 @@ export default function Home() {
           aria-labelledby="home-title"
         >
           <div className="hero-copy ly-stack ly-gap-6">
-            <p className="section-label">Four focused interface libraries</p>
+            <p className="section-label">Three focused CSS libraries</p>
             <h1 id="home-title">
               Design every layer.
               <br />
               <em>Keep one interface.</em>
             </h1>
             <p className="lede">
-              Build accessible interfaces with independent packages for layout,
-              visual styling, icons, and interaction states.
+              Build accessible interfaces with independent libraries for layout,
+              visual styling, and interaction states.
             </p>
             <HomeHeroActions />
           </div>
 
-          <aside
-            className="home-system-summary ly-stack ly-gap-6"
-            aria-label="System summary"
-          >
-            <div>
-              <strong>4</strong>
-              <span>independent packages</span>
-            </div>
-            <div>
-              <strong>5,280</strong>
-              <span>supported configurations</span>
-            </div>
-            <p>Structure · Identity · Iconography · Behavior</p>
-          </aside>
+          <HomeObservatory />
         </section>
 
         <FeatureShowcase />

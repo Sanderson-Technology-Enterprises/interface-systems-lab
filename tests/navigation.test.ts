@@ -2,6 +2,8 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 type NavigationModule = {
+  ATLAS_NAVIGATION_ACTIONS?: readonly { label: string; href: string }[];
+  ATLAS_NAVIGATION_ITEMS?: readonly { label: string; href: string }[];
   HOME_NAVIGATION_ITEMS?: readonly { label: string; href: string }[];
   HOME_NAVIGATION_ACTIONS?: readonly { label: string; href: string }[];
   LAB_NAVIGATION_ITEMS?: readonly { label: string; href: string }[];
@@ -21,6 +23,7 @@ test("homepage navigation keeps the focused portal concise", async () => {
     navigation.HOME_NAVIGATION_ITEMS.map(({ label, href }) => [label, href]),
     [
       ["Packages", "#libraries"],
+      ["Components", "/components/"],
       ["Get started", "#get-started"],
       ["About", "#company"],
     ],
@@ -49,7 +52,6 @@ test("lab navigation exposes every retained deep-link section", async () => {
       ["Workbench", "#workbench"],
       ["Layout", "#layouts"],
       ["UI & native", "#ui-native"],
-      ["Icons", "#icons"],
       ["Interactions", "#interactions"],
       ["Integration", "#integrate"],
       ["Install", "#install"],
@@ -59,11 +61,35 @@ test("lab navigation exposes every retained deep-link section", async () => {
   assert.deepEqual(
     navigation.LAB_NAVIGATION_ACTIONS.map(({ label, href }) => [label, href]),
     [
+      ["Component atlas", "/components/"],
       ["Back to overview", "/"],
       [
         "GitHub",
         "https://github.com/Sanderson-Technology-Enterprises/interface-systems-lab",
       ],
+    ],
+  );
+});
+
+test("atlas navigation exposes the three library sections", async () => {
+  const navigation = await loadNavigationModule();
+
+  assert.ok(navigation.ATLAS_NAVIGATION_ITEMS);
+  assert.ok(navigation.ATLAS_NAVIGATION_ACTIONS);
+  assert.deepEqual(
+    navigation.ATLAS_NAVIGATION_ITEMS.map(({ label, href }) => [label, href]),
+    [
+      ["Top", "#atlas-top"],
+      ["Layout", "#atlas-layout"],
+      ["UI & native", "#atlas-ui"],
+      ["Interactions", "#atlas-interaction"],
+    ],
+  );
+  assert.deepEqual(
+    navigation.ATLAS_NAVIGATION_ACTIONS.map(({ label, href }) => [label, href]),
+    [
+      ["Open lab", "/lab/"],
+      ["Overview", "/"],
     ],
   );
 });
