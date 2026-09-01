@@ -115,31 +115,18 @@ test("the Pages artifact publishes the transferred canonical identity", async ()
     sitemap,
   ].join("\n");
 
-  assert.match(
-    index,
-    new RegExp(`<link rel="canonical" href="${canonicalUrl}"`),
+  assert.ok(index.includes(`<link rel="canonical" href="${canonicalUrl}"`));
+  assert.ok(lab.includes(`<link rel="canonical" href="${labUrl}"`));
+  assert.ok(
+    components.includes(`<link rel="canonical" href="${componentsUrl}"`),
   );
-  assert.match(lab, new RegExp(`<link rel="canonical" href="${labUrl}"`));
-  assert.match(
-    components,
-    new RegExp(`<link rel="canonical" href="${componentsUrl}"`),
-  );
-  assert.match(
-    index,
-    new RegExp(`property="og:url" content="${canonicalUrl}"`),
-  );
-  assert.match(
-    index,
-    new RegExp(`property="og:image" content="${socialImageUrl}"`),
-  );
+  assert.ok(index.includes(`property="og:url" content="${canonicalUrl}"`));
+  assert.ok(index.includes(`property="og:image" content="${socialImageUrl}"`));
   assert.match(
     index,
     new RegExp(`property="og:image:alt" content="${socialImageAlt}"`),
   );
-  assert.match(
-    index,
-    new RegExp(`name="twitter:image" content="${socialImageUrl}"`),
-  );
+  assert.ok(index.includes(`name="twitter:image" content="${socialImageUrl}"`));
   assert.match(
     index,
     new RegExp(`name="twitter:image:alt" content="${socialImageAlt}"`),
@@ -150,7 +137,7 @@ test("the Pages artifact publishes the transferred canonical identity", async ()
     "favicon-16x16.png",
     "apple-touch-icon.png",
   ]) {
-    assert.match(index, new RegExp(`href="${canonicalUrl}${asset}"`));
+    assert.ok(index.includes(`href="${canonicalUrl}${asset}"`));
     await access(path.join(repositoryRoot, "out", asset));
   }
   assert.match(index, new RegExp(`href="${corporateUrl}"`, "g"));
@@ -336,7 +323,7 @@ test("crawler routes and manifest remain stable and Pages-aware", async () => {
     index,
     /<link rel="manifest" href="\/interface-systems-lab\/manifest\.webmanifest"/,
   );
-  assert.match(robots, new RegExp(`Sitemap: ${canonicalUrl}sitemap\\.xml`));
+  assert.ok(robots.includes(`Sitemap: ${canonicalUrl}sitemap.xml`));
   const host = robots.match(/^Host:\s*(.+)$/m)?.[1]?.trim();
   if (host !== undefined) {
     const parsedHost = new URL(host);
@@ -345,9 +332,9 @@ test("crawler routes and manifest remain stable and Pages-aware", async () => {
     assert.equal(parsedHost.hash, "");
   }
   assert.equal((sitemap.match(/<loc>/g) ?? []).length, 3);
-  assert.match(sitemap, new RegExp(`<loc>${canonicalUrl}</loc>`));
-  assert.match(sitemap, new RegExp(`<loc>${labUrl}</loc>`));
-  assert.match(sitemap, new RegExp(`<loc>${componentsUrl}</loc>`));
+  assert.ok(sitemap.includes(`<loc>${canonicalUrl}</loc>`));
+  assert.ok(sitemap.includes(`<loc>${labUrl}</loc>`));
+  assert.ok(sitemap.includes(`<loc>${componentsUrl}</loc>`));
   assert.doesNotMatch(sitemap, /<lastmod>/);
   for (const key of ["id", "start_url", "scope"]) {
     assert.equal(manifest[key], "/interface-systems-lab/", key);
