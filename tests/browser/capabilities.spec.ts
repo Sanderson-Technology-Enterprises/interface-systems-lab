@@ -51,6 +51,10 @@ const layoutPersonalities = [
   "bento",
   "maximalist",
   "split-screen",
+  "technical-blueprint",
+  "data-terminal",
+  "industrial-hmi",
+  "editorial",
 ] as const;
 
 const layoutRecipes = [
@@ -72,6 +76,8 @@ const primitiveHooks = [
   ["sidebar", ".ly-sidebar"],
   ["grid", ".ly-grid"],
   ["grid-intrinsic", ".ly-grid"],
+  ["mosaic", ".ly-mosaic"],
+  ["action-bar", ".ly-action-bar"],
   ["split", ".ly-split"],
   ["panes-2", '.ly-panes[data-pane-count="2"]'],
   ["panes-3", '.ly-panes[data-pane-count="3"]'],
@@ -473,6 +479,7 @@ async function resolveComputedValue(
   locator: Locator,
   value: string,
   cssProperty: string,
+  computedProperty = cssProperty,
 ) {
   return locator.evaluate(
     (element, options) => {
@@ -482,12 +489,12 @@ async function resolveComputedValue(
       probe.style.setProperty(options.cssProperty, options.value);
       (element.parentElement ?? document.body).append(probe);
       const resolved = getComputedStyle(probe)
-        .getPropertyValue(options.cssProperty)
+        .getPropertyValue(options.computedProperty)
         .trim();
       probe.remove();
       return resolved;
     },
-    { cssProperty, value },
+    { computedProperty, cssProperty, value },
   );
 }
 
@@ -612,6 +619,32 @@ test("layout laboratory renders the complete recipe and primitive contracts", as
         `[data-layout-primitive="media"] > [data-ly-media="${hook}"]`,
       ),
     ).toHaveCount(1);
+  }
+  await expect(
+    page.locator('[data-layout-primitive="mosaic"] > .ly-span-6'),
+  ).toHaveCount(1);
+  await expect(
+    page.locator('[data-layout-primitive="mosaic"] > .ly-span-full'),
+  ).toHaveCount(1);
+  for (const group of ["start", "end"]) {
+    await expect(
+      page.locator(
+        `[data-layout-primitive="action-bar"] > [data-ly-actions="${group}"]`,
+      ),
+    ).toHaveCount(1);
+  }
+  const compositionDisclosure = page
+    .locator("#layouts details")
+    .filter({ hasText: "View composition primitives" });
+  await compositionDisclosure.locator("summary").click();
+  const primitiveAtlasWidth = await page
+    .locator(".primitive-atlas")
+    .evaluate((element) => element.getBoundingClientRect().width);
+  for (const name of ["mosaic", "action-bar"]) {
+    const specimenWidth = await page
+      .locator(`[data-layout-primitive="${name}"]`)
+      .evaluate((element) => element.getBoundingClientRect().width);
+    expect(specimenWidth).toBeGreaterThan(primitiveAtlasWidth * 0.75);
   }
   for (const lane of ["content", "feature", "full"]) {
     await expect(
@@ -1071,7 +1104,12 @@ test("UI laboratory applies every manifest preset, theme, and mode with computed
         elements.map((element) => element.getAttribute("data-ui-extra")),
       );
     const extraKey = preset.id as keyof typeof uiManifest.classApi.presetExtras;
-    expect(renderedExtras).toEqual(uiManifest.classApi.presetExtras[extraKey]);
+    const declaredExtras = uiManifest.classApi.presetExtras[extraKey];
+    if (declaredExtras.length === 0) expect(renderedExtras).toEqual([]);
+    else expect(renderedExtras.length).toBeGreaterThan(0);
+    expect(
+      renderedExtras.every((extra) => declaredExtras.includes(extra ?? "")),
+    ).toBe(true);
   }
   expect(new Set(presetSignatures.values()).size).toBe(
     uiManifest.presets.length,
@@ -1724,35 +1762,34 @@ test("review contract proves native pseudo parts against package tokens and real
   ]);
   const trackToken = await resolveComputedValue(
     range,
-    "var(--usk-native-track)",
+    "var(--usk-native-range-track-background)",
     "background-color",
   );
   const thumbToken = await resolveComputedValue(
     range,
-    "var(--usk-native-thumb)",
+    "var(--usk-native-range-thumb-background)",
     "background-color",
   );
-  const thumbBorderToken = await resolveComputedValue(
+  const thumbBorder = await resolveComputedValue(
     range,
-    "var(--usk-native-thumb-border)",
-    "border-color",
+    "var(--usk-native-range-thumb-border)",
+    "border",
   );
   expect(trackRule).toEqual({
-    background: "var(--usk-native-track)",
-    "block-size": "0.45rem",
-    "border-radius": "999px",
+    background: "var(--usk-native-range-track-background)",
+    "block-size": "var(--usk-native-range-track-size)",
+    "border-radius": "var(--usk-native-range-track-radius)",
   });
   expect(thumbRule).toEqual({
     appearance: "none",
-    background: "var(--usk-native-thumb)",
-    "block-size": "1.2rem",
-    border:
-      "var(--usk-native-border-width) solid var(--usk-native-thumb-border)",
-    "border-radius": "999px",
-    "inline-size": "1.2rem",
+    background: "var(--usk-native-range-thumb-background)",
+    "block-size": "var(--usk-native-range-thumb-size)",
+    border: "var(--usk-native-range-thumb-border)",
+    "border-radius": "var(--usk-native-range-thumb-radius)",
+    "inline-size": "var(--usk-native-range-thumb-size)",
   });
   expect(trackToken).not.toBe(thumbToken);
-  expect(thumbToken).not.toBe(thumbBorderToken);
+  expect(thumbBorder).not.toContain(thumbToken);
   expect(
     await range.evaluate((element) => getComputedStyle(element).appearance),
   ).toBe("none");
@@ -1786,10 +1823,16 @@ test("review contract proves native pseudo parts against package tokens and real
   const hover = page.locator('[data-native-file-state="hover"]');
   const active = page.locator('[data-native-file-state="active"]');
   const disabled = page.locator('[data-native-file-state="disabled"]');
-  const primary = await resolveComputedValue(
+  const fileButtonBackground = await resolveComputedValue(
     enabled,
-    "var(--usk-native-primary)",
+    "var(--usk-native-file-button-background)",
     "background-color",
+  );
+  const fileButtonBorderColor = await resolveComputedValue(
+    enabled,
+    "var(--usk-native-file-button-border)",
+    "border",
+    "border-color",
   );
   const primaryHover = await resolveComputedValue(
     enabled,
@@ -1806,8 +1849,8 @@ test("review contract proves native pseudo parts against package tokens and real
     enabled,
     "::file-selector-button",
   );
-  expect(enabledPaint.backgroundColor).toBe(primary);
-  expect(enabledPaint.borderColor).toBe(primary);
+  expect(enabledPaint.backgroundColor).toBe(fileButtonBackground);
+  expect(enabledPaint.borderColor).toBe(fileButtonBorderColor);
   expect(enabledPaint.cursor).toBe("pointer");
 
   await focus.focus();
@@ -1951,6 +1994,29 @@ test("review contract gates the collision readout with actual hover capability",
     await expect(winner).toHaveText("active");
     await page.mouse.up();
     await expect(winner).toHaveText(supportsFineHover ? "hover" : "base");
+  }
+});
+
+test("interaction laboratory replays and announces semantic outcome feedback", async ({
+  page,
+}) => {
+  const status = page.locator("#interaction-feedback-status");
+  await expect(status).toHaveAttribute("role", "status");
+
+  const outcomes = {
+    success: "The demonstration action completed successfully.",
+    error: "The demonstration action failed. Review it and try again.",
+    attention: "The demonstration action needs your attention.",
+  } as const;
+
+  for (const [outcome, message] of Object.entries(outcomes)) {
+    const trigger = page.locator(`[data-feedback-trigger="${outcome}"]`);
+    await trigger.click();
+    await expect(trigger).toHaveAttribute("data-surface-feedback", outcome);
+    await expect(status).toHaveText(message);
+    await expect
+      .poll(() => trigger.getAttribute("data-surface-feedback"))
+      .toBeNull();
   }
 });
 

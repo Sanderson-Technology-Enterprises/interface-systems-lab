@@ -99,10 +99,10 @@ test("registry exposes every package and resource in ecosystem order", () => {
   );
   assert.deepEqual(
     ECOSYSTEM_PACKAGES.map(({ version }) => version),
-    ["3.1.0", "2.3.0", "1.6.0"],
+    ["3.2.0", "2.4.0", "1.7.0"],
   );
-  assert.equal(ECOSYSTEM_PACKAGES[0]?.version, "3.1.0");
-  assert.equal(ECOSYSTEM_PACKAGES[2]?.version, "1.6.0");
+  assert.equal(ECOSYSTEM_PACKAGES[0]?.version, "3.2.0");
+  assert.equal(ECOSYSTEM_PACKAGES[2]?.version, "1.7.0");
   assert.equal(
     ECOSYSTEM_PACKAGES.find(({ name }) => name === "layout-style-css")
       ?.attribute,
@@ -127,7 +127,7 @@ test("the pinned UI manifest publishes the stable semantic component contract", 
     UI_SEMANTIC_COMPONENT_API.selectorsByRole,
   ).flat();
 
-  assert.equal((uiManifest as { readonly version: string }).version, "2.3.0");
+  assert.equal((uiManifest as { readonly version: string }).version, "2.4.0");
   assert.equal(selectors.length, 29);
   assert.deepEqual(
     selectors.map(({ selector }) => selector),
@@ -170,7 +170,7 @@ test("the pinned UI manifest publishes the stable semantic component contract", 
   assert.deepEqual(
     UI_SEMANTIC_COMPONENT_API.variantAttribute.valuesBySelector,
     {
-      ".ui-button": ["primary", "secondary", "danger", "ghost"],
+      ".ui-button": ["primary", "secondary", "warning", "danger", "ghost"],
       ".ui-badge": ["primary", "secondary", "success", "warning", "danger"],
       ".ui-alert": ["success", "warning", "danger"],
     },
@@ -182,7 +182,7 @@ test("the pinned UI manifest publishes the stable semantic component contract", 
 test("installation examples pin approved versions and cascade order", () => {
   assert.equal(
     NPM_INSTALL,
-    "npm install ui-style-kit-css@2.3.0 layout-style-css@3.1.0 interactive-surface-css@1.6.0",
+    "npm install ui-style-kit-css@2.4.0 layout-style-css@3.2.0 interactive-surface-css@1.7.0",
   );
   assert.deepEqual(BUNDLER_IMPORTS, [
     'import "ui-style-kit-css/visual.css";',
@@ -194,31 +194,31 @@ test("installation examples pin approved versions and cascade order", () => {
     {
       packageName: "ui-style-kit-css",
       kind: "style",
-      href: "https://cdn.jsdelivr.net/npm/ui-style-kit-css@2.3.0/dist/ui-style-kit.visual.min.css",
+      href: "https://cdn.jsdelivr.net/npm/ui-style-kit-css@2.4.0/dist/ui-style-kit.visual.min.css",
     },
     {
       packageName: "ui-style-kit-css",
       kind: "style",
-      href: "https://cdn.jsdelivr.net/npm/ui-style-kit-css@2.3.0/styles/interactive-surface-theme.css",
+      href: "https://cdn.jsdelivr.net/npm/ui-style-kit-css@2.4.0/styles/interactive-surface-theme.css",
     },
     {
       packageName: "interactive-surface-css",
       kind: "style",
-      href: "https://cdn.jsdelivr.net/npm/interactive-surface-css@1.6.0/state-core.css",
+      href: "https://cdn.jsdelivr.net/npm/interactive-surface-css@1.7.0/state-core.css",
     },
     {
       packageName: "layout-style-css",
       kind: "style",
-      href: "https://cdn.jsdelivr.net/npm/layout-style-css@3.1.0/dist/layout-style-css.min.css",
+      href: "https://cdn.jsdelivr.net/npm/layout-style-css@3.2.0/dist/layout-style-css.min.css",
     },
   ]);
   assert.equal(
     CDN_MARKUP,
     [
-      '<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ui-style-kit-css@2.3.0/dist/ui-style-kit.visual.min.css">',
-      '<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ui-style-kit-css@2.3.0/styles/interactive-surface-theme.css">',
-      '<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/interactive-surface-css@1.6.0/state-core.css">',
-      '<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/layout-style-css@3.1.0/dist/layout-style-css.min.css">',
+      '<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ui-style-kit-css@2.4.0/dist/ui-style-kit.visual.min.css">',
+      '<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ui-style-kit-css@2.4.0/styles/interactive-surface-theme.css">',
+      '<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/interactive-surface-css@1.7.0/state-core.css">',
+      '<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/layout-style-css@3.2.0/dist/layout-style-css.min.css">',
     ].join("\n"),
   );
 });
@@ -251,20 +251,20 @@ test("adoption paths cover every standalone, pair, and complete-stack fixture", 
   );
 
   const uiVisualCdn =
-    '<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ui-style-kit-css@2.3.0/dist/ui-style-kit.visual.min.css">';
+    '<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ui-style-kit-css@2.4.0/dist/ui-style-kit.visual.min.css">';
   const uiThemeCdn =
-    '<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ui-style-kit-css@2.3.0/styles/interactive-surface-theme.css">';
+    '<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ui-style-kit-css@2.4.0/styles/interactive-surface-theme.css">';
   const interactionCoreCdn =
-    '<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/interactive-surface-css@1.6.0/state-core.css">';
+    '<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/interactive-surface-css@1.7.0/state-core.css">';
   const interactionStandaloneCdn =
-    '<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/interactive-surface-css@1.6.0/standalone-preset.css">';
+    '<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/interactive-surface-css@1.7.0/standalone-preset.css">';
   const layoutCdn =
-    '<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/layout-style-css@3.1.0/dist/layout-style-css.min.css">';
+    '<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/layout-style-css@3.2.0/dist/layout-style-css.min.css">';
   const expectedMatrix = {
     "layout-only": {
       packages: ["layout-style-css"],
       snippets: [
-        "npm install layout-style-css@3.1.0",
+        "npm install layout-style-css@3.2.0",
         'import "layout-style-css";',
         layoutCdn,
       ],
@@ -272,7 +272,7 @@ test("adoption paths cover every standalone, pair, and complete-stack fixture", 
     "ui-only": {
       packages: ["ui-style-kit-css"],
       snippets: [
-        "npm install ui-style-kit-css@2.3.0",
+        "npm install ui-style-kit-css@2.4.0",
         'import "ui-style-kit-css/visual.css";',
         uiVisualCdn,
       ],
@@ -280,7 +280,7 @@ test("adoption paths cover every standalone, pair, and complete-stack fixture", 
     "interactive-only": {
       packages: ["interactive-surface-css"],
       snippets: [
-        "npm install interactive-surface-css@1.6.0",
+        "npm install interactive-surface-css@1.7.0",
         'import "interactive-surface-css/standalone-preset.css";',
         interactionStandaloneCdn,
       ],
@@ -288,7 +288,7 @@ test("adoption paths cover every standalone, pair, and complete-stack fixture", 
     "layout-ui": {
       packages: ["layout-style-css", "ui-style-kit-css"],
       snippets: [
-        "npm install layout-style-css@3.1.0 ui-style-kit-css@2.3.0",
+        "npm install layout-style-css@3.2.0 ui-style-kit-css@2.4.0",
         [
           'import "ui-style-kit-css/visual.css";',
           'import "layout-style-css";',
@@ -299,7 +299,7 @@ test("adoption paths cover every standalone, pair, and complete-stack fixture", 
     "layout-interactive": {
       packages: ["layout-style-css", "interactive-surface-css"],
       snippets: [
-        "npm install layout-style-css@3.1.0 interactive-surface-css@1.6.0",
+        "npm install layout-style-css@3.2.0 interactive-surface-css@1.7.0",
         [
           'import "interactive-surface-css/standalone-preset.css";',
           'import "layout-style-css";',
@@ -310,7 +310,7 @@ test("adoption paths cover every standalone, pair, and complete-stack fixture", 
     "ui-interactive": {
       packages: ["ui-style-kit-css", "interactive-surface-css"],
       snippets: [
-        "npm install ui-style-kit-css@2.3.0 interactive-surface-css@1.6.0",
+        "npm install ui-style-kit-css@2.4.0 interactive-surface-css@1.7.0",
         [
           'import "ui-style-kit-css/visual.css";',
           'import "ui-style-kit-css/interactive-surface-theme.css";',
@@ -415,9 +415,9 @@ test("site consumes the CSS libraries as local dependencies", async () => {
     scripts: Record<string, string>;
   };
 
-  assert.equal(manifest.dependencies["layout-style-css"], "3.1.0");
-  assert.equal(manifest.dependencies["ui-style-kit-css"], "2.3.0");
-  assert.equal(manifest.dependencies["interactive-surface-css"], "1.6.0");
+  assert.equal(manifest.dependencies["layout-style-css"], "3.2.0");
+  assert.equal(manifest.dependencies["ui-style-kit-css"], "2.4.0");
+  assert.equal(manifest.dependencies["interactive-surface-css"], "1.7.0");
   assert.match(
     layoutSource,
     /import "ui-style-kit-css\/visual\.css";[\s\S]*import "ui-style-kit-css\/interactive-surface-theme\.css";[\s\S]*import "interactive-surface-css\/state-core\.css";[\s\S]*import "layout-style-css";/,
@@ -471,7 +471,7 @@ test("page runtime emits only canonical Layout v3 attributes", async () => {
   );
 });
 
-test("Layout 3.1 contexts replace application-owned spacing workarounds", async () => {
+test("Layout 3.2 contexts replace application-owned spacing workarounds", async () => {
   const [
     homeSource,
     labPageSource,
@@ -711,6 +711,10 @@ test("catalog exposes every released ecosystem option", async () => {
     "bento",
     "maximalist",
     "split-screen",
+    "technical-blueprint",
+    "data-terminal",
+    "industrial-hmi",
+    "editorial",
   ]);
   assert.deepEqual(LAYOUT_RECIPES, [
     "app-shell",
@@ -733,7 +737,7 @@ test("catalog exposes every released ecosystem option", async () => {
     { id: "cyberpunk", label: "Cyberpunk", prefix: "cyber" },
     { id: "y2k", label: "Y2K", prefix: "y2k" },
     { id: "retro-glass", label: "Retro Glass", prefix: "rg" },
-    { id: "editorial-luxe", label: "Editorial Luxe", prefix: "luxe" },
+    { id: "editorial-luxe", label: "Editorial Lux", prefix: "luxe" },
     { id: "organic-modern", label: "Organic Modern", prefix: "organic" },
     {
       id: "industrial-utility",
@@ -871,7 +875,7 @@ test("site identity targets the transferred organization", () => {
   );
   assert.equal(
     site.socialImageAlt,
-    "Interface Systems Lab social card with the text \u201c3 libraries, 1 interface, and 44,800 possibilities\u201d over layout, identity, and interaction.",
+    "Interface Systems Lab social card with the text \u201c3 libraries, 1 interface, and 56,000 possibilities\u201d over layout, identity, and interaction.",
   );
   assert.equal(site.brandLogoPath, "android-chrome-512x512.png");
   assert.equal(

@@ -44,10 +44,18 @@ const nativeTokenNames = [
   "--usk-native-border-width",
   "--usk-native-field-gap",
   "--usk-native-panel-padding",
-  "--usk-native-track",
-  "--usk-native-track-fill",
-  "--usk-native-thumb",
-  "--usk-native-thumb-border",
+  "--usk-native-range-track-size",
+  "--usk-native-range-track-background",
+  "--usk-native-range-track-radius",
+  "--usk-native-range-progress-background",
+  "--usk-native-range-thumb-size",
+  "--usk-native-range-thumb-background",
+  "--usk-native-range-thumb-border",
+  "--usk-native-range-thumb-radius",
+  "--usk-native-file-button-background",
+  "--usk-native-file-button-border",
+  "--usk-native-file-button-radius",
+  "--usk-native-file-button-shadow",
   "--usk-native-indicator",
 ] as const;
 
@@ -108,7 +116,7 @@ type VisualInventoryProps = {
 };
 
 /**
- * Renders every preset-only class declared by the active manifest entry.
+ * Renders a representative preset-only recipe from the active manifest entry.
  *
  * @param props Active visual inventory configuration.
  * @returns A representative recipe for the selected preset.
@@ -436,6 +444,14 @@ function VisualInventory({ prefix, preset }: VisualInventoryProps) {
             type="button"
           >
             Secondary
+          </button>
+          <button
+            className={s("button")}
+            data-ui-suffix="button-warning"
+            data-ui-variant="warning"
+            type="button"
+          >
+            Warning
           </button>
           <button
             className={s("button")}

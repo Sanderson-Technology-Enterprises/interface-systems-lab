@@ -16,8 +16,10 @@ const repositoryRoot = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
   "..",
 );
-/** Expected CSS ceiling for the complete ui-style-kit-css 2.3 preset matrix. */
-const nextCssBudgetBytes = 1024 * 1024;
+/** Expected CSS ceiling for the complete ui-style-kit-css 2.4 preset matrix. */
+const nextCssBudgetBytes = 2304 * 1024;
+/** Expected font ceiling for all ui-style-kit-css 2.4 identities. */
+const exportedFontBudgetBytes = 2560 * 1024;
 const outRoot = path.join(repositoryRoot, "out");
 const googleVerificationFile = "google5abb0289b99a9f42.html";
 const googleVerificationText =
@@ -32,7 +34,7 @@ const repositoryUrl =
   "https://github.com/Sanderson-Technology-Enterprises/interface-systems-lab";
 const socialImageUrl = `${canonicalUrl}interface-systems-lab-social-card.png`;
 const socialImageAlt =
-  "Interface Systems Lab social card with the text \u201c3 libraries, 1 interface, and 44,800 possibilities\u201d over layout, identity, and interaction.";
+  "Interface Systems Lab social card with the text \u201c3 libraries, 1 interface, and 56,000 possibilities\u201d over layout, identity, and interaction.";
 const websiteId = `${canonicalUrl}#website`;
 const webpageId = `${canonicalUrl}#webpage`;
 const labWebpageId = `${labUrl}#webpage`;
@@ -244,21 +246,21 @@ test("route structured data separates the overview, lab, and atlas", async () =>
         name: "layout-style-css",
         programmingLanguage: "CSS",
         url: "https://www.npmjs.com/package/layout-style-css",
-        version: "3.1.0",
+        version: "3.2.0",
       },
       {
         codeRepository: "https://github.com/Foscat/ui-style-kit-css",
         name: "ui-style-kit-css",
         programmingLanguage: "CSS",
         url: "https://www.npmjs.com/package/ui-style-kit-css",
-        version: "2.3.0",
+        version: "2.4.0",
       },
       {
         codeRepository: "https://github.com/Foscat/Interactive-Surface-CSS",
         name: "interactive-surface-css",
         programmingLanguage: "CSS",
         url: "https://www.npmjs.com/package/interactive-surface-css",
-        version: "1.6.0",
+        version: "1.7.0",
       },
     ],
   );
@@ -408,7 +410,11 @@ test("the exported routes stay within separate deterministic budgets", async () 
     ["raw components/index.html", components.length, 768 * 1024],
     ["Next.js JavaScript", totalByExtension(/\.js$/), 1024 * 1024],
     ["Next.js CSS", totalByExtension(/\.css$/), nextCssBudgetBytes],
-    ["exported fonts", totalByExtension(/\.(?:woff2?|ttf|otf)$/), 256 * 1024],
+    [
+      "exported fonts",
+      totalByExtension(/\.(?:woff2?|ttf|otf)$/),
+      exportedFontBudgetBytes,
+    ],
   ];
 
   for (const [label, actual, budget] of budgets) {
@@ -482,7 +488,7 @@ test("the Pages artifact stages the pinned Layout v3 core", async () => {
     exportFixtureRoot,
     "assets",
     "layout-style-css",
-    "3.1.0",
+    "3.2.0",
     "layout-style-css.css",
   );
   const layoutCore = await readFile(layoutCorePath, "utf8");

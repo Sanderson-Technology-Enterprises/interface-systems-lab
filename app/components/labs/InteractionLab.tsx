@@ -17,6 +17,7 @@ type PersistentCollisionState =
   "base" | "active" | "pressed" | "selected" | "current";
 
 type PointerCollisionState = "base" | "hover" | "active";
+type SurfaceFeedback = "error" | "success" | "attention";
 
 type CollisionStyle = CSSProperties & {
   [key: `--interactive-surface-${string}`]: string | number | undefined;
@@ -45,6 +46,47 @@ const levelVariant: Record<
   3: "primary",
 };
 
+const feedbackMessages: Record<SurfaceFeedback, string> = {
+  success: "The demonstration action completed successfully.",
+  error: "The demonstration action failed. Review it and try again.",
+  attention: "The demonstration action needs your attention.",
+};
+
+const feedbackGenerations = new WeakMap<HTMLButtonElement, number>();
+
+/**
+ * Replays one semantic outcome on a control, then clears the transient hook.
+ *
+ * @param control - Control receiving the feedback attribute.
+ * @param outcome - Application-reported outcome to render.
+ * @param visibleFor - Visible feedback window in milliseconds.
+ */
+function replaySurfaceFeedback(
+  control: HTMLButtonElement,
+  outcome: SurfaceFeedback,
+  visibleFor = 600,
+): void {
+  const generation = (feedbackGenerations.get(control) ?? 0) + 1;
+  feedbackGenerations.set(control, generation);
+  control.removeAttribute("data-surface-feedback");
+
+  window.requestAnimationFrame(() => {
+    window.requestAnimationFrame(() => {
+      if (feedbackGenerations.get(control) !== generation) return;
+
+      control.setAttribute("data-surface-feedback", outcome);
+      window.setTimeout(() => {
+        if (
+          feedbackGenerations.get(control) === generation &&
+          control.getAttribute("data-surface-feedback") === outcome
+        ) {
+          control.removeAttribute("data-surface-feedback");
+        }
+      }, visibleFor);
+    });
+  });
+}
+
 function effectiveCollisionState(
   disabled: boolean,
   busy: boolean,
@@ -62,6 +104,7 @@ function effectiveCollisionState(
 
 export function InteractionLab() {
   const [guardedActivationCount, setGuardedActivationCount] = useState(0);
+  const [feedbackMessage, setFeedbackMessage] = useState("");
   const [collisionDisabled, setCollisionDisabled] = useState(false);
   const [collisionBusy, setCollisionBusy] = useState(false);
   const [supportsFineHover, setSupportsFineHover] = useState(false);
@@ -107,6 +150,14 @@ export function InteractionLab() {
     }
 
     setGuardedActivationCount((count) => count + 1);
+  }
+
+  function handleSurfaceFeedback(
+    event: ReactMouseEvent<HTMLButtonElement>,
+    outcome: SurfaceFeedback,
+  ) {
+    replaySurfaceFeedback(event.currentTarget, outcome);
+    setFeedbackMessage(feedbackMessages[outcome]);
   }
 
   return (
@@ -184,6 +235,50 @@ export function InteractionLab() {
                 </button>
               ))}
             </div>
+          </section>
+
+          <section
+            className="ly-stack ly-gap-4"
+            data-specimen="interaction-feedback"
+            aria-labelledby="interaction-feedback-title"
+          >
+            <div className="specimen-heading ly-stack ly-gap-2">
+              <h3 id="interaction-feedback-title">Outcome feedback</h3>
+              <p>
+                Interactive Surface 1.7 renders one-shot semantic outcomes while
+                the application keeps responsibility for accessible status text.
+              </p>
+            </div>
+            <div className="interaction-matrix">
+              {(Object.keys(feedbackMessages) as SurfaceFeedback[]).map(
+                (outcome) => (
+                  <button
+                    className="interactive-surface site-action"
+                    data-feedback-trigger={outcome}
+                    data-surface-level="2"
+                    data-surface-variant={
+                      outcome === "success"
+                        ? "primary"
+                        : outcome === "error"
+                          ? "danger"
+                          : "warning"
+                    }
+                    key={outcome}
+                    type="button"
+                    onClick={(event) => handleSurfaceFeedback(event, outcome)}
+                  >
+                    {outcome} feedback
+                  </button>
+                ),
+              )}
+            </div>
+            <p
+              id="interaction-feedback-status"
+              className="disabled-activation-status"
+              role="status"
+            >
+              {feedbackMessage || "Choose an outcome to preview its feedback."}
+            </p>
           </section>
 
           <details>

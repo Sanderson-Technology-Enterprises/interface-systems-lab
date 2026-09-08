@@ -7,8 +7,10 @@ const repositoryRoot = path.resolve(
   "..",
 );
 const exportRoot = path.join(repositoryRoot, "out");
-/** Maximum CSS payload for the complete ui-style-kit-css 2.3 preset matrix. */
-const nextCssBudgetBytes = 1024 * 1024;
+/** Maximum CSS payload for the complete ui-style-kit-css 2.4 preset matrix. */
+const nextCssBudgetBytes = 2304 * 1024;
+/** Maximum bundled font payload for all ui-style-kit-css 2.4 identities. */
+const exportedFontBudgetBytes = 2560 * 1024;
 const googleVerificationFile = "google5abb0289b99a9f42.html";
 const googleVerificationText =
   "google-site-verification: google5abb0289b99a9f42.html";
@@ -24,7 +26,7 @@ const corporateGithub = "https://github.com/Sanderson-Technology-Enterprises";
 const repositoryUrl = `${corporateGithub}/interface-systems-lab`;
 const socialImageUrl = `${siteUrl}interface-systems-lab-social-card.png`;
 const socialImageAlt =
-  "Interface Systems Lab social card with the text \u201c3 libraries, 1 interface, and 44,800 possibilities\u201d over layout, identity, and interaction.";
+  "Interface Systems Lab social card with the text \u201c3 libraries, 1 interface, and 56,000 possibilities\u201d over layout, identity, and interaction.";
 const labLogoUrl = `${siteUrl}android-chrome-512x512.png`;
 const websiteId = `${siteUrl}#website`;
 const webpageId = `${siteUrl}#webpage`;
@@ -429,21 +431,21 @@ function validateStructuredData(index, lab, components, notFound, issues) {
           name: "layout-style-css",
           programmingLanguage: "CSS",
           url: "https://www.npmjs.com/package/layout-style-css",
-          version: "3.1.0",
+          version: "3.2.0",
         },
         {
           codeRepository: "https://github.com/Foscat/ui-style-kit-css",
           name: "ui-style-kit-css",
           programmingLanguage: "CSS",
           url: "https://www.npmjs.com/package/ui-style-kit-css",
-          version: "2.3.0",
+          version: "2.4.0",
         },
         {
           codeRepository: "https://github.com/Foscat/Interactive-Surface-CSS",
           name: "interactive-surface-css",
           programmingLanguage: "CSS",
           url: "https://www.npmjs.com/package/interactive-surface-css",
-          version: "1.6.0",
+          version: "1.7.0",
         },
       ]),
       "ItemList package contracts",
@@ -542,7 +544,7 @@ export async function collectExportIssues() {
   );
   enforceArtifactBudget(
     totalByExtension(/\.(?:woff2?|ttf|otf)$/),
-    256 * 1024,
+    exportedFontBudgetBytes,
     "Total exported fonts",
     issues,
   );

@@ -25,31 +25,31 @@ const defaultGeneratedRoot = path.join(
 );
 
 export const EXPECTED_PACKAGE_VERSIONS = Object.freeze({
-  "interactive-surface-css": "1.6.0",
-  "layout-style-css": "3.1.0",
-  "ui-style-kit-css": "2.3.0",
+  "interactive-surface-css": "1.7.0",
+  "layout-style-css": "3.2.0",
+  "ui-style-kit-css": "2.4.0",
 });
 
 export const FIXTURE_ASSETS = Object.freeze({
   "ui-visual": Object.freeze({
     export: "ui-style-kit-css/visual.css",
-    target: "assets/ui-style-kit-css/2.3.0/ui-style-kit.visual.css",
+    target: "assets/ui-style-kit-css/2.4.0/ui-style-kit.visual.css",
   }),
   "ui-theme": Object.freeze({
     export: "ui-style-kit-css/interactive-surface-theme.css",
-    target: "assets/ui-style-kit-css/2.3.0/interactive-surface-theme.css",
+    target: "assets/ui-style-kit-css/2.4.0/interactive-surface-theme.css",
   }),
   "interaction-core": Object.freeze({
     export: "interactive-surface-css/state-core.css",
-    target: "assets/interactive-surface-css/1.6.0/state-core.css",
+    target: "assets/interactive-surface-css/1.7.0/state-core.css",
   }),
   "interaction-standalone": Object.freeze({
     export: "interactive-surface-css/standalone-preset.css",
-    target: "assets/interactive-surface-css/1.6.0/standalone-preset.css",
+    target: "assets/interactive-surface-css/1.7.0/standalone-preset.css",
   }),
   "layout-core": Object.freeze({
     export: "layout-style-css",
-    target: "assets/layout-style-css/3.1.0/layout-style-css.css",
+    target: "assets/layout-style-css/3.2.0/layout-style-css.css",
   }),
 });
 

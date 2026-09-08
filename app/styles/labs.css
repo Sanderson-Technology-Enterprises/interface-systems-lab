@@ -177,6 +177,11 @@
   color: rgb(var(--usk-text-rgb));
 }
 
+/* Semantic alert paint owns its foreground over native strong-element defaults. */
+[data-ui][data-theme][data-mode] .ui-alert > strong {
+  color: inherit;
+}
+
 .layout-grid-cell small,
 .specimen-label {
   color: rgb(var(--usk-primary-rgb));

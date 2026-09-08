@@ -17,6 +17,10 @@ export const LAYOUT_PERSONALITIES = [
   "bento",
   "maximalist",
   "split-screen",
+  "technical-blueprint",
+  "data-terminal",
+  "industrial-hmi",
+  "editorial",
 ] as const;
 
 export const LAYOUT_RECIPES = [

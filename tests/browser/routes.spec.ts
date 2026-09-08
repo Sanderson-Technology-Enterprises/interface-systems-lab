@@ -173,7 +173,7 @@ test("legacy shared configurations redirect to the lab", async ({ page }) => {
   await page.goto("./?layout=split-screen&ui=cyberpunk#workbench");
 
   await expect(page).toHaveURL(
-    /\/interface-systems-lab\/lab\/\?layout=split-screen&ui=cyberpunk#workbench$/,
+    /\/interface-systems-lab\/lab\/\?layout=split-screen&ui=cyberpunk&theme=midnight-gold&mode=dark#workbench$/,
   );
   await expect(page.locator(".experience")).toHaveAttribute(
     "data-ly-layout",

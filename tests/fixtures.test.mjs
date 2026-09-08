@@ -42,9 +42,9 @@ async function collectGeneratedFiles(root, relativeDirectory = "") {
 
 test("fixture ownership contains only the three pinned CSS libraries", () => {
   assert.deepEqual(EXPECTED_PACKAGE_VERSIONS, {
-    "interactive-surface-css": "1.6.0",
-    "layout-style-css": "3.1.0",
-    "ui-style-kit-css": "2.3.0",
+    "interactive-surface-css": "1.7.0",
+    "layout-style-css": "3.2.0",
+    "ui-style-kit-css": "2.4.0",
   });
   assert.deepEqual(Object.keys(FIXTURE_ASSETS).sort(), [
     "interaction-core",

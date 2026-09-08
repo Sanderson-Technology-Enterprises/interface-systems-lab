@@ -21,7 +21,7 @@ export const SITE = {
     "https://github.com/Sanderson-Technology-Enterprises/interface-systems-lab",
   socialImage: `${productionUrl}interface-systems-lab-social-card.png`,
   socialImageAlt:
-    "Interface Systems Lab social card with the text \u201c3 libraries, 1 interface, and 44,800 possibilities\u201d over layout, identity, and interaction.",
+    "Interface Systems Lab social card with the text \u201c3 libraries, 1 interface, and 56,000 possibilities\u201d over layout, identity, and interaction.",
   brandLogoPath: "android-chrome-512x512.png",
   brandLogo: `${productionUrl}android-chrome-512x512.png`,
   brandLogoAlt: "Interface Systems Lab logo",

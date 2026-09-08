@@ -16,7 +16,7 @@ test("atlas coverage mirrors every published library contract", () => {
       recipes: ATLAS_COVERAGE.layout.recipes.length,
       wrappers: ATLAS_COVERAGE.layout.wrappers.length,
     },
-    { areas: 11, personalities: 16, primitives: 20, recipes: 7, wrappers: 7 },
+    { areas: 11, personalities: 20, primitives: 22, recipes: 7, wrappers: 7 },
   );
   assert.deepEqual(
     {
@@ -35,7 +35,7 @@ test("atlas coverage mirrors every published library contract", () => {
       nativePlatformOwned: 6,
       nativeProgressive: 20,
       semantic: 29,
-      universal: 94,
+      universal: 95,
     },
   );
   assert.deepEqual(
@@ -46,13 +46,13 @@ test("atlas coverage mirrors every published library contract", () => {
       states: ATLAS_COVERAGE.interaction.stateClasses.length,
       variants: ATLAS_COVERAGE.interaction.variants.length,
     },
-    { dataHooks: 3, levels: 3, stable: 13, states: 3, variants: 6 },
+    { dataHooks: 4, levels: 3, stable: 13, states: 3, variants: 6 },
   );
 });
 
 test("possibility count multiplies configurable design choices but not modes", () => {
-  assert.equal(SUPPORTED_COMBINATIONS, 16 * 7 * 20 * 20);
-  assert.equal(SUPPORTED_COMBINATIONS, 44_800);
-  assert.equal(SUPPORTED_COMBINATIONS_LABEL, "44,800");
+  assert.equal(SUPPORTED_COMBINATIONS, 20 * 7 * 20 * 20);
+  assert.equal(SUPPORTED_COMBINATIONS, 56_000);
+  assert.equal(SUPPORTED_COMBINATIONS_LABEL, "56,000");
   assert.equal("modes" in ATLAS_COVERAGE.ui, false);
 });
