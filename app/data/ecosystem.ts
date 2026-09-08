@@ -16,7 +16,7 @@ export const ECOSYSTEM_PACKAGES: readonly EcosystemPackage[] = [
   {
     name: "layout-style-css",
     displayName: "Layout Style CSS",
-    version: "3.1.0",
+    version: "3.2.0",
     layer: "Structure",
     summary:
       "Responsive shells, wrappers, grids, panes, and switchable layout personalities.",
@@ -33,7 +33,7 @@ export const ECOSYSTEM_PACKAGES: readonly EcosystemPackage[] = [
   {
     name: "ui-style-kit-css",
     displayName: "UI Style Kit CSS",
-    version: "2.3.0",
+    version: "2.4.0",
     layer: "Identity",
     summary:
       "Visual systems, palettes, native-element coverage, and display modes.",
@@ -50,7 +50,7 @@ export const ECOSYSTEM_PACKAGES: readonly EcosystemPackage[] = [
   {
     name: "interactive-surface-css",
     displayName: "Interactive Surface CSS",
-    version: "1.6.0",
+    version: "1.7.0",
     layer: "Behavior",
     summary:
       "Consistent hover, focus-visible, active, pressed, and disabled states.",
@@ -67,7 +67,7 @@ export const ECOSYSTEM_PACKAGES: readonly EcosystemPackage[] = [
 ] as const;
 
 export const NPM_INSTALL =
-  "npm install ui-style-kit-css@2.3.0 layout-style-css@3.1.0 interactive-surface-css@1.6.0";
+  "npm install ui-style-kit-css@2.4.0 layout-style-css@3.2.0 interactive-surface-css@1.7.0";
 
 export const BUNDLER_IMPORTS = [
   'import "ui-style-kit-css/visual.css";',
@@ -86,22 +86,22 @@ export const CDN_LINKS = [
   {
     packageName: "ui-style-kit-css",
     kind: "style",
-    href: "https://cdn.jsdelivr.net/npm/ui-style-kit-css@2.3.0/dist/ui-style-kit.visual.min.css",
+    href: "https://cdn.jsdelivr.net/npm/ui-style-kit-css@2.4.0/dist/ui-style-kit.visual.min.css",
   },
   {
     packageName: "ui-style-kit-css",
     kind: "style",
-    href: "https://cdn.jsdelivr.net/npm/ui-style-kit-css@2.3.0/styles/interactive-surface-theme.css",
+    href: "https://cdn.jsdelivr.net/npm/ui-style-kit-css@2.4.0/styles/interactive-surface-theme.css",
   },
   {
     packageName: "interactive-surface-css",
     kind: "style",
-    href: "https://cdn.jsdelivr.net/npm/interactive-surface-css@1.6.0/state-core.css",
+    href: "https://cdn.jsdelivr.net/npm/interactive-surface-css@1.7.0/state-core.css",
   },
   {
     packageName: "layout-style-css",
     kind: "style",
-    href: "https://cdn.jsdelivr.net/npm/layout-style-css@3.1.0/dist/layout-style-css.min.css",
+    href: "https://cdn.jsdelivr.net/npm/layout-style-css@3.2.0/dist/layout-style-css.min.css",
   },
 ] as const satisfies readonly CdnAsset[];
 
@@ -154,7 +154,7 @@ const layoutCdn = CDN_LINKS[3];
 const interactionStandaloneCdn: CdnAsset = {
   packageName: "interactive-surface-css",
   kind: "style",
-  href: "https://cdn.jsdelivr.net/npm/interactive-surface-css@1.6.0/standalone-preset.css",
+  href: "https://cdn.jsdelivr.net/npm/interactive-surface-css@1.7.0/standalone-preset.css",
 };
 
 function adoptionSnippets(
@@ -200,7 +200,7 @@ export const ADOPTION_PATHS = [
     deprecated: false,
     snippets: adoptionSnippets(
       "layout-only",
-      "npm install layout-style-css@3.1.0",
+      "npm install layout-style-css@3.2.0",
       ['import "layout-style-css";'],
       [layoutCdn],
       "Install Layout Style CSS",
@@ -216,7 +216,7 @@ export const ADOPTION_PATHS = [
     deprecated: false,
     snippets: adoptionSnippets(
       "ui-only",
-      "npm install ui-style-kit-css@2.3.0",
+      "npm install ui-style-kit-css@2.4.0",
       ['import "ui-style-kit-css/visual.css";'],
       [uiVisualCdn],
       "Install UI Style Kit CSS",
@@ -232,7 +232,7 @@ export const ADOPTION_PATHS = [
     deprecated: false,
     snippets: adoptionSnippets(
       "interactive-only",
-      "npm install interactive-surface-css@1.6.0",
+      "npm install interactive-surface-css@1.7.0",
       ['import "interactive-surface-css/standalone-preset.css";'],
       [interactionStandaloneCdn],
       "Install Interactive Surface CSS",
@@ -248,7 +248,7 @@ export const ADOPTION_PATHS = [
     deprecated: false,
     snippets: adoptionSnippets(
       "layout-ui",
-      "npm install layout-style-css@3.1.0 ui-style-kit-css@2.3.0",
+      "npm install layout-style-css@3.2.0 ui-style-kit-css@2.4.0",
       ['import "ui-style-kit-css/visual.css";', 'import "layout-style-css";'],
       [uiVisualCdn, layoutCdn],
       "Install Layout and UI",
@@ -264,7 +264,7 @@ export const ADOPTION_PATHS = [
     deprecated: false,
     snippets: adoptionSnippets(
       "layout-interactive",
-      "npm install layout-style-css@3.1.0 interactive-surface-css@1.6.0",
+      "npm install layout-style-css@3.2.0 interactive-surface-css@1.7.0",
       [
         'import "interactive-surface-css/standalone-preset.css";',
         'import "layout-style-css";',
@@ -283,7 +283,7 @@ export const ADOPTION_PATHS = [
     deprecated: false,
     snippets: adoptionSnippets(
       "ui-interactive",
-      "npm install ui-style-kit-css@2.3.0 interactive-surface-css@1.6.0",
+      "npm install ui-style-kit-css@2.4.0 interactive-surface-css@1.7.0",
       [
         'import "ui-style-kit-css/visual.css";',
         'import "ui-style-kit-css/interactive-surface-theme.css";',

@@ -68,8 +68,8 @@ export function LayoutLab() {
             Change the global personality above. The same semantic recipe and
             primitive hooks recompute their geometry without moving a single
             node in reading or keyboard order. This laboratory targets Layout
-            Style CSS 3.1.0 with intrinsic grids, intrinsic panes, and canonical
-            attribute recipes.
+            Style CSS 3.2.0 with intrinsic grids, resilient panes, Mosaic and
+            Action Bar compositions, and canonical attribute recipes.
           </p>
         </div>
 
@@ -200,7 +200,7 @@ export function LayoutLab() {
                       className={`${surfaceClass} ly-pad-4`}
                       data-ly-area="footer"
                     >
-                      Version 3.1.0
+                      Version 3.2.0
                     </footer>
                   </section>
                 </div>
@@ -401,6 +401,47 @@ export function LayoutLab() {
                 <span>Two</span>
                 <span>Three</span>
               </article>
+
+              <section
+                className={`${cardClass} primitive-specimen ly-mosaic ly-span-full ly-gap-2 ly-pad-4`}
+                data-layout-primitive="mosaic"
+                aria-label="Mosaic composition specimen"
+              >
+                <article
+                  className={`${surfaceClass} ly-span-6 ly-row-span-2 ly-pad-4`}
+                >
+                  <SpecimenLabel>Mosaic canvas</SpecimenLabel>
+                  <p>Primary work stays first in reading and keyboard order.</p>
+                </article>
+                <article className={`${surfaceClass} ly-span-4 ly-pad-4`}>
+                  Signal health
+                </article>
+                <article className={`${surfaceClass} ly-span-full ly-pad-4`}>
+                  System status remains reachable at every width.
+                </article>
+              </section>
+
+              <div
+                className={`${cardClass} primitive-specimen ly-action-bar ly-span-full ly-pad-4`}
+                data-layout-primitive="action-bar"
+                aria-label="Action Bar composition specimen"
+              >
+                <div data-ly-actions="start">
+                  <SpecimenLabel>Action Bar</SpecimenLabel>
+                  <button className={`${prefix}-button`} type="button">
+                    Save draft
+                  </button>
+                </div>
+                <div data-ly-actions="end">
+                  <button
+                    className={`${prefix}-button`}
+                    data-ui-variant="primary"
+                    type="button"
+                  >
+                    Publish
+                  </button>
+                </div>
+              </div>
 
               <div
                 className="primitive-query-scope"

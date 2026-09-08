@@ -12,9 +12,9 @@
 
 | Layer     | Package                         | Repository                                                      | Wiki                                                           | npm                                                          | Demo                                                           |
 | --------- | ------------------------------- | --------------------------------------------------------------- | -------------------------------------------------------------- | ------------------------------------------------------------ | -------------------------------------------------------------- |
-| Structure | `layout-style-css@3.1.0`        | [Repository](https://github.com/Foscat/Layout-Style-CSS)        | [Wiki](https://github.com/Foscat/Layout-Style-CSS/wiki)        | [npm](https://www.npmjs.com/package/layout-style-css)        | [Live demo](https://foscat.github.io/Layout-Style-CSS/)        |
-| Identity  | `ui-style-kit-css@2.3.0`        | [Repository](https://github.com/Foscat/ui-style-kit-css)        | [Wiki](https://github.com/Foscat/ui-style-kit-css/wiki)        | [npm](https://www.npmjs.com/package/ui-style-kit-css)        | [Live demo](https://foscat.github.io/ui-style-kit-css/)        |
-| Behavior  | `interactive-surface-css@1.6.0` | [Repository](https://github.com/Foscat/Interactive-Surface-CSS) | [Wiki](https://github.com/Foscat/Interactive-Surface-CSS/wiki) | [npm](https://www.npmjs.com/package/interactive-surface-css) | [Live demo](https://foscat.github.io/Interactive-Surface-CSS/) |
+| Structure | `layout-style-css@3.2.0`        | [Repository](https://github.com/Foscat/Layout-Style-CSS)        | [Wiki](https://github.com/Foscat/Layout-Style-CSS/wiki)        | [npm](https://www.npmjs.com/package/layout-style-css)        | [Live demo](https://foscat.github.io/Layout-Style-CSS/)        |
+| Identity  | `ui-style-kit-css@2.4.0`        | [Repository](https://github.com/Foscat/ui-style-kit-css)        | [Wiki](https://github.com/Foscat/ui-style-kit-css/wiki)        | [npm](https://www.npmjs.com/package/ui-style-kit-css)        | [Live demo](https://foscat.github.io/ui-style-kit-css/)        |
+| Behavior  | `interactive-surface-css@1.7.0` | [Repository](https://github.com/Foscat/Interactive-Surface-CSS) | [Wiki](https://github.com/Foscat/Interactive-Surface-CSS/wiki) | [npm](https://www.npmjs.com/package/interactive-surface-css) | [Live demo](https://foscat.github.io/Interactive-Surface-CSS/) |
 
 ## Adoption matrix
 
@@ -37,15 +37,16 @@ layers without changing ownership boundaries.
 Install the exact aligned releases:
 
 ```bash
-npm install ui-style-kit-css@2.3.0 layout-style-css@3.1.0 interactive-surface-css@1.6.0
+npm install ui-style-kit-css@2.4.0 layout-style-css@3.2.0 interactive-surface-css@1.7.0
 ```
 
 Then load the package entry points in ownership order. UI Style Kit establishes
 paint and theme tokens, Interactive Surface adds state mechanics, and Layout
 Style owns final geometry.
-Layout Style CSS 3.1.0 uses the v3 structural contract: use its intrinsic
-grid and pane primitives, canonical recipe and area attributes, and
-application-owned container queries for product-specific topology.
+Layout Style CSS 3.2.0 uses the v3 structural contract and adds resilient
+Mosaic and Action Bar compositions, four specialized personalities, canonical
+recipe and area attributes, and application-owned container queries for
+product-specific topology.
 
 ```ts
 import "ui-style-kit-css/visual.css";
@@ -54,13 +55,20 @@ import "interactive-surface-css/state-core.css";
 import "layout-style-css";
 ```
 
-UI Style Kit 2.3 exposes 20 visual systems and 20 themes through stable
+UI Style Kit 2.4 exposes 20 visual systems and 20 themes through stable
 semantic classes such as `.ui-card`,
 `.ui-field`, `.ui-input`, and `.ui-button`. Set `data-ui-variant` on semantic
 buttons, badges, and alerts when a contextual treatment is required. Keep
 preset-prefixed classes for advanced typography, placement, sizing, and
 preset-only extras; switching `data-ui` should not require renaming semantic
-component classes.
+component classes. Native controls now inherit each preset's geometry,
+material, border, depth, and indicator language while explicit shared themes
+retain precedence.
+
+Interactive Surface CSS 1.7 adds transient
+`data-surface-feedback="success|error|attention"` outcomes. Applications must
+remove the attribute after the visible feedback window and announce the result
+through visible status text or an `aria-live` region.
 
 ## Use the libraries locally
 
@@ -81,19 +89,19 @@ For static HTML consumers, keep this exact order in the document head:
 ```html
 <link
   rel="stylesheet"
-  href="https://cdn.jsdelivr.net/npm/ui-style-kit-css@2.3.0/dist/ui-style-kit.visual.min.css"
+  href="https://cdn.jsdelivr.net/npm/ui-style-kit-css@2.4.0/dist/ui-style-kit.visual.min.css"
 />
 <link
   rel="stylesheet"
-  href="https://cdn.jsdelivr.net/npm/ui-style-kit-css@2.3.0/styles/interactive-surface-theme.css"
+  href="https://cdn.jsdelivr.net/npm/ui-style-kit-css@2.4.0/styles/interactive-surface-theme.css"
 />
 <link
   rel="stylesheet"
-  href="https://cdn.jsdelivr.net/npm/interactive-surface-css@1.6.0/state-core.css"
+  href="https://cdn.jsdelivr.net/npm/interactive-surface-css@1.7.0/state-core.css"
 />
 <link
   rel="stylesheet"
-  href="https://cdn.jsdelivr.net/npm/layout-style-css@3.1.0/dist/layout-style-css.min.css"
+  href="https://cdn.jsdelivr.net/npm/layout-style-css@3.2.0/dist/layout-style-css.min.css"
 />
 ```
 

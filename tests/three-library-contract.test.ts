@@ -19,9 +19,9 @@ test("the public ecosystem contains exactly the three CSS libraries", () => {
   assert.deepEqual(
     ECOSYSTEM_PACKAGES.map(({ name, version }) => ({ name, version })),
     [
-      { name: "layout-style-css", version: "3.1.0" },
-      { name: "ui-style-kit-css", version: "2.3.0" },
-      { name: "interactive-surface-css", version: "1.6.0" },
+      { name: "layout-style-css", version: "3.2.0" },
+      { name: "ui-style-kit-css", version: "2.4.0" },
+      { name: "interactive-surface-css", version: "1.7.0" },
     ],
   );
 
@@ -37,9 +37,9 @@ test("the public ecosystem contains exactly the three CSS libraries", () => {
 test("the headline count excludes display modes from the combination total", () => {
   const homepage = readFileSync(`${repositoryRoot}/app/page.tsx`, "utf8");
 
-  assert.equal(SUPPORTED_COMBINATIONS_LABEL, "44,800");
+  assert.equal(SUPPORTED_COMBINATIONS_LABEL, "56,000");
   assert.match(homepage, /SUPPORTED_COMBINATIONS_LABEL/);
-  assert.equal(16 * 7 * 20 * 20, 44_800);
+  assert.equal(20 * 7 * 20 * 20, 56_000);
 });
 
 test("site identity exposes both STE destinations", () => {

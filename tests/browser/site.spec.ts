@@ -26,7 +26,7 @@ const repositoryUrl =
   "https://github.com/Sanderson-Technology-Enterprises/interface-systems-lab";
 const socialImageUrl = `${canonicalUrl}interface-systems-lab-social-card.png`;
 const socialImageAlt =
-  "Interface Systems Lab social card with the text \u201c3 libraries, 1 interface, and 44,800 possibilities\u201d over layout, identity, and interaction.";
+  "Interface Systems Lab social card with the text \u201c3 libraries, 1 interface, and 56,000 possibilities\u201d over layout, identity, and interaction.";
 const websiteId = `${canonicalUrl}#website`;
 const webpageId = `${canonicalUrl}#webpage`;
 const labWebpageId = `${labUrl}#webpage`;
@@ -1059,7 +1059,7 @@ test("renders the production metadata and complete resource directory", async ({
           name: "layout-style-css",
           programmingLanguage: "CSS",
           url: "https://www.npmjs.com/package/layout-style-css",
-          version: "3.1.0",
+          version: "3.2.0",
         },
       },
       {
@@ -1068,7 +1068,7 @@ test("renders the production metadata and complete resource directory", async ({
           name: "ui-style-kit-css",
           programmingLanguage: "CSS",
           url: "https://www.npmjs.com/package/ui-style-kit-css",
-          version: "2.3.0",
+          version: "2.4.0",
         },
       },
       {
@@ -1077,7 +1077,7 @@ test("renders the production metadata and complete resource directory", async ({
           name: "interactive-surface-css",
           programmingLanguage: "CSS",
           url: "https://www.npmjs.com/package/interactive-surface-css",
-          version: "1.6.0",
+          version: "1.7.0",
         },
       },
     ],
@@ -1113,9 +1113,9 @@ test("renders the production metadata and complete resource directory", async ({
   });
 
   for (const [name, version] of [
-    ["layout-style-css", "3.1.0"],
-    ["ui-style-kit-css", "2.3.0"],
-    ["interactive-surface-css", "1.6.0"],
+    ["layout-style-css", "3.2.0"],
+    ["ui-style-kit-css", "2.4.0"],
+    ["interactive-surface-css", "1.7.0"],
   ]) {
     const packageEntry = page.locator(`[data-package="${name}"]`);
     await expect(packageEntry.getByRole("heading", { name })).toBeAttached();
@@ -1538,7 +1538,7 @@ test("configuration randomize persists a catalog-valid combination", async ({
   await randomize.click();
 
   const configured: ExpectedConfiguration = {
-    layout: "split-screen",
+    layout: "editorial",
     ui: "neo-noir",
     theme: "electric-noir",
     mode: "contrast",
@@ -1546,7 +1546,7 @@ test("configuration randomize persists a catalog-valid combination", async ({
   await expectRootConfiguration(page, configured);
   await expect.poll(() => readStoredConfiguration(page)).toEqual(configured);
   expect(new URL(page.url()).search).toBe(
-    "?layout=split-screen&ui=neo-noir&theme=electric-noir&mode=contrast",
+    "?layout=editorial&ui=neo-noir&theme=electric-noir&mode=contrast",
   );
 });
 
