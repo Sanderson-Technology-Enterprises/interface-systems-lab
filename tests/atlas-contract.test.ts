@@ -3,6 +3,7 @@ import test from "node:test";
 
 import {
   ATLAS_COVERAGE,
+  LAYOUT_DENSITIES,
   SUPPORTED_COMBINATIONS,
   SUPPORTED_COMBINATIONS_LABEL,
 } from "../app/data/atlas";
@@ -50,9 +51,16 @@ test("atlas coverage mirrors every published library contract", () => {
   );
 });
 
-test("possibility count multiplies configurable design choices but not modes", () => {
-  assert.equal(SUPPORTED_COMBINATIONS, 20 * 7 * 20 * 20);
-  assert.equal(SUPPORTED_COMBINATIONS, 56_000);
-  assert.equal(SUPPORTED_COMBINATIONS_LABEL, "56,000");
+test("possibility count includes densities and native color schemes", () => {
+  const sharedThemePairings = 20 * 20;
+  const nativeThemePairings = 20;
+
+  assert.deepEqual(LAYOUT_DENSITIES, ["compact", "normal", "spacious"]);
+  assert.equal(
+    SUPPORTED_COMBINATIONS,
+    20 * 7 * 3 * (sharedThemePairings + nativeThemePairings),
+  );
+  assert.equal(SUPPORTED_COMBINATIONS, 176_400);
+  assert.equal(SUPPORTED_COMBINATIONS_LABEL, "176,400");
   assert.equal("modes" in ATLAS_COVERAGE.ui, false);
 });

@@ -121,8 +121,9 @@ function LabInvitationSection() {
           <h2 id="lab-title">Configure once. Inspect every layer.</h2>
           <p>
             Explore {SUPPORTED_COMBINATIONS_LABEL} supported combinations across
-            layout personalities, recipes, visual styles, and themes. Built-in
-            display modes are not counted.
+            layout personalities, recipes, spacing densities, visual styles, and
+            shared or style-native color schemes. Built-in display modes are not
+            counted.
           </p>
         </div>
         <a
