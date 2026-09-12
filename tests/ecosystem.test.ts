@@ -875,7 +875,7 @@ test("site identity targets the transferred organization", () => {
   );
   assert.equal(
     site.socialImageAlt,
-    "Interface Systems Lab social card with the text \u201c3 libraries, 1 interface, and 56,000 possibilities\u201d over layout, identity, and interaction.",
+    "Interface Systems Lab social card with the text \u201c3 libraries, 1 interface, and 176,400 possibilities\u201d over layout, identity, and interaction.",
   );
   assert.equal(site.brandLogoPath, "android-chrome-512x512.png");
   assert.equal(

@@ -39,6 +39,9 @@ type UiAtlasManifest = {
 
 const publishedUiManifest = uiManifest as UiAtlasManifest;
 
+/** Layout Style CSS spacing-density settings supported by `data-ly-density`. */
+export const LAYOUT_DENSITIES = ["compact", "normal", "spacious"] as const;
+
 /**
  * Provides manifest-backed coverage lists for every contract represented by
  * the Component Atlas. Display modes remain available at runtime but are not
@@ -75,12 +78,22 @@ export const ATLAS_COVERAGE = Object.freeze({
   }),
 });
 
-/** Number of layout, recipe, visual-preset, and theme combinations. */
+/**
+ * Number of valid preset and color-scheme pairings. Each preset supports every
+ * shared theme plus its own native color scheme.
+ */
+const UI_COLOR_SCHEME_PAIRINGS =
+  ATLAS_COVERAGE.ui.presets.length * (ATLAS_COVERAGE.ui.themes.length + 1);
+
+/**
+ * Number of layout, recipe, density, visual-preset, and color-scheme
+ * combinations.
+ */
 export const SUPPORTED_COMBINATIONS =
   ATLAS_COVERAGE.layout.personalities.length *
   ATLAS_COVERAGE.layout.recipes.length *
-  ATLAS_COVERAGE.ui.presets.length *
-  ATLAS_COVERAGE.ui.themes.length;
+  LAYOUT_DENSITIES.length *
+  UI_COLOR_SCHEME_PAIRINGS;
 
 /** Locale-formatted combination count used in public product copy. */
 export const SUPPORTED_COMBINATIONS_LABEL =
